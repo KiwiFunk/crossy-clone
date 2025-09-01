@@ -1,13 +1,13 @@
 import { GRID_SIZE } from './config.js';
 
 class Obstacle {
-    constructor(x, y, width = GRID_SIZE, height = GRID_SIZE) {
+    constructor(x, y, width = GRID_SIZE, height = GRID_SIZE, direction = 'left') {
         this.x = x;
         this.y = y;
         this.width = width;
         this.height = height;
         this.speed = null;
-        this.direction = 'left'; // or 'right'
+        this.direction = direction; // 'left' or 'right'
         // Placeholder for image/audio
         this.sprite = null;
         this.sound = null;
@@ -16,6 +16,10 @@ class Obstacle {
     // Use static as the utility is not tied to instance. We want to call it before creating instances. (during the constructor)
     static getRandomSpeed(min, max) {
         return Math.random() * (max - min) + min;
+    }
+
+    update(canvasWidth) {
+        this.move(canvasWidth);
     }
 
     move(canvasWidth) {
@@ -29,8 +33,9 @@ class Obstacle {
     }
 
     draw(ctx) {
-    // Simple rectangle for now; override for sprites
-    ctx.fillRect(this.x, this.y, 20, 20);
+        // Simple rectangle for now; override for sprites
+        ctx.fillStyle = 'red';
+        ctx.fillRect(this.x, this.y, this.width, this.height);
     }
 
     destroy() {
