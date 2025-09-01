@@ -49,7 +49,7 @@ export default class Player {
                 this.x + this.size > obstacle.x &&
                 this.y < obstacle.y + obstacle.height &&
                 this.y + this.size > obstacle.y) {
-                return true; // Collision detected
+                return true;
             }
         }
         return false;
