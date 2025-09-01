@@ -13,7 +13,7 @@ export class TerrainGenerator {
         this.terrainTypes = {
             grass: 0.6,
             road: 0.3,
-            tracks: 0.2,
+            rail: 0.2,
             river: 0.1
         };
         // How far ahead to generate terrain
@@ -53,12 +53,44 @@ export class TerrainGenerator {
         this.rows.forEach(row => row.update(this.canvas.width));
     }
 
-    /* generateRandomTerrainRow() {
-        This function generates a random terrain and then calls generateTerrainRow(type)
-    } */
-
-    /* generateTerrainRow(type) {
-        This function takes a defined terrain type and generates a row of that type
-    } */
+    draw(ctx) {
+        this.terrainRows.forEach(row => row.draw(ctx, this.canvas.width));
+    }
+    
+    generateRandomTerrainRow() {
+        // Use weighted random selection for terrain type
+        const rand = Math.random();
+        let sum = 0;
+        let chosenType = this.terrainTypes[0];
+        
+        for (let i = 0; i < this.terrainTypes.length; i++) {
+            sum += this.terrainWeights[i];
+            if (rand < sum) {
+                chosenType = this.terrainTypes[i];
+                break;
+            }
+        }
+        
+        this.generateTerrainRow(chosenType);
+    }
+    
+    generateTerrainRow(type) {
+        let obstacles = [];
+        
+        // Create obstacles based on terrain type
+        if (type === 'road') {
+            obstacles = this.createRoadObstacles();
+        } else if (type === 'rail') {
+            obstacles = this.createRailObstacles();
+        } else if (type === 'river') {
+            obstacles = this.createRiverObstacles();
+        } else {
+            obstacles = this.createGrassObstacles();
+        }
+        
+        // Create new terrain row and update the last Y position
+        this.lastY -= GRID_SIZE;
+        this.rows.push(new TerrainRow(this.lastY, type, obstacles));
+    }
 
 }
