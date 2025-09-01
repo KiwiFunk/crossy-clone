@@ -13,7 +13,7 @@ class Obstacle {
     }
 
     destroy() {
-        // Cleanup logic, e.g., remove from game
+        // Cleanup logic, e.g., remove from game when off screen
         console.log('Obstacle destroyed');
     }
 }

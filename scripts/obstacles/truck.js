@@ -1,4 +1,4 @@
-import Obstacle from '../Obstacle.js';
+import Obstacle from '../obstacle.js';
 
 class Truck extends Obstacle {
     constructor(x, y) {
