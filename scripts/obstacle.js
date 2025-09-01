@@ -1,7 +1,11 @@
+import { GRID_SIZE } from './config.js';
+
 class Obstacle {
-    constructor(x, y) {
+    constructor(x, y, width = GRID_SIZE, height = GRID_SIZE) {
         this.x = x;
         this.y = y;
+        this.width = width;
+        this.height = height;
         this.speed = 1;
         this.direction = 'left'; // or 'right'
         // Placeholder for image/audio
@@ -9,6 +13,7 @@ class Obstacle {
         this.sound = null;
     }
 
+    
     move(canvasWidth) {
         if (this.direction === 'right') {
             this.x += this.speed;
