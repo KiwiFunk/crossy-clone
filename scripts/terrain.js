@@ -138,3 +138,62 @@ export class TerrainGenerator {
     }
 
 }
+
+export class TerrainRow {
+    constructor(y, type, obstacles = []) {
+        this.y = y;                 // Y position of the row
+        this.type = type;           // e.g 'grass', 'road', 'river'
+        this.obstacles = obstacles; // Array of obstacle instances
+    }
+    
+    draw(ctx, canvasWidth) {
+        ctx.fillStyle = this.getTerrainColor();
+        ctx.fillRect(0, this.y, canvasWidth, GRID_SIZE);
+        
+        // Add texture based on terrain type
+        this.drawTerrainTexture(ctx, canvasWidth);
+        
+        // Draw obstacles
+        this.obstacles.forEach(ob => ob.draw(ctx));
+    }
+    
+    getTerrainColor() {
+        switch(this.type) {
+            case 'road': return '#555555';
+            case 'rail': return '#777777';
+            case 'river': return '#4444FF';
+            case 'grass': default: return '#55AA55';
+        }
+    }
+    
+    drawTerrainTexture(ctx, canvasWidth) {
+        // Simple texture patterns based on terrain type
+        switch(this.type) {
+            case 'road':
+                // Draw lane markings
+                ctx.fillStyle = '#FFFFFF';
+                for (let x = 0; x < canvasWidth; x += GRID_SIZE * 3) {
+                    ctx.fillRect(x, this.y + GRID_SIZE/2 - 2, GRID_SIZE, 4);
+                }
+                break;
+
+            case 'rail':
+                // Draw train tracks
+                ctx.fillStyle = '#AAAAAA';
+                for (let x = 0; x < canvasWidth; x += GRID_SIZE * 2) {
+                    ctx.fillRect(x, this.y + GRID_SIZE/2 - 2, GRID_SIZE, 4);
+                }
+                break;
+
+            case 'river':
+                break;
+                
+            case 'grass':
+                break;
+        }
+    }
+    
+    update(canvasWidth) {
+        this.obstacles.forEach(ob => ob.update(canvasWidth));
+    }
+}
