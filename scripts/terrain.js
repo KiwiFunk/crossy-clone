@@ -4,20 +4,19 @@ import Car from './obstacles/car.js';
 import Truck from './obstacles/truck.js';
 import Train from './obstacles/train.js';
 
-export class TerrainRow {
-    constructor(y, type, obstacles = []) {
-        this.y = y;
-        this.type = type; // 'grass', 'road', 'river'
-        this.obstacles = obstacles;
-    }
-    
-    draw(ctx, canvasWidth) {
-        ctx.fillStyle = this.type === 'road' ? 'gray' : this.type === 'river' ? 'blue' : 'green';
-        ctx.fillRect(0, this.y, canvasWidth, GRID_SIZE);
-        this.obstacles.forEach(ob => ob.draw(ctx));
-    }
-    
-    update(canvasWidth) {
-        this.obstacles.forEach(ob => ob.update(canvasWidth));
+export class TerrainGenerator {
+    constructor(canvas) {
+        this.canvas = canvas;
+        this.rows = [];
+        this.lastY = 0;
+        // Register terrain types with their weightings for procedural generation
+        this.terrainTypes = {
+            grass: 0.6,
+            road: 0.3,
+            tracks: 0.2,
+            river: 0.1
+        };
+        // How far ahead to generate terrain
+        this.maxDrawDistance = canvas.height * 1.5; 
     }
 }
