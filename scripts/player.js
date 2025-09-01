@@ -41,4 +41,17 @@ export default class Player {
         ctx.fillStyle = this.color;
         ctx.fillRect(this.x, this.y, this.size, this.size);
     }
+
+    // Use AABB for collision detection
+    checkCollision(obstacles) {
+        for (let obstacle of obstacles) {
+            if (this.x < obstacle.x + obstacle.width &&
+                this.x + this.size > obstacle.x &&
+                this.y < obstacle.y + obstacle.height &&
+                this.y + this.size > obstacle.y) {
+                return true; // Collision detected
+            }
+        }
+        return false;
+    }
 }
