@@ -4,15 +4,30 @@ import Car from './obstacles/car.js';
 import Truck from './obstacles/truck.js';
 import Train from './obstacles/train.js';
 import Player from './player.js';
+import { TerrainRow } from './terrain.js';
+import { GRID_SIZE } from './config.js';
 
+// Get canvas and context
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 canvas.width = 800;
 canvas.height = 600;
 
 let obstacles = [];
+let terrainRows = [];
 let player = new Player(400, 550);
 let keys = {};
+
+// Generate level (example: grass, road, river)
+function initTerrain() {
+    terrainRows = [
+        new TerrainRow(0, 'grass'),
+        new TerrainRow(GRID_SIZE, 'road', [new Car(0, GRID_SIZE, 40, GRID_SIZE, 2, 'right')]),
+        new TerrainRow(GRID_SIZE * 2, 'river'),
+        // Eventually procedurally generate more rows as the player moves up
+    ];
+}
+initTerrain();
 
 // Handle keyboard input
 document.addEventListener('keydown', (e) => keys[e.key] = true);
@@ -22,7 +37,7 @@ function gameLoop() {
     // Clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Handle player movement (grid-based, e.g., 20px steps)
+    // Handle player movement
     if (keys['ArrowUp']) player.move('up', canvas.width, canvas.height);
     if (keys['ArrowDown']) player.move('down', canvas.width, canvas.height);
     if (keys['ArrowLeft']) player.move('left', canvas.width, canvas.height);
@@ -31,6 +46,12 @@ function gameLoop() {
     // Reset keys to prevent continuous movement
     keys = {};
 
+    // Update and draw terrain
+    terrainRows.forEach(row => {
+        row.update(canvas.width);
+        row.draw(ctx, canvas.width);
+    });
+
     // Draw player using its method
     player.draw(ctx);
 
@@ -38,24 +59,8 @@ function gameLoop() {
     player.x = Math.max(0, Math.min(canvas.width - 20, player.x));
     player.y = Math.max(0, Math.min(canvas.height - 20, player.y));
 
-    // Update and draw obstacles
-    obstacles.forEach((ob, index) => {
-        ob.move();
-        ob.draw(ctx);
-
-        // Remove off-screen obstacles
-        if (ob.x > canvas.width) {
-            obstacles.splice(index, 1);
-            ob.destroy();
-        }
-
-        // Collision detection (simple AABB)
-        if (player.x < ob.x + 20 && player.x + 20 > ob.x &&
-            player.y < ob.y + 20 && player.y + 20 > ob.y) {
-            console.log('Collision! Game over.');
-            // Add game over logic here
-        }
-    });
+    // Update obstacles (from terrain)
+    obstacles = terrainRows.flatMap(row => row.obstacles);
 
     // Draw player
     ctx.fillRect(player.x, player.y, 20, 20);
