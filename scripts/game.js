@@ -52,9 +52,6 @@ function gameLoop() {
         row.draw(ctx, canvas.width);
     });
 
-    // Draw player using its method
-    player.draw(ctx);
-
     // Keep player in bounds
     player.x = Math.max(0, Math.min(canvas.width - 20, player.x));
     player.y = Math.max(0, Math.min(canvas.height - 20, player.y));
@@ -62,19 +59,27 @@ function gameLoop() {
     // Update obstacles (from terrain)
     obstacles = terrainRows.flatMap(row => row.obstacles);
 
+    // Check for collisions
+    if (player.checkCollision(obstacles)) {
+        console.log("Collision detected!");
+        // Add game over logic here
+    }
+
     // Draw player
-    ctx.fillRect(player.x, player.y, 20, 20);
+    player.draw(ctx);
 
     // Spawn new obstacles periodically
     if (Math.random() < 0.01) {
         const types = [Car, Truck, Train];
         const Type = types[Math.floor(Math.random() * types.length)];
-        obstacles.push(new Type(0, Math.random() * canvas.height));
+        const y = Math.floor(Math.random() * (canvas.height / GRID_SIZE)) * GRID_SIZE;
+        const direction = Math.random() > 0.5 ? 'left' : 'right';
+        const x = direction === 'left' ? canvas.width : -GRID_SIZE*2;
+        obstacles.push(new Type(x, y, undefined, undefined, undefined, direction));
     }
 
     requestAnimationFrame(gameLoop);
 }
 
 // Initialize
-obstacles.push(new Train(0, 100));
 gameLoop();
