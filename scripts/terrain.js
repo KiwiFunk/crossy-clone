@@ -93,4 +93,48 @@ export class TerrainGenerator {
         this.rows.push(new TerrainRow(this.lastY, type, obstacles));
     }
 
+    createRoadObstacles() {
+        const obstacles = [];
+        const direction = Math.random() > 0.5 ? 'left' : 'right';
+        const count = Math.floor(Math.random() * 3) + 1;
+        
+        // Choose vehicle type
+        const VehicleType = Math.random() > 0.5 ? Car : Truck;
+                          
+        // Create vehicles at intervals
+        for (let i = 0; i < count; i++) {
+            const spacing = this.canvas.width / (count + 1);
+            const x = i * spacing;
+            
+            const vehicle = new VehicleType(x, this.lastY);
+            vehicle.direction = direction;
+            
+            obstacles.push(vehicle);
+        }
+        
+        return obstacles;
+    }
+
+    createRailObstacles() {
+        const obstacles = [];
+        const direction = Math.random() > 0.5 ? 'left' : 'right';
+        
+        const train = new Train(0, this.lastY);
+        train.direction = direction;
+
+        obstacles.push(train);
+
+        return obstacles;
+    }
+    
+    createRiverObstacles() {
+        // Add logs/lilly pads for player to jump on to cross river
+        return [];
+    }
+    
+    createGrassObstacles() {
+        // Add trees/rocks for decoration
+        return [];
+    }
+
 }
