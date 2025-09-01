@@ -1,3 +1,5 @@
+import { GRID_SIZE } from './config.js';
+
 export default class Player {
     constructor(x, y) {
         this.x = x;
@@ -11,19 +13,19 @@ export default class Player {
         if (this.isMoving) return; // Prevent rapid moves
         this.isMoving = true;
         
-        // Grid-based movement (20px steps, no diagonals)
+        // Grid-based movement
         switch (direction) {
             case 'up':
-                this.y = Math.max(0, this.y - 20);
+                this.y = Math.max(0, this.y - GRID_SIZE);
                 break;
             case 'down':
-                this.y = Math.min(canvasHeight - this.size, this.y + 20);
+                this.y = Math.min(canvasHeight - this.size, this.y + GRID_SIZE);
                 break;
             case 'left':
-                this.x = Math.max(0, this.x - 20);
+                this.x = Math.max(0, this.x - GRID_SIZE);
                 break;
             case 'right':
-                this.x = Math.min(canvasWidth - this.size, this.x + 20);
+                this.x = Math.min(canvasWidth - this.size, this.x + GRID_SIZE);
                 break;
         }
         
