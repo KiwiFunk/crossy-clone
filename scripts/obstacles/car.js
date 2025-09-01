@@ -5,7 +5,7 @@ class Car extends Obstacle {
         super(x, y);
         this.sprite = 'car.png';
         this.sound = 'car_honk.mp3';
-        this.speed = 5;
+        this.speed = this.getRandomSpeed(3, 6);
     }
 
     move() {

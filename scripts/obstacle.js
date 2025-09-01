@@ -6,7 +6,7 @@ class Obstacle {
         this.y = y;
         this.width = width;
         this.height = height;
-        this.speed = 1;
+        this.speed = null;
         this.direction = 'left'; // or 'right'
         // Placeholder for image/audio
         this.sprite = null;
