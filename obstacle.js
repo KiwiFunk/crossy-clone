@@ -1,0 +1,19 @@
+class Obstacle {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.speed = 10;
+        // Placeholder for image/audio
+        this.sprite = null;
+        this.sound = null;
+    }
+
+    move() {
+        // Base movement; override in subclasses
+    }
+
+    destroy() {
+        // Cleanup logic, e.g., remove from game
+        console.log('Obstacle destroyed');
+    }
+}
