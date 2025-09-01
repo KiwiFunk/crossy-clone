@@ -1,4 +1,8 @@
 import { GRID_SIZE } from './config.js';
+// Import our obstacle subclasses
+import Car from './obstacles/car.js';
+import Truck from './obstacles/truck.js';
+import Train from './obstacles/train.js';
 
 export class TerrainRow {
     constructor(y, type, obstacles = []) {
