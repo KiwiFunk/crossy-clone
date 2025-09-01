@@ -13,3 +13,5 @@ class Car extends Obstacle {
         // Update rendering here
     }
 }
+
+export default Car;

@@ -12,3 +12,5 @@ class Truck extends Obstacle {
         this.x += this.speed;
     }
 }
+
+export default Truck;

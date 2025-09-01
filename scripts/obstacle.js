@@ -22,3 +22,5 @@ class Obstacle {
         console.log('Obstacle destroyed');
     }
 }
+
+export default Obstacle;
