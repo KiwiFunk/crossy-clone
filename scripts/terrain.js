@@ -8,7 +8,7 @@ export class TerrainGenerator {
     constructor(canvas) {
         this.canvas = canvas;
         this.rows = [];
-        this.lastY = 0;
+        this.lastY = 0; // Y position of the last generated row
         // Register terrain types with their weightings for procedural generation
         this.terrainTypes = {
             grass: 0.6,
@@ -33,6 +33,24 @@ export class TerrainGenerator {
         for (let i = 0; i < this.maxDrawDistance; i++) {
             this.generateRandomTerrainRow();
         }
+    }
+
+    // Use the camera postion to procedurally generate terrain as needed
+    update(camera) {
+        while (this.lastY > camera.y - this.maxDrawDistance) {
+            this.generateRandomTerrainRow();
+        }
+        
+        // Cull rows that are far off screen (Make sure player death happens before the culled rows become visible again)
+        const removeIndex = this.rows.findIndex(row => 
+            row.y > camera.y + this.canvas.height * 1.5);
+            
+        if (removeIndex !== -1) {
+            this.rows.splice(0, removeIndex + 1);
+        }
+        
+        // Update existing terrain
+        this.rows.forEach(row => row.update(this.canvas.width));
     }
 
     /* generateRandomTerrainRow() {
