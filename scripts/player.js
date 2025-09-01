@@ -4,7 +4,7 @@ export default class Player {
     constructor(x, y) {
         this.x = x;
         this.y = y;
-        this.size = 20;
+        this.size = GRID_SIZE;
         this.color = 'blue';
         this.isMoving = false;
     }
