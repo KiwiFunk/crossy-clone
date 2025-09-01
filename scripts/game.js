@@ -18,6 +18,7 @@ let terrainRows = [];
 let player = new Player(400, 550);
 let keys = {};
 
+
 // Generate level (example: grass, road, river)
 function initTerrain() {
     terrainRows = [

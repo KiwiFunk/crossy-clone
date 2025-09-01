@@ -54,7 +54,7 @@ export class TerrainGenerator {
     }
 
     draw(ctx) {
-        this.terrainRows.forEach(row => row.draw(ctx, this.canvas.width));
+        this.rows.forEach(row => row.draw(ctx, this.canvas.width));
     }
     
     generateRandomTerrainRow() {
