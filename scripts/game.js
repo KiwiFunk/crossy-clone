@@ -23,10 +23,16 @@ function gameLoop() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // Handle player movement (grid-based, e.g., 20px steps)
-    if (keys['ArrowUp']) player.y -= 20;
-    if (keys['ArrowDown']) player.y += 20;
-    if (keys['ArrowLeft']) player.x -= 20;
-    if (keys['ArrowRight']) player.x += 20;
+    if (keys['ArrowUp']) player.move('up', canvas.width, canvas.height);
+    if (keys['ArrowDown']) player.move('down', canvas.width, canvas.height);
+    if (keys['ArrowLeft']) player.move('left', canvas.width, canvas.height);
+    if (keys['ArrowRight']) player.move('right', canvas.width, canvas.height);
+
+    // Reset keys to prevent continuous movement
+    keys = {};
+
+    // Draw player using its method
+    player.draw(ctx);
 
     // Keep player in bounds
     player.x = Math.max(0, Math.min(canvas.width - 20, player.x));
