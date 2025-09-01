@@ -13,7 +13,11 @@ class Obstacle {
         this.sound = null;
     }
 
-    
+    // Use static as the utility is not tied to instance. We want to call it before creating instances. (during the constructor)
+    static getRandomSpeed(min, max) {
+        return Math.random() * (max - min) + min;
+    }
+
     move(canvasWidth) {
         if (this.direction === 'right') {
             this.x += this.speed;
