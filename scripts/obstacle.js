@@ -22,12 +22,12 @@ class Obstacle {
         this.move(canvasWidth);
     }
 
-    move(canvasWidth) {
+    move(canvasWidth, speed=this.speed) {
         if (this.direction === 'right') {
-            this.x += this.speed;
+            this.x += speed;
             if (this.x > canvasWidth) this.x = -this.width;
         } else {
-            this.x -= this.speed;
+            this.x -= speed;
             if (this.x < -this.width) this.x = canvasWidth;
         }
     }
