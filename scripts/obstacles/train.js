@@ -8,7 +8,7 @@ class Train extends Obstacle {
         this.speed = 10;
     }
 
-    move() {
+    move(canvasWidth) {
         // Use super to invoke the parent class's move method
         super.move(canvasWidth, this.speed);
     }

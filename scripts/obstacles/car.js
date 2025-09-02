@@ -8,7 +8,7 @@ class Car extends Obstacle {
         this.speed = Obstacle.getRandomSpeed(3, 6);
     }
 
-    move() {
+    move(canvasWidth) {
         // Use super to invoke the parent class's move method
         super.move(canvasWidth, this.speed);
     }
