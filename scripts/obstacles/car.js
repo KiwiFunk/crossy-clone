@@ -9,8 +9,8 @@ class Car extends Obstacle {
     }
 
     move() {
-        this.x += this.speed;
-        // Update rendering here
+        // Use super to invoke the parent class's move method
+        super.move(canvasWidth)
     }
 }
 
