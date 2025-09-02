@@ -24,17 +24,8 @@ let scoreManager = new ScoreManager();
 let player = new Player(400, 550);
 let keys = {};
 
-
-// Generate level (example: grass, road, river)
-function initTerrain() {
-    terrainRows = [
-        new TerrainRow(0, 'grass'),
-        new TerrainRow(GRID_SIZE, 'road', [new Car(0, GRID_SIZE, 40, GRID_SIZE, 2, 'right')]),
-        new TerrainRow(GRID_SIZE * 2, 'river'),
-        // Eventually procedurally generate more rows as the player moves up
-    ];
-}
-initTerrain();
+// Generate the inital terrain
+terrainGenerator.generateInitialTerrain();
 
 // Handle keyboard input
 document.addEventListener('keydown', (e) => keys[e.key] = true);
