@@ -19,7 +19,7 @@ export default class Player {
                 this.y -= GRID_SIZE;
                 break;
             case 'down':
-                this.y = Math.min(canvasHeight - this.size, this.y + GRID_SIZE);
+                this.y = Math.min(canvasHeight - GRID_SIZE * 2, this.y + GRID_SIZE);
                 break;
             case 'left':
                 this.x = Math.max(0, this.x - GRID_SIZE);

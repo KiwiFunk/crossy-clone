@@ -3,7 +3,7 @@ import Player from './player.js';
 import { TerrainGenerator } from './terrain.js';
 import Camera from './camera.js';
 import ScoreManager from './scoring.js'
-
+import { GRID_SIZE } from './config.js';
 
 // Get canvas and context
 const canvas = document.getElementById('gameCanvas');
@@ -16,8 +16,11 @@ let terrainGenerator = new TerrainGenerator(canvas);
 let camera = new Camera();
 let scoreManager = new ScoreManager();
 
-// Global game variables
-let player = new Player(300, 550);
+// Create instance of player class
+const playerSizeOffset = GRID_SIZE / 2;
+const startY = canvas.height - GRID_SIZE * 2; // Start below the initial view
+let player = new Player(canvas.width / 2 - playerSizeOffset, startY);
+
 let keys = {};
 
 // Generate the inital terrain
