@@ -9,12 +9,12 @@ export class TerrainGenerator {
         this.canvas = canvas;
         this.rows = [];
         this.lastY = 0; // Y position of the last generated row
-        // Register terrain types with their weightings for procedural generation
+        // Register terrain types with their weightings for procedural generation (Make sure to Normalize values so === 1.0)
         this.terrainTypes = [
-            { type: 'grass', weight: 0.6 },
-            { type: 'road', weight: 0.3 },
-            { type: 'rail', weight: 0.2 },
-            { type: 'river', weight: 0.1 }
+            { type: 'grass', weight: 0.25 },
+            { type: 'road', weight: 0.45 },
+            { type: 'rail', weight: 0.15 },
+            { type: 'river', weight: 0.15 }
         ];
         // How far ahead to generate terrain
         this.maxDrawDistance = canvas.height * 1.5; 
