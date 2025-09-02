@@ -6,7 +6,7 @@ export default class Camera {
         this.y = 0;
         this.deadZoneY = 250;   // Point where camera starts following player
         this.pushSpeed = 0.5;   // How fast camera pushes player forward
-        this.followSpeed = 0.1; // How fast camera catches up to player
+        this.followSpeed = 0.8; // How fast camera catches up to player
     }
     
     update(player, canvasHeight) {
@@ -19,7 +19,10 @@ export default class Camera {
     
     // Camera should slowly push player upwards
     this.y += this.pushSpeed * 0.8; 
-    
+
+    // Stop camera moving below terrain
+    if (this.y >= 0) this.y = 0;
+
     // Kill player if they go off bottom of screen
     if (player.y > this.y + canvasHeight) {
         return true; // Player died
