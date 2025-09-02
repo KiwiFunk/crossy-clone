@@ -8,7 +8,7 @@ export class TerrainGenerator {
     constructor(canvas) {
         this.canvas = canvas;
         this.rows = [];
-        this.lastY = 0; // Y position of the last generated row
+        this.lastY = canvas.height - GRID_SIZE; // Y position of the last generated row
         // Register terrain types with their weightings for procedural generation (Make sure to Normalize values so === 1.0)
         this.terrainTypes = [
             { type: 'grass', weight: 0.25 },
