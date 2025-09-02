@@ -44,18 +44,26 @@ function gameLoop() {
     // Reset keys to prevent continuous movement
     keys = {};
 
-    // Update and draw terrain
-    terrainRows.forEach(row => {
-        row.update(canvas.width);
-        row.draw(ctx, canvas.width);
-    });
+    // Update the camera (follow player)
+    const playerDied = camera.update(player, canvas.height);
+    if (playerDied) {
+        // Handle player death (e.g., restart game, show game over screen)
+        console.log("Player has died");
+    }
 
-    // Keep player in bounds
-    player.x = Math.max(0, Math.min(canvas.width - 20, player.x));
-    player.y = Math.max(0, Math.min(canvas.height - 20, player.y));
+    // Update the terrain (Procedural Gen)
+    terrainGenerator.update();
 
-    // Update obstacles (from terrain)
-    obstacles = terrainRows.flatMap(row => row.obstacles);
+    // Update the score
+    scoreManager.update(player);
+
+    // Keep player in bounds (relative to camera)
+    player.x = Math.max(0, Math.min(canvas.width - player.size, player.x));
+    player.y = Math.max(camera.y, Math.min(camera.y + canvas.height - player.size, player.y));
+
+
+    // Get obstacles from the generated terrain
+    const obstacles = terrainGenerator.rows.flatMap(row => row.obstacles);
 
     // Check for collisions
     if (player.checkCollision(obstacles)) {
@@ -63,18 +71,14 @@ function gameLoop() {
         // Add game over logic here
     }
 
-    // Draw player
+    // Apply camera transform and draw
+    camera.apply(ctx);
+    terrainGenerator.draw(ctx);
     player.draw(ctx);
+    camera.restore(ctx);
 
-    // Spawn new obstacles periodically
-    if (Math.random() < 0.01) {
-        const types = [Car, Truck, Train];
-        const Type = types[Math.floor(Math.random() * types.length)];
-        const y = Math.floor(Math.random() * (canvas.height / GRID_SIZE)) * GRID_SIZE;
-        const direction = Math.random() > 0.5 ? 'left' : 'right';
-        const x = direction === 'left' ? canvas.width : -GRID_SIZE*2;
-        obstacles.push(new Type(x, y, undefined, undefined, undefined, direction));
-    }
+    // Draw UI (score) without camera transform
+    scoreManager.draw(ctx, canvas.width, canvas.height, camera);
 
     requestAnimationFrame(gameLoop);
 }
