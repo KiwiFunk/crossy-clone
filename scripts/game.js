@@ -52,7 +52,7 @@ function gameLoop() {
     }
 
     // Update the terrain (Procedural Gen)
-    terrainGenerator.update();
+    terrainGenerator.update(camera);
 
     // Update the score
     scoreManager.update(player);
