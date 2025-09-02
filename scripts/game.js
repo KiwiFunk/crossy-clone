@@ -15,8 +15,12 @@ const ctx = canvas.getContext('2d');
 canvas.width = 800;
 canvas.height = 600;
 
-let obstacles = [];
-let terrainRows = [];
+// Initialize dependencies
+let terrainGenerator = new TerrainGenerator(canvas);
+let camera = new Camera();
+let scoreManager = new ScoreManager();
+
+// Global game variables
 let player = new Player(400, 550);
 let keys = {};
 
