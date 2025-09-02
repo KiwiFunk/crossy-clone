@@ -4,7 +4,9 @@ import Car from './obstacles/car.js';
 import Truck from './obstacles/truck.js';
 import Train from './obstacles/train.js';
 import Player from './player.js';
-import { TerrainRow } from './terrain.js';
+import { TerrainGenerator } from './terrain.js';
+import Camera from './camera.js';
+import ScoreManager from './scoring.js'
 import { GRID_SIZE } from './config.js';
 
 // Get canvas and context
