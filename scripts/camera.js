@@ -10,21 +10,23 @@ export default class Camera {
     }
     
     update(player, canvasHeight) {
-        // Camera follows player with smooth motion when they move up
-        if (player.y < this.y + this.deadZoneY) {
-            this.y += (player.y - this.y - this.deadZoneY) * this.followSpeed;
-        }
-        
-        // Camera slowly pushes player forward
-        this.y += this.pushSpeed;
-        
-        // Kill player if they go off bottom of screen
-        if (player.y > this.y + canvasHeight) {
-            return true; // Player died
-        }
-        
-        return false;
+    // Camera follows player with smooth motion when they move up
+    if (player.y < this.y + this.deadZoneY) {
+        // Reduce follow speed when player is actively moving up
+        const currentFollowSpeed = player.isMoving ? this.followSpeed * 0.5 : this.followSpeed;
+        this.y += (player.y - this.y - this.deadZoneY) * currentFollowSpeed;
     }
+    
+    // Camera should slowly push player upwards
+    this.y += this.pushSpeed * 0.8; 
+    
+    // Kill player if they go off bottom of screen
+    if (player.y > this.y + canvasHeight) {
+        return true; // Player died
+    }
+    
+    return false;
+}
     
     apply(ctx) {
         ctx.save();
