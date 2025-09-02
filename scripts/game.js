@@ -39,10 +39,10 @@ function gameLoop() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // Handle player movement
-    if (keys['ArrowUp']) player.move('up', canvas.width, canvas.height);
-    if (keys['ArrowDown']) player.move('down', canvas.width, canvas.height);
-    if (keys['ArrowLeft']) player.move('left', canvas.width, canvas.height);
-    if (keys['ArrowRight']) player.move('right', canvas.width, canvas.height);
+    if (keys['ArrowUp'] || keys['W'] || keys['w']) player.move('up', canvas.width, canvas.height);
+    if (keys['ArrowDown'] || keys['S'] || keys['s']) player.move('down', canvas.width, canvas.height);
+    if (keys['ArrowLeft'] || keys['A'] || keys['a']) player.move('left', canvas.width, canvas.height);
+    if (keys['ArrowRight'] || keys['D'] || keys['d']) player.move('right', canvas.width, canvas.height);
 
     // Reset keys to prevent continuous movement
     keys = {};
