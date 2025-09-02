@@ -8,8 +8,8 @@ import ScoreManager from './scoring.js'
 // Get canvas and context
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
-canvas.width = 800;
-canvas.height = 600;
+canvas.width = 600;
+canvas.height = 1000;
 
 // Initialize dependencies
 let terrainGenerator = new TerrainGenerator(canvas);
@@ -17,7 +17,7 @@ let camera = new Camera();
 let scoreManager = new ScoreManager();
 
 // Global game variables
-let player = new Player(400, 550);
+let player = new Player(300, 550);
 let keys = {};
 
 // Generate the inital terrain
