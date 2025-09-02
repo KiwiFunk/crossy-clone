@@ -75,6 +75,9 @@ export class TerrainGenerator {
     }
     
     generateTerrainRow(type) {
+        // First update the lastY position
+        this.lastY -= GRID_SIZE;
+
         let obstacles = [];
         
         // Create obstacles based on terrain type
@@ -88,8 +91,7 @@ export class TerrainGenerator {
             obstacles = this.createGrassObstacles();
         }
         
-        // Create new terrain row and update the last Y position
-        this.lastY -= GRID_SIZE;
+        // Create new terrain row
         this.rows.push(new TerrainRow(this.lastY, type, obstacles));
     }
 
