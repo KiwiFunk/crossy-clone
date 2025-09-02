@@ -18,7 +18,7 @@ export class TerrainGenerator {
         ];
         // How far ahead to generate terrain
         this.maxDrawDistance = canvas.height * 1.5; 
-        this.safeZone = 3
+        this.safeZone = 4
     }
 
     // Create the initial terrain on game start
