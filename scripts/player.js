@@ -16,7 +16,7 @@ export default class Player {
         // Grid-based movement
         switch (direction) {
             case 'up':
-                this.y = Math.max(0, this.y - GRID_SIZE);
+                this.y -= GRID_SIZE;
                 break;
             case 'down':
                 this.y = Math.min(canvasHeight - this.size, this.y + GRID_SIZE);
