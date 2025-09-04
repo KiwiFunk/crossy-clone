@@ -6,6 +6,36 @@ import Camera from './camera.js';
 import ScoreManager from './scoring.js'
 import { GRID_SIZE } from './config.js';
 
+class Game {
+    constructor() {
+        this.setupThreeJS();
+        this.setupLighting();
+        this.setupGameElements();
+        this.setupEventListeners();
+        this.animate();
+    }
+
+    setupThreeJS() {
+        // Init Three.js scene
+    }
+
+    setupLighting() {
+        // Setup lighting for the scene
+    }
+
+    setupGameElements() {
+        // Init the game logic we already created for terrain, player, camera, scoring, etc.
+    }
+
+    setupEventListeners() {
+        // Handle keyboard input
+    }
+    animate() {
+        // Animation frame loop
+    }
+    
+}
+
 // Get canvas and context
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
