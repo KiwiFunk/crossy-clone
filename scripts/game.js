@@ -72,6 +72,19 @@ class Game {
         // Reset keys to prevent continuous movement
         this.keys = {};
 
+        // Update game objects
+        this.player.update();
+        this.terrainGenerator.update(this.player.getPosition().z);
+        this.cameraController.update();
+        this.scoreManager.update(this.player);
+        
+        // Check collisions
+        const obstacles = this.terrainGenerator.getAllObstacles();
+        if (this.player.checkCollision(obstacles)) {
+            //We'll handle lives and game over logic here later
+            console.log("Collision detected!");
+        }
+
     }
 
     animate() {
@@ -82,50 +95,6 @@ class Game {
 
 }
 
-function gameLoop() {
-    
-
-    
-    
-
-    // Update the camera (follow player)
-    const playerDied = camera.update(player, canvas.height);
-    if (playerDied) {
-        // Handle player death (e.g., restart game, show game over screen)
-        console.log("Player has died");
-    }
-
-    // Update the terrain (Procedural Gen)
-    terrainGenerator.update(camera);
-
-    // Update the score
-    scoreManager.update(player);
-
-    // Keep player in bounds (relative to camera)
-    player.x = Math.max(0, Math.min(canvas.width - player.size, player.x));
-    player.y = Math.max(camera.y, Math.min(camera.y + canvas.height - player.size, player.y));
-
-
-    // Get obstacles from the generated terrain
-    const obstacles = terrainGenerator.rows.flatMap(row => row.obstacles);
-
-    // Check for collisions
-    if (player.checkCollision(obstacles)) {
-        console.log("Collision detected!");
-        // Add game over logic here
-    }
-
-    // Apply camera transform and draw
-    camera.apply(ctx);
-    terrainGenerator.draw(ctx);
-    player.draw(ctx);
-    camera.restore(ctx);
-
-    // Draw UI (score) without camera transform
-    scoreManager.draw(ctx, canvas.width, canvas.height, camera);
-
-    requestAnimationFrame(gameLoop);
-}
 
 // Initialize
 gameLoop();
