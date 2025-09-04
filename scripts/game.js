@@ -50,6 +50,16 @@ class Game {
     }
 
     setupGameElements() {
+        // Create 3D camera using three.js
+        this.camera = new THREE.PerspectiveCamera(
+            50, 
+            window.innerWidth / window.innerHeight, 
+            0.1, 
+            1000
+        );
+        this.camera.position.set(10, 10, 10);
+        this.camera.lookAt(0, 0, 0);
+
         // Initialize dependencies
         this.player = new Player(this.scene);
         this.terrainGenerator = new TerrainGenerator(this.scene);
