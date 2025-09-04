@@ -56,12 +56,20 @@ class Game {
         document.addEventListener('keydown', (e) => this.keys[e.key] = true);
         document.addEventListener('keyup', (e) => this.keys[e.key] = false);
     }
-    animate() {
-        // Animation frame loop
-    }
 
     onWindowResize() {
         // Handle window resizing
+    }
+
+    // This is called every frame to update game state
+    update() {
+        // Update game state
+    }
+
+    animate() {
+        requestAnimationFrame(() => this.animate());
+        this.update();
+        this.renderer.render(this.scene, this.camera);
     }
 
 }
