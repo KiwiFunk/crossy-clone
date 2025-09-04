@@ -27,13 +27,16 @@ class Game {
         // Init the game logic we already created for terrain, player, camera, scoring, etc.
     }
 
+    // Create event listeners for player input, then add to keys object. (Object allows for direct lookup instead of looping through array)
     setupEventListeners() {
-        // Handle keyboard input
+        this.keys = {};
+        document.addEventListener('keydown', (e) => this.keys[e.key] = true);
+        document.addEventListener('keyup', (e) => this.keys[e.key] = false);
     }
     animate() {
         // Animation frame loop
     }
-    
+
 }
 
 // Get canvas and context
@@ -52,14 +55,8 @@ const playerSizeOffset = GRID_SIZE / 2;
 const startY = canvas.height - GRID_SIZE * 2; // Start below the initial view
 let player = new Player(canvas.width / 2 - playerSizeOffset, startY);
 
-let keys = {};
-
 // Generate the inital terrain
 terrainGenerator.generateInitialTerrain();
-
-// Handle keyboard input
-document.addEventListener('keydown', (e) => keys[e.key] = true);
-document.addEventListener('keyup', (e) => keys[e.key] = false);
 
 function gameLoop() {
     // Clear canvas
