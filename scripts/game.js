@@ -34,12 +34,22 @@ class Game {
     }
 
     setupLighting() {
-        // Setup lighting for the scene
+        // Ambient light (overall illumination)
+        const ambientLight = new THREE.AmbientLight(0x404040, 1);
+        this.scene.add(ambientLight);
+        
+        // Directional light (sun-like)
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+        directionalLight.position.set(5, 10, 7.5);
+        directionalLight.castShadow = true;
+        directionalLight.shadow.camera.left = -10;
+        directionalLight.shadow.camera.right = 10;
+        directionalLight.shadow.camera.top = 10;
+        directionalLight.shadow.camera.bottom = -10;
+        this.scene.add(directionalLight);
     }
 
     setupGameElements() {
-        // Init the game logic we already created for terrain, player, camera, scoring, etc.
-
         // Initialize dependencies
         this.player = new Player(this.scene);
         this.terrainGenerator = new TerrainGenerator(this.scene);
@@ -86,7 +96,6 @@ class Game {
             //We'll handle lives and game over logic here later
             console.log("Collision detected!");
         }
-
     }
 
     animate() {
@@ -94,9 +103,9 @@ class Game {
         this.update();
         this.renderer.render(this.scene, this.camera);
     }
-
 }
 
+// Hook into the window load event to ensure DOM is ready
 window.addEventListener('load', () => {
     const game = new Game();
 });
