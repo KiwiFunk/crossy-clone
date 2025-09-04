@@ -1,12 +1,15 @@
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.157.0/build/three.module.js';
 import { GRID_SIZE } from './config.js';
 
 export default class Player {
-    constructor(x, y) {
-        this.x = x;
-        this.y = y;
+    constructor(scene) {
+        this.scene = scene;
+        this.gridPosition = { x: 0, y: 0, z: 0 };
+        this.targetPosition = new THREE.Vector3(0, GRID_SIZE/2, 0);
         this.size = GRID_SIZE;
-        this.color = 'blue';
         this.isMoving = false;
+        this.isJumping = false;
+        this.createMesh();
     }
 
     move(direction, canvasWidth, canvasHeight) {
