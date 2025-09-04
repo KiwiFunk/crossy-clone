@@ -12,6 +12,16 @@ export default class Player {
         this.createMesh();
     }
 
+    // Simple cube as test - replace with model later
+    createMesh() {
+        const bodyGeometry = new THREE.BoxGeometry(this.size, this.size, this.size);
+        const bodyMaterial = new THREE.MeshStandardMaterial({ color: 0x0000ff });
+        this.body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+        this.body.position.copy(this.targetPosition);
+        this.body.castShadow = true;
+        this.scene.add(this.body);
+    }
+
     move(direction, canvasWidth, canvasHeight) {
         if (this.isMoving) return; // Prevent rapid moves
         this.isMoving = true;
