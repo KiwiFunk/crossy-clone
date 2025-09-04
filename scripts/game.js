@@ -68,6 +68,18 @@ class Game {
 
         // Generate the inital terrain
         this.terrainGenerator.generateInitialTerrain();
+
+        // Create a ground plane for reference
+        const groundGeometry = new THREE.PlaneGeometry(20, 20);
+        const groundMaterial = new THREE.MeshStandardMaterial({ 
+            color: 0x55AA55,
+            roughness: 0.8, 
+            metalness: 0.2
+        });
+        const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+        ground.rotation.x = -Math.PI / 2;
+        ground.receiveShadow = true;
+        this.scene.add(ground);
     }
 
     // Create event listeners for player input, then add to keys object. (Object allows for direct lookup instead of looping through array)
