@@ -25,6 +25,15 @@ class Game {
 
     setupGameElements() {
         // Init the game logic we already created for terrain, player, camera, scoring, etc.
+
+        // Initialize dependencies
+        this.player = new Player(this.scene);
+        this.terrainGenerator = new TerrainGenerator(this.scene);
+        this.cameraController = new Camera();
+        this.scoreManager = new ScoreManager();
+
+        // Generate the inital terrain
+        this.terrainGenerator.generateInitialTerrain();
     }
 
     // Create event listeners for player input, then add to keys object. (Object allows for direct lookup instead of looping through array)
@@ -45,18 +54,7 @@ const ctx = canvas.getContext('2d');
 canvas.width = 600;
 canvas.height = 1000;
 
-// Initialize dependencies
-let terrainGenerator = new TerrainGenerator(canvas);
-let camera = new Camera();
-let scoreManager = new ScoreManager();
 
-// Create instance of player class
-const playerSizeOffset = GRID_SIZE / 2;
-const startY = canvas.height - GRID_SIZE * 2; // Start below the initial view
-let player = new Player(canvas.width / 2 - playerSizeOffset, startY);
-
-// Generate the inital terrain
-terrainGenerator.generateInitialTerrain();
 
 function gameLoop() {
     // Clear canvas
