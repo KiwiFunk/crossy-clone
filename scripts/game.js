@@ -63,7 +63,15 @@ class Game {
 
     // This is called every frame to update game state
     update() {
-        // Update game state
+        // Handle player movement
+        if (this.keys['ArrowUp'] || this.keys['W'] || this.keys['w']) this.player.move('forward');
+        if (this.keys['ArrowDown'] || this.keys['S'] || this.keys['s']) this.player.move('backward');
+        if (this.keys['ArrowLeft'] || this.keys['A'] || this.keys['a']) this.player.move('left');
+        if (this.keys['ArrowRight'] || this.keys['D'] || this.keys['d']) this.player.move('right');
+
+        // Reset keys to prevent continuous movement
+        this.keys = {};
+
     }
 
     animate() {
@@ -75,17 +83,10 @@ class Game {
 }
 
 function gameLoop() {
-    // Clear canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
 
-    // Handle player movement
-    if (keys['ArrowUp'] || keys['W'] || keys['w']) player.move('up', canvas.width, canvas.height);
-    if (keys['ArrowDown'] || keys['S'] || keys['s']) player.move('down', canvas.width, canvas.height);
-    if (keys['ArrowLeft'] || keys['A'] || keys['a']) player.move('left', canvas.width, canvas.height);
-    if (keys['ArrowRight'] || keys['D'] || keys['d']) player.move('right', canvas.width, canvas.height);
-
-    // Reset keys to prevent continuous movement
-    keys = {};
+    
+    
 
     // Update the camera (follow player)
     const playerDied = camera.update(player, canvas.height);
