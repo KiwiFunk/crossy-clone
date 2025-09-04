@@ -16,7 +16,21 @@ class Game {
     }
 
     setupThreeJS() {
-        // Init Three.js scene
+        // Create three.js scene
+        this.scene = new THREE.Scene();
+        this.scene.background = new THREE.Color(0x87CEEB); // Sky blue
+        
+        // Create renderer
+        this.renderer = new THREE.WebGLRenderer({ antialias: true });
+        this.renderer.setSize(window.innerWidth, window.innerHeight);
+        this.renderer.setPixelRatio(window.devicePixelRatio);
+        this.renderer.shadowMap.enabled = true;
+
+        // Add renderer to DOM
+        document.body.appendChild(this.renderer.domElement);
+        
+        // Handle window resize
+        window.addEventListener('resize', () => this.onWindowResize());
     }
 
     setupLighting() {
@@ -46,15 +60,11 @@ class Game {
         // Animation frame loop
     }
 
+    onWindowResize() {
+        // Handle window resizing
+    }
+
 }
-
-// Get canvas and context
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
-canvas.width = 600;
-canvas.height = 1000;
-
-
 
 function gameLoop() {
     // Clear canvas
