@@ -58,7 +58,9 @@ class Game {
     }
 
     onWindowResize() {
-        // Handle window resizing
+        this.camera.aspect = window.innerWidth / window.innerHeight;
+        this.camera.updateProjectionMatrix();
+        this.renderer.setSize(window.innerWidth, window.innerHeight);
     }
 
     // This is called every frame to update game state
