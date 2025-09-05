@@ -106,21 +106,29 @@ export default class Player {
         animateJump();
     }
 
-    draw(ctx) {
-        ctx.fillStyle = this.color;
-        ctx.fillRect(this.x, this.y, this.size, this.size);
+    update() {
+        // Add idle animation
+        if (!this.isJumping) {
+            this.body.position.y = this.targetPosition.y + 
+                Math.sin(Date.now() / 500) * 0.05;
+        }
     }
-
-    // Use AABB for collision detection
+    
+    getPosition() {
+        return this.gridPosition;
+    }
+    
     checkCollision(obstacles) {
-        for (let obstacle of obstacles) {
-            if (this.x < obstacle.x + obstacle.width &&
-                this.x + this.size > obstacle.x &&
-                this.y < obstacle.y + obstacle.height &&
-                this.y + this.size > obstacle.y) {
+        // Use three.js Box3 for AABB collision detection
+        const playerBox = new THREE.Box3().setFromObject(this.body);
+        
+        for (const obstacle of obstacles) {
+            const obstacleBox = new THREE.Box3().setFromObject(obstacle.mesh);
+            if (playerBox.intersectsBox(obstacleBox)) {
                 return true;
             }
         }
+        
         return false;
     }
 }
