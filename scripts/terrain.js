@@ -1,3 +1,4 @@
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.157.0/build/three.module.js';
 import { GRID_SIZE } from './config.js';
 // Import our obstacle subclasses
 import Car from './obstacles/car.js';
@@ -5,10 +6,10 @@ import Truck from './obstacles/truck.js';
 import Train from './obstacles/train.js';
 
 export class TerrainGenerator {
-    constructor(canvas) {
-        this.canvas = canvas;
+    constructor(scene) {
+        this.scene = scene;
         this.rows = [];
-        this.lastY = canvas.height - GRID_SIZE; // Y position of the last generated row
+        this.lastZ = 10; // Init game with positive Z (further from camera)
         // Register terrain types with their weightings for procedural generation (Make sure to Normalize values so === 1.0)
         this.terrainTypes = [
             { type: 'grass', weight: 0.25 },
@@ -17,8 +18,8 @@ export class TerrainGenerator {
             { type: 'river', weight: 0.15 }
         ];
         // How far ahead to generate terrain
-        this.maxDrawDistance = canvas.height * 1.5; 
-        this.safeZone = 4
+        this.maxDrawDistance = 20; 
+        this.safeZone = 4;
     }
 
     // Create the initial terrain on game start
