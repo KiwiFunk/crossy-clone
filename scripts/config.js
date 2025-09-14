@@ -1,29 +1,31 @@
 export const CONFIG = {
     // Grid and spacing
-    GRID_SIZE: 1,               // Base unit for everything
-    ROW_SPACING: 1,             // Distance between terrain rows
-    TERRAIN_WIDTH: 20,          // Width of each terrain row
-    TERRAIN_DEPTH: 1,           // Depth of each terrain row
+    GRID_SIZE: 1,
+    ROW_SPACING: 1,
+    TERRAIN_WIDTH: 20,
+    TERRAIN_DEPTH: 1,
     
     // Player settings
-    PLAYER_SIZE: 1,             // Size of player cube
-    PLAYER_JUMP_HEIGHT: 1.5,    // How high player jumps
-    PLAYER_MOVE_SPEED: 200,     // Milliseconds per move
+    PLAYER_SIZE: 1,
+    PLAYER_JUMP_HEIGHT: 1.5,
+    PLAYER_MOVE_SPEED: 200,
     
-    // Camera settings
-    CAMERA_HEIGHT: 12,          // How high camera is
-    CAMERA_BACK: 12,            // How far behind camera is
-    CAMERA_OFFSET: 0,           // Side offset
-    CAMERA_PUSH_SPEED: 0.02,    // How fast camera pushes forward
-    CAMERA_FOLLOW_SPEED: 0.05,  // How smooth camera follows
-    CAMERA_LOOK_DOWN_ANGLE: Math.PI / 4,  // 45° down angle
-    CAMERA_Y_ROTATION: 0, // Y rotation for camera
-
+    // Camera settings with new names
+    CAMERA_POS_Y: 12,                   // Height above player
+    CAMERA_POS_Z: 8,                    // Distance behind player
+    CAMERA_POS_X: 6,                    // Side offset (negative = left of player)
+    CAMERA_FOLLOW_SPEED: 0.05,          // Camera smoothing
+    
+    // Camera rotation settings
+    CAMERA_ROT_X: degreesToRadians(55),     // Look down angle
+    CAMERA_ROT_Y: degreesToRadians(-20),    // Y rotation
+    CAMERA_ROT_Z: degreesToRadians(-12),    // Z rotation (roll)
+    
     // Game settings
-    MAX_DRAW_DISTANCE: 20,      // How far ahead to generate terrain
-    SAFE_ZONE_ROWS: 4,          // Number of safe grass rows at start
-    DEATH_ZONE_DISTANCE: 15,    // How far behind player can fall
-
+    MAX_DRAW_DISTANCE: 20,
+    SAFE_ZONE_ROWS: 4,
+    DEATH_ZONE_DISTANCE: 15,
+    
     // Colors
     COLORS: {
         GRASS: 0x55AA55,
@@ -33,3 +35,13 @@ export const CONFIG = {
         PLAYER: 0x0000ff
     }
 };
+
+// Convert degrees to radians
+function degreesToRadians(degrees) {
+    return degrees * (Math.PI / 180);
+}
+
+// Convert radians to degrees  
+function radiansToDegrees(radians) {
+    return radians * (180 / Math.PI);
+}
