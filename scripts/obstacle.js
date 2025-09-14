@@ -23,6 +23,71 @@ class Obstacle {
         return Math.random() * (max - min) + min;
     }
 
+    // Load 3D model from GLTF file
+    loadModel() {
+        if (!this.modelPath) {
+            console.warn('No model path specified for obstacle');
+            return;
+        }
+        
+        const loader = new GLTFLoader();
+        
+        loader.load(this.modelPath, 
+            // Success callback
+            (gltf) => {
+                // Remove placeholder
+                if (this.mesh) {
+                    this.scene.remove(this.mesh);
+                    if (this.mesh.geometry) this.mesh.geometry.dispose();
+                    if (this.mesh.material) {
+                        if (Array.isArray(this.mesh.material)) {
+                            this.mesh.material.forEach(m => m.dispose());
+                        } else {
+                            this.mesh.material.dispose();
+                        }
+                    }
+                }
+                
+                // Add the loaded model
+                this.mesh = gltf.scene;
+                this.mesh.position.set(this.x, this.y, this.z);
+                
+                // Apply scale and rotation
+                this.mesh.scale.set(
+                    this.modelScale, 
+                    this.modelScale, 
+                    this.modelScale
+                );
+                
+                if (this.direction === 'right') {
+                    this.mesh.rotation.y = Math.PI; // 180 degrees
+                }
+                
+                // Enable shadows
+                this.mesh.traverse((child) => {
+                    if (child.isMesh) {
+                        child.castShadow = true;
+                        child.receiveShadow = true;
+                    }
+                });
+                
+                this.scene.add(this.mesh);
+                this.isLoaded = true;
+                this.updateBoundingBox();
+                
+                console.log(`${this.type} model loaded`);
+            },
+            // Progress callback
+            (xhr) => {
+                console.log(`${this.type} ${(xhr.loaded / xhr.total * 100).toFixed(2)}% loaded`);
+            },
+            // Error callback
+            (error) => {
+                console.error(`Error loading ${this.type} model:`, error);
+            }
+        );
+    }
+
     update(canvasWidth) {
         this.move(canvasWidth);
     }
