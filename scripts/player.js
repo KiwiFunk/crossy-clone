@@ -1,12 +1,12 @@
 import * as THREE from 'three';
-import { GRID_SIZE } from './config.js';
+import { CONFIG } from './config.js';
 
 export default class Player {
     constructor(scene) {
         this.scene = scene;
         this.gridPosition = { x: 0, y: 0, z: 0 };
-        this.targetPosition = new THREE.Vector3(0, GRID_SIZE/2, 0);
-        this.size = GRID_SIZE;
+        this.targetPosition = new THREE.Vector3(0, CONFIG.PLAYER_SIZE/2, 0);
+        this.size = CONFIG.PLAYER_SIZE;
         this.isMoving = false;
         this.isJumping = false;
         this.createMesh();
@@ -15,7 +15,7 @@ export default class Player {
     // Simple cube as test - replace with model later
     createMesh() {
         const bodyGeometry = new THREE.BoxGeometry(this.size, this.size, this.size);
-        const bodyMaterial = new THREE.MeshStandardMaterial({ color: 0x0000ff });
+        const bodyMaterial = new THREE.MeshStandardMaterial({ color: CONFIG.COLORS.PLAYER });
         this.body = new THREE.Mesh(bodyGeometry, bodyMaterial);
         this.body.position.copy(this.targetPosition);
         this.body.castShadow = true;
@@ -46,11 +46,11 @@ export default class Player {
                 break;
         }
 
-        // Calculate new target position
+        // Use consistent spacing from config
         this.targetPosition = new THREE.Vector3(
-            this.gridPosition.x * (this.size * 2), 
+            this.gridPosition.x * CONFIG.ROW_SPACING,
             this.targetPosition.y,
-            this.gridPosition.z * (this.size * 2)
+            this.gridPosition.z * CONFIG.ROW_SPACING
         );
 
         // Animate the jump (Pass function as callback to reset isMoving)
@@ -66,8 +66,8 @@ export default class Player {
     
     // Refactor to make callback mandatory?
     jumpAnimation(callback) {
-        const jumpHeight = this.size * 1.5;
-        const jumpDuration = 200; // ms
+        const jumpHeight = this.size * CONFIG.PLAYER_JUMP_HEIGHT;
+        const jumpDuration = CONFIG.PLAYER_MOVE_SPEED;
         const startTime = Date.now();
         const startY = this.body.position.y;
         const jumpTarget = this.targetPosition.clone();
