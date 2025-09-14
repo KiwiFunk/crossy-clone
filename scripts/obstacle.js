@@ -122,8 +122,22 @@ class Obstacle {
     }
 
     destroy() {
-        // Cleanup logic, e.g., remove from game when off screen
-        console.log('Obstacle destroyed');
+        if (this.mesh) {
+            this.scene.remove(this.mesh);
+
+            this.mesh.traverse((child) => {
+                if (child.isMesh) {
+                    if (child.geometry) child.geometry.dispose();
+                    if (child.material) {
+                        if (Array.isArray(child.material)) {
+                            child.material.forEach(m => m.dispose());
+                        } else {
+                            child.material.dispose();
+                        }
+                    }
+                }
+            });
+        }
     }
 }
 
