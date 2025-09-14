@@ -52,7 +52,7 @@ export default class Camera {
     }
     
     // Method to get the current z value (useful for scoring)
-    getZ() {
+    getZPosition() {
         return this.target.z;
     }
 }

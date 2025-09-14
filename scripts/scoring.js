@@ -4,38 +4,41 @@ export default class ScoreManager {
     constructor() {
         this.score = 0;
         this.highScore = this.loadHighScore();
-        this.bestY = 0; // Tracks player's furthest progress
+        this.bestZ = 0; // Track player's furthest Z progress (lower Z is further)
+        
+        // Get UI elements
+        this.scoreElement = document.getElementById('score');
+        this.highScoreElement = document.getElementById('high-score');
+        
+        // Update UI immediately
+        this.updateUI();
     }
     
-    update(player) {
-        // Update score when player moves to a new highest position
-        if (player.y < this.bestY) {
-            this.bestY = player.y;
-            this.score = Math.floor(Math.abs(this.bestY) / GRID_SIZE);
+    updateScore(cameraZ) {
+        // Update score when camera moves to a new furthest Z position
+        // In Three.js, lower Z values = further forward
+        if (cameraZ < this.bestZ) {
+            this.bestZ = cameraZ;
+            this.score = Math.floor(Math.abs(this.bestZ) / (GRID_SIZE/10)); // Adjust grid size
             
             if (this.score > this.highScore) {
                 this.highScore = this.score;
                 this.saveHighScore();
             }
+            
+            // Update UI
+            this.updateUI();
         }
     }
     
-    draw(ctx, canvasWidth, canvasHeight, camera) {
-        ctx.save();
-        ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset transform for UI
+    updateUI() {
+        if (this.scoreElement) {
+            this.scoreElement.textContent = `Score: ${this.score}`;
+        }
         
-        ctx.font = '24px Arial';
-        ctx.fillStyle = 'white';
-        ctx.textAlign = 'center';
-        
-        // Score
-        ctx.fillText(`Score: ${this.score}`, canvasWidth / 2, 30);
-        
-        // High score
-        ctx.font = '16px Arial';
-        ctx.fillText(`High Score: ${this.highScore}`, canvasWidth / 2, 60);
-        
-        ctx.restore();
+        if (this.highScoreElement) {
+            this.highScoreElement.textContent = `High Score: ${this.highScore}`;
+        }
     }
     
     loadHighScore() {
