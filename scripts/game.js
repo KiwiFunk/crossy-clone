@@ -33,19 +33,31 @@ class Game {
     }
 
     setupLighting() {
-        // Ambient light (overall illumination)
-        const ambientLight = new THREE.AmbientLight(0x404040, 1);
-        this.scene.add(ambientLight);
+        // Hemisphere light for ambient outdoor lighting (gives better shadow colors)
+        const hemisphereLight = new THREE.HemisphereLight(
+            0x8dc1de,   // Sky color (light blue)
+            0x90ad56,   // Ground color (light green)
+            0.6         // Intensity
+        );
+        this.scene.add(hemisphereLight);
         
-        // Directional light (sun-like)
+        // Directional light (sun X changes west/east sun, Y changes shadow length, Z changes north/south tilt)
         const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-        directionalLight.position.set(5, 10, 7.5);
+        directionalLight.position.set(-10, 10, -8);
         directionalLight.castShadow = true;
+        directionalLight.shadow.mapSize.width = 2048;
+        directionalLight.shadow.mapSize.height = 2048;
         directionalLight.shadow.camera.left = -10;
         directionalLight.shadow.camera.right = 10;
         directionalLight.shadow.camera.top = 10;
         directionalLight.shadow.camera.bottom = -10;
         this.scene.add(directionalLight);
+
+        // Add a fill light from the opposite side (no shadows)
+        const fillLight = new THREE.DirectionalLight(0xffffff, 0.26);
+        fillLight.position.set(10, -10, 8); // Opposite the main light
+        fillLight.castShadow = false; // No shadows from fill light
+        this.scene.add(fillLight);
     }
 
     setupGameElements() {

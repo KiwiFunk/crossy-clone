@@ -4,7 +4,7 @@ import { CONFIG } from './config.js';
 export default class Player {
     constructor(scene) {
         this.scene = scene;
-        this.gridPosition = { x: 0, y: 2, z: 0 };
+        this.gridPosition = { x: 0, y: 0, z: 0 };
         this.targetPosition = new THREE.Vector3(0, CONFIG.PLAYER_SIZE/2, 0);
         this.size = CONFIG.PLAYER_SIZE;
         this.isMoving = false;
