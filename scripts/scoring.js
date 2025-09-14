@@ -1,4 +1,4 @@
-import { GRID_SIZE } from './config.js';
+import { CONFIG } from './config.js';
 
 export default class ScoreManager {
     constructor() {
@@ -19,7 +19,7 @@ export default class ScoreManager {
         // In Three.js, lower Z values = further forward
         if (cameraZ < this.bestZ) {
             this.bestZ = cameraZ;
-            this.score = Math.floor(Math.abs(this.bestZ) / (GRID_SIZE/10)); // Adjust grid size
+            this.score = Math.floor(Math.abs(this.bestZ) / (CONFIG.GRID_SIZE/10)); // Adjust grid size
             
             if (this.score > this.highScore) {
                 this.highScore = this.score;

@@ -1,7 +1,7 @@
 export const CONFIG = {
     // Grid and spacing
     GRID_SIZE: 1,               // Base unit for everything
-    ROW_SPACING: 2,             // Distance between terrain rows
+    ROW_SPACING: 1,             // Distance between terrain rows
     TERRAIN_WIDTH: 20,          // Width of each terrain row
     TERRAIN_DEPTH: 1,           // Depth of each terrain row
     
