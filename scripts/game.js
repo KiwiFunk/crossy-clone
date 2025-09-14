@@ -1,10 +1,8 @@
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.157.0/build/three.module.js';
-import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.157.0/examples/jsm/controls/OrbitControls.js';
+import * as THREE from 'three';
 import Player from './player.js';
 import { TerrainGenerator } from './terrain.js';
 import Camera from './camera.js';
 import ScoreManager from './scoring.js'
-import { GRID_SIZE } from './config.js';
 
 class Game {
     constructor() {

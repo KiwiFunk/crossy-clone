@@ -1,5 +1,4 @@
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.157.0/build/three.module.js';
-import { GRID_SIZE } from './config.js';
+import * as THREE from 'three';
 // Import our obstacle subclasses
 import Car from './obstacles/car.js';
 import Truck from './obstacles/truck.js';

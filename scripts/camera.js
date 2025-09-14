@@ -1,42 +1,58 @@
+import * as THREE from 'three';
 import { GRID_SIZE } from './config.js';
 
 export default class Camera {
-    constructor() {
-        this.x = 0;
-        this.y = 0;
-        this.deadZoneY = 250;   // Point where camera starts following player
-        this.pushSpeed = 0.5;   // How fast camera pushes player forward
-        this.followSpeed = 0.8; // How fast camera catches up to player
+    constructor(threeCamera, player) {
+        this.threeCamera = threeCamera;  // Store reference to the Three.js camera
+        this.player = player;            // Store reference to player
+        
+        // Camera follow settings
+        this.offset = new THREE.Vector3(8, 10, 8);  // Isometric offset from player
+        this.target = new THREE.Vector3();          // Target to look at
+        
+        // Camera push settings
+        this.pushSpeed = 0.02;           // How fast camera pushes forward
+        this.followSpeed = 0.05;         // How smooth camera follows player
+        
+        // Death zone - how far the player can fall behind
+        this.maxBehindDistance = 15;
     }
     
-    update(player, canvasHeight) {
-    // Camera follows player with smooth motion when they move up
-    if (player.y < this.y + this.deadZoneY) {
-        // Reduce follow speed when player is actively moving up
-        const currentFollowSpeed = player.isMoving ? this.followSpeed * 0.5 : this.followSpeed;
-        this.y += (player.y - this.y - this.deadZoneY) * currentFollowSpeed;
+    update() {
+        if (!this.player || !this.player.body) return false;
+        
+        // Get player position
+        const playerPos = this.player.body.position.clone();
+        
+        // Update target position based on player (with some smoothing)
+        this.target.lerp(playerPos, this.followSpeed);
+        
+        // Add a small forward push (decrease z)
+        this.target.z -= this.pushSpeed;
+        
+        // Calculate camera position with offset
+        const cameraPos = this.target.clone().add(this.offset);
+        
+        // Update camera position and orientation
+        this.threeCamera.position.copy(cameraPos);
+        this.threeCamera.lookAt(this.target);
+        
+        // Check if player has fallen too far behind (death condition)
+        const distanceBehind = playerPos.z - this.target.z;
+        if (distanceBehind > this.maxBehindDistance) {
+            return true; // Player died (fell behind)
+        }
+        
+        return false;
     }
     
-    // Camera should slowly push player upwards
-    this.y += this.pushSpeed * 0.8; 
-
-    // Stop camera moving below terrain
-    if (this.y >= 0) this.y = 0;
-
-    // Kill player if they go off bottom of screen
-    if (player.y > this.y + canvasHeight) {
-        return true; // Player died
+    // Method to get the current target position (useful for debugging)
+    getTargetPosition() {
+        return this.target.clone();
     }
     
-    return false;
-}
-    
-    apply(ctx) {
-        ctx.save();
-        ctx.translate(0, -this.y);
-    }
-    
-    restore(ctx) {
-        ctx.restore();
+    // Method to get the current z value (useful for scoring)
+    getZ() {
+        return this.target.z;
     }
 }
