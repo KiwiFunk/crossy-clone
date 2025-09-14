@@ -130,11 +130,17 @@ export class TerrainRow {
 
     getTerrainColor() {
         // Define colors for different terrain types. Replace with loading textures later
+        switch(this.type) {
+            case 'road': return 0x555555;
+            case 'rail': return 0x777777;
+            case 'river': return 0x4444FF;
+            case 'grass': default: return 0x55AA55;
+        }
     }
 
     addTerrainDetails() {
         // Apply Alphas or other details/meshes based on terrain type
-    }
+        
 
     addObstacles() {
         // Handle adding obstacles based on terrain type
