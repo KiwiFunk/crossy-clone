@@ -227,4 +227,29 @@ export class TerrainRow {
         
         this.obstacles.push(train);
     }
+
+    update() {
+        // Update all obstacles (e.g., move vehicles)
+        this.obstacles.forEach(obstacle => {
+            if (obstacle.update) {
+                obstacle.update();
+            }
+        });
+    }
+    
+    destroy() {
+        // Remove all meshes from the scene
+        this.meshes.forEach(mesh => {
+            this.scene.remove(mesh);
+            if (mesh.geometry) mesh.geometry.dispose();
+            if (mesh.material) mesh.material.dispose();
+        });
+        
+        // Cleanup obstacles
+        this.obstacles.forEach(obstacle => {
+            if (obstacle.destroy) {
+                obstacle.destroy();
+            }
+        });
+    }
 }
