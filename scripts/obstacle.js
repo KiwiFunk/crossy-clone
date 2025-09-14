@@ -1,16 +1,21 @@
-import { GRID_SIZE } from './config.js';
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.157.0/build/three.module.js';
+import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.157.0/examples/jsm/loaders/GLTFLoader.js';
 
 class Obstacle {
-    constructor(x, y, width = GRID_SIZE, height = GRID_SIZE, direction = 'left') {
+    constructor(scene, x, y, z, direction = 'left') {
+        this.scene = scene;
         this.x = x;
         this.y = y;
-        this.width = width;
-        this.height = height;
+        this.z = z;
         this.speed = null;
         this.direction = direction; // 'left' or 'right'
-        // Placeholder for image/audio
-        this.sprite = null;
-        this.sound = null;
+        this.mesh = null;
+        this.isLoaded = false;
+        this.modelPath = null;      // Set path in child class
+        this.modelScale = 0.2;
+        this.boundingBox = null;    // For collision detection
+        this.type = 'obstacle';     // Default type
+        this.sound = null;          // Placeholder for sound effect (e.g Car horn)
     }
 
     // Use static as the utility is not tied to instance. We want to call it before creating instances. (during the constructor)
