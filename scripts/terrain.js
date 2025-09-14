@@ -105,7 +105,35 @@ export class TerrainRow {
     }
     
     createTerrain() {
-        // Create geometry and material based on type
+        // Create a terrain tile (simple box geometry for now)
+        const width = 10;  
+        const height = 0.2; 
+        const depth = 10;
+        
+        const geometry = new THREE.BoxGeometry(width, height, depth);
+        const material = new THREE.MeshStandardMaterial({
+            color: this.getTerrainColor(),
+            roughness: 0.8
+        });
+        
+        const mesh = new THREE.Mesh(geometry, material);
+        mesh.position.set(0, 0, this.z); // Position at proper Z
+        mesh.receiveShadow = true;       // Can receive shadows
+        
+        // Add to scene and track for cleanup
+        this.scene.add(mesh);
+        this.meshes.push(mesh);
+        
+        // Add simple texturing based on terrain type
+        this.addTerrainDetails();
+    }
+
+    getTerrainColor() {
+        // Define colors for different terrain types. Replace with loading textures later
+    }
+
+    addTerrainDetails() {
+        // Apply Alphas or other details/meshes based on terrain type
     }
 
     addObstacles() {
