@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { CONFIG } from './config.js';
 // Import our obstacle subclasses
 import Car from './obstacles/car.js';
 import Truck from './obstacles/truck.js';
@@ -9,7 +10,7 @@ export class TerrainGenerator {
         this.scene = scene;
         this.rows = [];
         this.lastZ = 5; // Init game with positive Z (further from camera)
-        this.rowSpacing = 1;
+        this.rowSpacing = CONFIG.ROW_SPACING;
         // Register terrain types with their weightings for procedural generation (Make sure to Normalize values so === 1.0)
         this.terrainTypes = [
             { type: 'grass', weight: 0.25 },
@@ -106,11 +107,12 @@ export class TerrainRow {
     
     createTerrain() {
         // Create a terrain tile (simple box geometry for now)
-        const width = 20;  
-        const height = 0.2; 
-        const depth = 1;
-        
-        const geometry = new THREE.BoxGeometry(width, height, depth);
+        const geometry = new THREE.BoxGeometry(
+            CONFIG.TERRAIN_WIDTH, 
+            0.2, 
+            CONFIG.TERRAIN_DEPTH
+        );
+
         const material = new THREE.MeshStandardMaterial({
             color: this.getTerrainColor(),
             roughness: 0.8
@@ -131,10 +133,10 @@ export class TerrainRow {
     getTerrainColor() {
         // Define colors for different terrain types. Replace with loading textures later
         switch(this.type) {
-            case 'road': return 0x555555;
-            case 'rail': return 0x777777;
-            case 'river': return 0x4444FF;
-            case 'grass': default: return 0x55AA55;
+            case 'road': return CONFIG.COLORS.ROAD;
+            case 'rail': return CONFIG.COLORS.RAIL;
+            case 'river': return CONFIG.COLORS.RIVER;
+            case 'grass': default: return CONFIG.COLORS.GRASS;
         }
     }
 
