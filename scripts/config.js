@@ -11,11 +11,13 @@ export const CONFIG = {
     PLAYER_MOVE_SPEED: 200,     // Milliseconds per move
     
     // Camera settings
-    CAMERA_HEIGHT: 15,          // How high camera is
+    CAMERA_HEIGHT: 12,          // How high camera is
     CAMERA_BACK: 12,            // How far behind camera is
     CAMERA_OFFSET: 0,           // Side offset
     CAMERA_PUSH_SPEED: 0.02,    // How fast camera pushes forward
     CAMERA_FOLLOW_SPEED: 0.05,  // How smooth camera follows
+    CAMERA_LOOK_DOWN_ANGLE: Math.PI / 4,  // 45° down angle
+    CAMERA_Y_ROTATION: 0, // Y rotation for camera
 
     // Game settings
     MAX_DRAW_DISTANCE: 20,      // How far ahead to generate terrain

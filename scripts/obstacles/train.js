@@ -9,7 +9,7 @@ class Train extends Obstacle {
         // Global object properties
         this.modelPath = 'assets/train.glb';
         this.type = 'train';
-        this.speed = 0.1; 
+        this.speed = 0.12; 
 
         // Train-specific properties
         this.carriagePath = 'assets/traincarriage.glb';
