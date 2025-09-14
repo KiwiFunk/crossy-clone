@@ -90,8 +90,8 @@ class Game {
     }
 
     onWindowResize() {
-        this.camera.aspect = window.innerWidth / window.innerHeight;
-        this.camera.updateProjectionMatrix();
+        this.threeCamera.aspect = window.innerWidth / window.innerHeight;
+        this.threeCamera.updateProjectionMatrix();
         this.renderer.setSize(window.innerWidth, window.innerHeight);
     }
 

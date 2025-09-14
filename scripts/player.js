@@ -119,13 +119,25 @@ export default class Player {
     }
     
     checkCollision(obstacles) {
-        // Use three.js Box3 for AABB collision detection
+        if (!this.body) return false;
+        
+        // Create player bounding box
         const playerBox = new THREE.Box3().setFromObject(this.body);
         
         for (const obstacle of obstacles) {
-            const obstacleBox = new THREE.Box3().setFromObject(obstacle.mesh);
-            if (playerBox.intersectsBox(obstacleBox)) {
-                return true;
+            // Skip obstacles without a valid mesh
+            if (!obstacle.mesh || !obstacle.mesh.parent) continue;
+            
+            try {
+                // Attempt to create obstacle bounding box
+                const obstacleBox = new THREE.Box3().setFromObject(obstacle.mesh);
+                if (playerBox.intersectsBox(obstacleBox)) {
+                    return true;
+                }
+            } catch (error) {
+                console.warn('Collision check failed for obstacle:', obstacle);
+                // Skip this obstacle if there was an error
+                continue;
             }
         }
         
