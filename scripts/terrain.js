@@ -55,10 +55,6 @@ export class TerrainGenerator {
         // Update existing terrain
         this.rows.forEach(row => row.update());
     }
-
-    draw(ctx) {
-        this.rows.forEach(row => row.draw(ctx, this.canvas.width));
-    }
     
     generateRandomTerrainRow() {
         // Use weighted random selection
