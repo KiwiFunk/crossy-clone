@@ -36,22 +36,24 @@ export class TerrainGenerator {
         }
     }
 
-    // Use the camera postion to procedurally generate terrain as needed
-    update(camera) {
-        while (this.lastY > camera.y - this.maxDrawDistance) {
+    // Use the player postion to procedurally generate terrain as needed
+    update(playerZ) {
+        while (this.lastZ > playerZ - this.maxDrawDistance) {
             this.generateRandomTerrainRow();
         }
         
-        // Cull rows that are far off screen (Make sure player death happens before the culled rows become visible again)
+        // Cull rows that are far behind the player
         const removeIndex = this.rows.findIndex(row => 
-            row.y > camera.y + this.canvas.height * 1.5);
+            row.z < playerZ + 15); // Keep some rows behind player
             
-        if (removeIndex !== -1) {
-            this.rows.splice(0, removeIndex + 1);
+        if (removeIndex > 0) {
+            const rowsToRemove = this.rows.slice(0, removeIndex);
+            rowsToRemove.forEach(row => row.destroy());
+            this.rows.splice(0, removeIndex);
         }
         
         // Update existing terrain
-        this.rows.forEach(row => row.update(this.canvas.width));
+        this.rows.forEach(row => row.update());
     }
 
     draw(ctx) {
