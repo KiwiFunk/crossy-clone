@@ -140,7 +140,48 @@ export class TerrainRow {
 
     addTerrainDetails() {
         // Apply Alphas or other details/meshes based on terrain type
+        switch(this.type) {
+            case 'road':
+                this.addRoadMarkings();
+                break;
+                
+            case 'rail':
+                this.addRailroadTracks();
+                break;
+
+            // Implement other details like grass/river fx later
+        }
+    }
+
+    addRoadMarkings() {
+        // Simple road markings (white stripes) Replace with alpha textures once i know how. Unless this ends up looking spicy. geo might be great with camera angle.
+        const markingGeometry = new THREE.BoxGeometry(0.5, 0.01, 0.1);
+        const markingMaterial = new THREE.MeshBasicMaterial({ color: 0xFFFFFF });
         
+        for (let x = -4; x <= 4; x += 2) {
+            const marking = new THREE.Mesh(markingGeometry, markingMaterial);
+            marking.position.set(x, 0.11, this.z); // Slightly above road
+            this.scene.add(marking);
+            this.meshes.push(marking);
+        }
+    }
+    
+    addRailroadTracks() {
+        // Create geometry with three for now. Use custom models later?
+        const railGeometry = new THREE.BoxGeometry(10, 0.05, 0.1);
+        const railMaterial = new THREE.MeshStandardMaterial({ 
+            color: 0x888888, 
+            metalness: 0.8 
+        });
+        
+        // Add two rails
+        for (let offset of [-0.2, 0.2]) {
+            const rail = new THREE.Mesh(railGeometry, railMaterial);
+            rail.position.set(0, 0.15, this.z + offset);
+            this.scene.add(rail);
+            this.meshes.push(rail);
+        }
+    }   
 
     addObstacles() {
         // Handle adding obstacles based on terrain type
