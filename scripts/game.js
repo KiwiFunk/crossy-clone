@@ -49,25 +49,27 @@ class Game {
 
     setupGameElements() {
         // Create 3D camera using three.js
-        this.camera = new THREE.PerspectiveCamera(
+        this.threeCamera = new THREE.PerspectiveCamera(
             50, 
             window.innerWidth / window.innerHeight, 
             0.1, 
             1000
         );
-        this.camera.position.set(10, 10, 10);
-        this.camera.lookAt(0, 0, 0);
-
-        // Initialize dependencies
+        
+        // Initialize the player first
         this.player = new Player(this.scene);
+        
+        // Then initialize our camera controller with the Three.js camera
+        this.cameraController = new Camera(this.threeCamera, this.player);
+        
+        // Initialize other dependencies
         this.terrainGenerator = new TerrainGenerator(this.scene);
-        this.cameraController = new Camera();
         this.scoreManager = new ScoreManager();
 
-        // Generate the inital terrain
+        // Generate the initial terrain
         this.terrainGenerator.generateInitialTerrain();
 
-        // Create a ground plane for reference
+        // Create a ground plane for reference (can remove this later)
         const groundGeometry = new THREE.PlaneGeometry(20, 20);
         const groundMaterial = new THREE.MeshStandardMaterial({ 
             color: 0x55AA55,
@@ -107,8 +109,16 @@ class Game {
         // Update game objects
         this.player.update();
         this.terrainGenerator.update(this.player.getPosition().z);
-        this.cameraController.update();
-        this.scoreManager.update(this.player);
+
+        // Update camera and check if player has fallen behind camera (considered "dead")
+        const playerDied = this.cameraController.update();
+        if (playerDied) {
+            console.log("Player fell behind and died!");
+            // Handle game over
+        }
+
+        // Update score using the camera's Z position for tracking progress
+        this.scoreManager.updateScore(this.cameraController.getZPosition());
         
         // Check collisions
         const obstacles = this.terrainGenerator.getAllObstacles();
@@ -121,7 +131,7 @@ class Game {
     animate() {
         requestAnimationFrame(() => this.animate());
         this.update();
-        this.renderer.render(this.scene, this.camera);
+        this.renderer.render(this.scene, this.threeCamera); // Use threeJsCamera directly
     }
 }
 
