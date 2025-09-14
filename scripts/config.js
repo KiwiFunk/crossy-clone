@@ -13,13 +13,13 @@ export const CONFIG = {
     // Camera settings with new names
     CAMERA_POS_Y: 12,                   // Height above player
     CAMERA_POS_Z: 8,                    // Distance behind player
-    CAMERA_POS_X: 6,                    // Side offset (negative = left of player)
+    CAMERA_POS_X: 5.2,                  // Side offset (negative = left of player)
     CAMERA_FOLLOW_SPEED: 0.05,          // Camera smoothing
     
     // Camera rotation settings
     CAMERA_ROT_X: degreesToRadians(55),     // Look down angle
     CAMERA_ROT_Y: degreesToRadians(-20),    // Y rotation
-    CAMERA_ROT_Z: degreesToRadians(-12),    // Z rotation (roll)
+    CAMERA_ROT_Z: degreesToRadians(-18),    // Z rotation (roll)
     
     // Game settings
     MAX_DRAW_DISTANCE: 20,
