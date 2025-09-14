@@ -1,11 +1,14 @@
 import Obstacle from '../obstacle.js';
 
 class Train extends Obstacle {
-    constructor(x, y) {
-        super(x, y);
-        this.sprite = 'train.png';
-        this.sound = 'train_whistle.mp3';
-        this.speed = 10;
+    constructor(scene, x, y, z) {
+        super(scene, x, y, z);
+        this.modelPath = 'assets/train.glb';
+        this.modelScale = 0.3;
+        this.type = 'train';
+        this.speed = 0.1; 
+        
+        this.loadModel();
     }
 
     move(canvasWidth) {

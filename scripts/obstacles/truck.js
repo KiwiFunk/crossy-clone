@@ -1,11 +1,14 @@
 import Obstacle from '../obstacle.js';
 
 class Truck extends Obstacle {
-    constructor(x, y) {
-        super(x, y);
-        this.sprite = 'truck.png';
-        this.sound = 'truck_engine.mp3';
-        this.speed = Obstacle.getRandomSpeed(2, 4);
+    constructor(scene, x, y, z) {
+        super(scene, x, y, z);
+        this.modelPath = 'assets/truck.glb';
+        this.modelScale = 0.25;
+        this.type = 'truck';
+        this.speed = Obstacle.getRandomSpeed(0.02, 0.04);
+
+        this.loadModel();
     }
 
     move(canvasWidth) {
