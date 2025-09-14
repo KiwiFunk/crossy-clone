@@ -5,7 +5,7 @@ class Car extends Obstacle {
         super(scene, x, y, z);
         this.modelPath = 'assets/car.glb';
         this.type = 'car';
-        this.speed = Obstacle.getRandomSpeed(0.03, 0.06);
+        this.speed = Obstacle.getRandomSpeed(0.03, 0.08);
 
         this.loadModel();
     }
