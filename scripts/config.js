@@ -6,7 +6,7 @@ export const CONFIG = {
     TERRAIN_DEPTH: 1,
     
     // Player settings
-    PLAYER_SIZE: 1,
+    PLAYER_SIZE: 0.8,
     PLAYER_JUMP_HEIGHT: 1.5,
     PLAYER_MOVE_SPEED: 200,
     
