@@ -203,4 +203,28 @@ export class TerrainRow {
             // Need to add logs for traversing rivers, and trees/rocks for grass later
         }
     }
+
+    addVehicles() {
+        // Choose vehicle type (car or truck)
+        const VehicleType = Math.random() > 0.5 ? Car : Truck;
+    
+        const direction = Math.random() > 0.5 ? 'right' : 'left';
+        const startX = direction === 'right' ? -7 : 7;
+        
+        const vehicle = new VehicleType(this.scene, startX, 0.2, this.z);
+        vehicle.direction = direction;
+        
+        // Add to obstacles array
+        this.obstacles.push(vehicle);
+    }
+    
+    addTrain() {
+        const direction = Math.random() > 0.5 ? 'right' : 'left';
+        const startX = direction === 'right' ? -10 : 10;
+        
+        const train = new Train(this.scene, startX, 0.2, this.z);
+        train.direction = direction;
+        
+        this.obstacles.push(train);
+    }
 }
