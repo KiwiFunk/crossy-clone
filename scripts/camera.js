@@ -1,21 +1,25 @@
 import * as THREE from 'three';
-import { GRID_SIZE } from './config.js';
+import { CONFIG } from './config.js';
 
 export default class Camera {
     constructor(threeCamera, player) {
-        this.threeCamera = threeCamera;  // Store reference to the Three.js camera
-        this.player = player;            // Store reference to player
+        this.threeCamera = threeCamera;                 // Store reference to the Three.js camera
+        this.player = player;                           // Store reference to player
         
         // Camera follow settings
-        this.offset = new THREE.Vector3(0, 15, 8);  // Isometric offset from player
-        this.target = new THREE.Vector3();          // Target to look at
+        this.offset = new THREE.Vector3(
+            CONFIG.CAMERA_OFFSET, 
+            CONFIG.CAMERA_HEIGHT, 
+            CONFIG.CAMERA_BACK
+        );
+        this.target = new THREE.Vector3();              // Target to look at
         
         // Camera push settings
-        this.pushSpeed = 0.02;           // How fast camera pushes forward
-        this.followSpeed = 0.05;         // How smooth camera follows player
+        this.pushSpeed = CONFIG.CAMERA_PUSH_SPEED;       // How fast camera pushes forward
+        this.followSpeed = CONFIG.CAMERA_FOLLOW_SPEED;   // How smooth camera follows player
         
         // Death zone - how far the player can fall behind
-        this.maxBehindDistance = 15;
+        this.maxBehindDistance = CONFIG.DEATH_ZONE_DISTANCE;
     }
     
     update() {
