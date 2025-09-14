@@ -184,6 +184,23 @@ export class TerrainRow {
     }   
 
     addObstacles() {
-        // Handle adding obstacles based on terrain type
+        // Add obstacles based on terrain type
+        switch(this.type) {
+            case 'road':
+                // 70% chance to add vehicles on a road
+                if (Math.random() > 0.3) {
+                    this.addVehicles();
+                }
+                break;
+                
+            case 'rail':
+                // 40% chance to add train on rails
+                if (Math.random() > 0.6) {
+                    this.addTrain();
+                }
+                break;
+                
+            // Need to add logs for traversing rivers, and trees/rocks for grass later
+        }
     }
 }
