@@ -74,68 +74,17 @@ export class TerrainGenerator {
     }
     
     generateTerrainRow(type) {
-        // First update the lastY position
-        this.lastY -= GRID_SIZE;
-
-        let obstacles = [];
+        // Create a new row and add it to our collection
+        const row = new TerrainRow(this.scene, this.lastZ, type);
+        this.rows.push(row);
         
-        // Create obstacles based on terrain type
-        if (type === 'road') {
-            obstacles = this.createRoadObstacles();
-        } else if (type === 'rail') {
-            obstacles = this.createRailObstacles();
-        } else if (type === 'river') {
-            obstacles = this.createRiverObstacles();
-        } else {
-            obstacles = this.createGrassObstacles();
-        }
-        
-        // Create new terrain row
-        this.rows.push(new TerrainRow(this.lastY, type, obstacles));
+        // Move to next row position (further away from camera)
+        this.lastZ -= 1;
     }
 
-    createRoadObstacles() {
-        const obstacles = [];
-        const direction = Math.random() > 0.5 ? 'left' : 'right';
-        const count = Math.floor(Math.random() * 3) + 1;
-        
-        // Choose vehicle type
-        const VehicleType = Math.random() > 0.5 ? Car : Truck;
-                          
-        // Create vehicles at intervals
-        for (let i = 0; i < count; i++) {
-            const spacing = this.canvas.width / (count + 1);
-            const x = i * spacing;
-            
-            const vehicle = new VehicleType(x, this.lastY);
-            vehicle.direction = direction;
-            
-            obstacles.push(vehicle);
-        }
-        
-        return obstacles;
-    }
-
-    createRailObstacles() {
-        const obstacles = [];
-        const direction = Math.random() > 0.5 ? 'left' : 'right';
-        
-        const train = new Train(0, this.lastY);
-        train.direction = direction;
-
-        obstacles.push(train);
-
-        return obstacles;
-    }
-    
-    createRiverObstacles() {
-        // Add logs/lilly pads for player to jump on to cross river
-        return [];
-    }
-    
-    createGrassObstacles() {
-        // Add trees/rocks for decoration
-        return [];
+    // Helper to get all obstacles for collision detection
+    getAllObstacles() {
+        return this.rows.flatMap(row => row.obstacles);
     }
 
 }
