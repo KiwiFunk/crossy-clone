@@ -8,7 +8,8 @@ export class TerrainGenerator {
     constructor(scene) {
         this.scene = scene;
         this.rows = [];
-        this.lastZ = 10; // Init game with positive Z (further from camera)
+        this.lastZ = 5; // Init game with positive Z (further from camera)
+        this.rowSpacing = 1;
         // Register terrain types with their weightings for procedural generation (Make sure to Normalize values so === 1.0)
         this.terrainTypes = [
             { type: 'grass', weight: 0.25 },
@@ -78,7 +79,7 @@ export class TerrainGenerator {
         this.rows.push(row);
         
         // Move to next row position (further away from camera)
-        this.lastZ -= 1;
+        this.lastZ -= this.rowSpacing;
     }
 
     // Helper to get all obstacles for collision detection
@@ -105,9 +106,9 @@ export class TerrainRow {
     
     createTerrain() {
         // Create a terrain tile (simple box geometry for now)
-        const width = 10;  
+        const width = 20;  
         const height = 0.2; 
-        const depth = 10;
+        const depth = 1;
         
         const geometry = new THREE.BoxGeometry(width, height, depth);
         const material = new THREE.MeshStandardMaterial({
