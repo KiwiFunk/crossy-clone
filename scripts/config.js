@@ -28,7 +28,8 @@ export const CONFIG = {
     
     // Colors
     COLORS: {
-        GRASS: 0x55AA55,
+        GRASS_A: 0xBEF565,
+        GRASS_B: 0xB5ED5D,
         ROAD: 0x555555,
         RAIL: 0x777777,
         RIVER: 0x4444FF,

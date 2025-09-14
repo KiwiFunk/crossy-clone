@@ -109,7 +109,7 @@ export class TerrainRow {
         // Create a terrain tile (simple box geometry for now)
         const geometry = new THREE.BoxGeometry(
             CONFIG.TERRAIN_WIDTH, 
-            0.2, 
+            this.getTerrainHeight(),
             CONFIG.TERRAIN_DEPTH
         );
 
@@ -130,13 +130,24 @@ export class TerrainRow {
         this.addTerrainDetails();
     }
 
+    getTerrainHeight() {
+        switch(this.type) {
+            case 'grass': return 0.3;
+            case 'river': return 0.05;
+            default: return 0.2;
+        }
+    }
+
+
     getTerrainColor() {
         // Define colors for different terrain types. Replace with loading textures later
         switch(this.type) {
             case 'road': return CONFIG.COLORS.ROAD;
             case 'rail': return CONFIG.COLORS.RAIL;
             case 'river': return CONFIG.COLORS.RIVER;
-            case 'grass': default: return CONFIG.COLORS.GRASS;
+            case 'grass': 
+                return this.z % 2 === 0 ? CONFIG.COLORS.GRASS_A : CONFIG.COLORS.GRASS_B;
+            default: return CONFIG.COLORS.GRASS_A;
         }
     }
 
