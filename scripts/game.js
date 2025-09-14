@@ -58,28 +58,22 @@ class Game {
         
         // Initialize the player first
         this.player = new Player(this.scene);
-        
-        // Then initialize our camera controller with the Three.js camera
-        this.cameraController = new Camera(this.threeCamera, this.player);
-        
-        // Initialize other dependencies
-        this.terrainGenerator = new TerrainGenerator(this.scene);
-        this.scoreManager = new ScoreManager();
 
-        // Generate the initial terrain
+        // Then Init the terrain generation and create the initial terrain (Grass Start Area)
+        this.terrainGenerator = new TerrainGenerator(this.scene);
         this.terrainGenerator.generateInitialTerrain();
 
-        // Create a ground plane for reference (can remove this later)
-        const groundGeometry = new THREE.PlaneGeometry(20, 20);
-        const groundMaterial = new THREE.MeshStandardMaterial({ 
-            color: 0x55AA55,
-            roughness: 0.8, 
-            metalness: 0.2
-        });
-        const ground = new THREE.Mesh(groundGeometry, groundMaterial);
-        ground.rotation.x = -Math.PI / 2;
-        ground.receiveShadow = true;
-        this.scene.add(ground);
+        // Position the player on the first terrain row
+        const firstRow = this.terrainGenerator.rows[0];
+        if (firstRow) {
+            // Position player at the center of the first row
+            this.player.body.position.set(0, this.player.targetPosition.y, firstRow.z);
+            this.player.gridPosition.z = Math.round(firstRow.z / (this.player.size * 2));
+        }
+
+        // Initialize other dependencies
+        this.cameraController = new Camera(this.threeCamera, this.player);
+        this.scoreManager = new ScoreManager();
     }
 
     // Create event listeners for player input, then add to keys object. (Object allows for direct lookup instead of looping through array)

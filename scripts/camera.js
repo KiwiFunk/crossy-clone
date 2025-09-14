@@ -7,7 +7,7 @@ export default class Camera {
         this.player = player;            // Store reference to player
         
         // Camera follow settings
-        this.offset = new THREE.Vector3(8, 10, 8);  // Isometric offset from player
+        this.offset = new THREE.Vector3(0, 15, 8);  // Isometric offset from player
         this.target = new THREE.Vector3();          // Target to look at
         
         // Camera push settings
