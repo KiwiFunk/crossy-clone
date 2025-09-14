@@ -4,6 +4,7 @@ import { CONFIG } from './config.js';
 import Car from './obstacles/car.js';
 import Truck from './obstacles/truck.js';
 import Train from './obstacles/train.js';
+import Log from './obstacles/log.js';
 
 export class TerrainGenerator {
     constructor(scene) {
@@ -212,6 +213,11 @@ export class TerrainRow {
                     this.addTrain();
                 }
                 break;
+
+            case 'river':
+                // Logs must always be present on rivers
+                this.addLogs();
+                break;
                 
             // Need to add logs for traversing rivers, and trees/rocks for grass later
         }
@@ -239,6 +245,23 @@ export class TerrainRow {
         train.direction = direction;
         
         this.obstacles.push(train);
+    }
+
+    addLogs() {
+        // Add multiple logs to cover the river width
+        const count = Math.floor(Math.random() * 3) + 2; // 2 to 4 logs
+        // Set direction and speed outside of loop to keep consistent
+        const direction = Math.random() > 0.5 ? 'right' : 'left';
+        const speed = Math.random() * (0.08 - 0.01) + 0.01;
+        for (let i = 0; i < count; i++) {
+            const startX = direction === 'right' ? -7 - i * 3 : 7 + i * 3;
+
+            const log = new Log(this.scene, startX, 0.1, this.z);
+            log.direction = direction;
+            log.speed = speed;
+
+            this.obstacles.push(log);
+        }
     }
 
     update() {

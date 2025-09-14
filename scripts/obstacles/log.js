@@ -5,8 +5,7 @@ class Log extends Obstacle {
         super(scene, x, y, z);
         this.modelPath = 'assets/log.glb';
         this.type = 'log';
-        this.speed = Obstacle.getRandomSpeed(0.01, 0.08);
-
+        
         this.loadModel();
     }
 
