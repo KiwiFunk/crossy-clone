@@ -88,24 +88,37 @@ class Obstacle {
         );
     }
 
-    update(canvasWidth) {
-        this.move(canvasWidth);
-    }
-
-    move(canvasWidth, speed=this.speed) {
+    update() {
+        if (!this.mesh) return;
+        
+        // Move based on direction
         if (this.direction === 'right') {
-            this.x += speed;
-            if (this.x > canvasWidth) this.x = -this.width;
+            this.x += this.speed;
         } else {
-            this.x -= speed;
-            if (this.x < -this.width) this.x = canvasWidth;
+            this.x -= this.speed;
+        }
+        
+        // Update position
+        this.mesh.position.x = this.x;
+        
+        // Update bounding box if available
+        this.updateBoundingBox();
+        
+        // Loop back when off-screen
+        const boundaryX = 10; // Default boundary
+        if (this.x > boundaryX) {
+            this.x = -boundaryX;
+            this.mesh.position.x = this.x;
+        } else if (this.x < -boundaryX) {
+            this.x = boundaryX;
+            this.mesh.position.x = this.x;
         }
     }
-
-    draw(ctx) {
-        // Simple rectangle for now; override for sprites
-        ctx.fillStyle = 'red';
-        ctx.fillRect(this.x, this.y, this.width, this.height);
+    
+    updateBoundingBox() {
+        if (this.mesh) {
+            this.boundingBox = new THREE.Box3().setFromObject(this.mesh);
+        }
     }
 
     destroy() {
