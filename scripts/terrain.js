@@ -14,10 +14,10 @@ export class TerrainGenerator {
         this.rowSpacing = CONFIG.ROW_SPACING;
         // Register terrain types with their weightings for procedural generation (Make sure to Normalize values so === 1.0)
         this.terrainTypes = [
-            { type: 'grass', weight: 0.25 },
-            { type: 'road', weight: 0.45 },
-            { type: 'rail', weight: 0.15 },
-            { type: 'river', weight: 0.15 }
+            { type: 'grass', weight: 0.30 },
+            { type: 'road', weight: 0.50 },
+            { type: 'rail', weight: 0.10 },
+            { type: 'river', weight: 0.10 }
         ];
         // How far ahead to generate terrain
         this.maxDrawDistance = 20; 

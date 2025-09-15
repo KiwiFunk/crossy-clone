@@ -16,6 +16,7 @@ class Obstacle {
         this.boundingBox = null;    // For collision detection
         this.type = 'obstacle';     // Default type
         this.sound = null;          // Placeholder for sound effect (e.g Car horn)
+        this.static = false;        // If true, obstacle does not move (e.g. rocks, trees)
     }
 
     // Use static as the utility is not tied to instance. We want to call it before creating instances. (during the constructor)
@@ -90,6 +91,7 @@ class Obstacle {
 
     update() {
         if (!this.mesh) return;
+        if (this.static) return; // Static obstacles do not move
         
         // Move based on direction
         if (this.direction === 'right') {
