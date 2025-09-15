@@ -416,3 +416,10 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+# Build output
+dist/
+dist-ssr/
+
+# Node modules
+node_modules/
