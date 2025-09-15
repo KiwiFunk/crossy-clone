@@ -247,7 +247,7 @@ export class TerrainRow {
         this.obstacles.push(train);
     }
 
-    // We need logs for traversing rivers all times - Add random if we decide to add lilly pads or other options later
+    // This needs to be reworked so totalWidth can be used to prevent log overlap
     addLogs() {
         // 1–3 logs this row
         const numLogs    = Math.floor(Math.random() * 3) + 1;
@@ -276,10 +276,10 @@ export class TerrainRow {
             // store for collision, lookup, etc.
             this.obstacles.push(log);
             if (log.logGroup) {
-            log.logGroup.userData = {
-                type:     'obstacle',
-                obstacle: log
-            };
+                log.logGroup.userData = {
+                    type:     'obstacle',
+                    obstacle: log
+                };
             }
         }
     }

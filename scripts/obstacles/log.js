@@ -15,6 +15,7 @@ class Log extends Obstacle {
         this.endCapPath = 'assets/logend.glb';
         this.logGroup = new THREE.Group();
         this.segmentCount = Math.floor(Math.random() * 3) + 1; // Random length (1-3 segments)
+        this.totalWidth = 0; // Will be calculated after loading
         
         // Animation properties for sinking effect
         this.originalY = y;
