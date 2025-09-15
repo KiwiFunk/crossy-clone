@@ -5,6 +5,7 @@ import Car from './obstacles/car.js';
 import Truck from './obstacles/truck.js';
 import Train from './obstacles/train.js';
 import Log from './obstacles/log.js';
+import Tree from './obstacles/tree.js';
 
 export class TerrainGenerator {
     constructor(scene) {
@@ -283,6 +284,41 @@ export class TerrainRow {
                     obstacle: log
                 };
             }
+        }
+    }
+
+    addTrees() {
+        const numTrees = Math.floor(Math.random() * 8) + 1;
+
+        const minX = -CONFIG.TERRAIN_WIDTH / 2 + 2;
+        const maxX = CONFIG.TERRAIN_WIDTH / 2 - 2;
+        const centerZone = 3;
+        const minSpacing = 1.5;
+
+        const placedX = [];
+
+        let attempts = 0;
+        let maxAttempts = numTrees * 10;
+
+        while (placedX.length < numTrees && attempts < maxAttempts) {
+            let treeX = minX + Math.random() * (maxX - minX);
+            attempts++;
+
+            // Reject if too close to center
+            if (Math.abs(treeX) < centerZone) continue;
+
+            // Reject if too close to any existing tree
+            const tooClose = placedX.some(x => Math.abs(x - treeX) < minSpacing);
+            if (tooClose) continue;
+
+            placedX.push(treeX);
+
+            const tree = new Tree(this.scene, treeX, 0.2, this.z);
+            console.log(`Tree ${placedX.length} placed at x=${treeX.toFixed(2)} on grass row z=${this.z}`);
+        }
+
+        if (placedX.length < numTrees) {
+            console.warn(`Only placed ${placedX.length} trees out of ${numTrees} due to spacing constraints.`);
         }
     }
 
