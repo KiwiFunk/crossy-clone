@@ -12,7 +12,7 @@ class Obstacle {
         this.mesh = null;
         this.isLoaded = false;
         this.modelPath = null;      // Set path in child class
-        this.modelScale = 0.3;
+        this.modelScale = 0.35;
         this.boundingBox = null;    // For collision detection
         this.type = 'obstacle';     // Default type
         this.sound = null;          // Placeholder for sound effect (e.g Car horn)
