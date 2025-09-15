@@ -247,22 +247,43 @@ export class TerrainRow {
         this.obstacles.push(train);
     }
 
+    // We need logs for traversing rivers all times - Add random if we decide to add lilly pads or other options later
     addLogs() {
-        // Add multiple logs to cover the river width
-        const count = Math.floor(Math.random() * 3) + 2; // 2 to 4 logs
-        // Set direction and speed outside of loop to keep consistent
-        const direction = Math.random() > 0.5 ? 'right' : 'left';
-        const speed = Math.random() * (0.08 - 0.01) + 0.01;
-        for (let i = 0; i < count; i++) {
-            const startX = direction === 'right' ? -7 - i * 3 : 7 + i * 3;
+        // 1–3 logs this row
+        const numLogs    = Math.floor(Math.random() * 3) + 1;
 
-            const log = new Log(this.scene, startX, 0.1, this.z);
-            log.direction = direction;
-            log.speed = speed;
+        // pick direction & magnitude once, per row
+        const direction  = Math.random() > 0.5 ? 'right' : 'left';
+        const speedValue = Math.random() * 0.03 + 0.02;
+        const signedSpeed = direction === 'right' ?  speedValue : -speedValue;
 
+        // off-screen baseX (same for every log in this row)
+        const halfW    = CONFIG.TERRAIN_WIDTH / 2;
+        const baseX    = direction === 'right'
+                        ? -halfW - 5 
+                        :  halfW + 5;
+
+        for (let i = 0; i < numLogs; i++) {
+            // stagger each log’s spawn so they don’t overlap
+            const randomOffset = (Math.random() - 0.5) * 10;
+            const startX       = baseX + randomOffset;
+
+            // create & configure
+            const log          = new Log(this.scene, startX, 0.05, this.z);
+            log.direction      = direction;
+            log.speed          = signedSpeed;
+
+            // store for collision, lookup, etc.
             this.obstacles.push(log);
+            if (log.logGroup) {
+            log.logGroup.userData = {
+                type:     'obstacle',
+                obstacle: log
+            };
+            }
         }
     }
+
 
     update() {
         // Update all obstacles (e.g., move vehicles)

@@ -107,6 +107,9 @@ export default class Player {
     }
 
     update() {
+        // Check if player is on a log and move with it
+        this.checkLogInteraction();
+
         // Add idle animation
         if (!this.isJumping) {
             this.body.position.y = this.targetPosition.y + 
@@ -142,5 +145,58 @@ export default class Player {
         }
         
         return false;
+    }
+
+    checkLogInteraction() {
+        let isOnAnyLog = false;
+        let currentLog = null;
+        
+        // Get player's feet position
+        const playerFeet = new THREE.Vector3(
+            this.body.position.x,
+            this.body.position.y - (this.size/2) - 0.1, // Slightly below player's bottom
+            this.body.position.z
+        );
+        
+        // Check all obstacles in the scene
+        this.scene.children.forEach(child => {
+            // Only check log objects that have bounding boxes
+            if (child.userData && 
+                child.userData.type === 'obstacle' &&
+                child.userData.obstacle &&
+                child.userData.obstacle.type === 'log' &&
+                child.userData.obstacle.boundingBox) {
+                
+                const log = child.userData.obstacle;
+                
+                // Expand the box slightly upward to make detection easier
+                const expandedBox = log.boundingBox.clone();
+                expandedBox.max.y += 0.2;
+                
+                // Check if player is on this log
+                if (expandedBox.containsPoint(playerFeet) && !this.isJumping) {
+                    isOnAnyLog = true;
+                    currentLog = log;
+                    
+                    // Tell log the player is on it (if not already)
+                    if (this.currentLog !== log) {
+                        if (this.currentLog) {
+                            this.currentLog.playerLeft();
+                        }
+                        log.playerLanded();
+                        this.currentLog = log;
+                    }
+                    
+                    // Get carried by the log
+                    log.carryPlayer(this);
+                }
+            }
+        });
+        
+        // Player jumped off or moved off the log
+        if (!isOnAnyLog && this.currentLog) {
+            this.currentLog.playerLeft();
+            this.currentLog = null;
+        }
     }
 }
