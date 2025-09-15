@@ -219,7 +219,9 @@ export class TerrainRow {
                 this.addLogs();
                 break;
                 
-            // Need to add logs for traversing rivers, and trees/rocks for grass later
+            case 'grass':
+                this.addTrees();
+                break;
         }
     }
 
