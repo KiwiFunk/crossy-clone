@@ -9,8 +9,8 @@ export default class InputHandler {
         this.lastMoveTime = 0;                          //Timestamp of last move
         this.moveDelay = CONFIG.PLAYER_MOVE_COOLDOWN;   //Cooldown between moves in ms
 
-        // Load Touch or Keyboard controls based on device
-        if ('ontouchstart' in window || navigator.maxTouchPoints) {
+        // Load Touch or Keyboard controls based on device (Make sure touch is not wacom esque stylus)
+        if (window.matchMedia("(pointer: coarse)").matches) {
             this.initTouchControls();
         } else {
             this.initKeyboardControls();
@@ -67,12 +67,12 @@ export default class InputHandler {
 
     initKeyboardControls() {
         document.addEventListener('keydown', (e) => {
-            this.keys[e.key.toLowerCase()] = true;
+            this.keys[e.key] = true;
 
             this.handleInput();
         });
         document.addEventListener('keyup', (e) => {
-            this.keys[e.key.toLowerCase()] = false;
+            this.keys[e.key] = false;
         });
     }
 
@@ -82,13 +82,17 @@ export default class InputHandler {
         const now = Date.now();
         if (now - this.lastMoveTime < this.moveDelay) return;
         
-        if (this.keys['ArrowUp'] || this.keys['w']) {
+        if (this.keys['ArrowUp'] || this.keys['w'] || this.keys['W']) {
+            console.log("Moving forward");
             this.handleDirection('forward');
-        } else if (this.keys['ArrowDown'] || this.keys['s']) {
+        } else if (this.keys['ArrowDown'] || this.keys['s'] || this.keys['S']) {
+            console.log("Moving backward");
             this.handleDirection('backward');
-        } else if (this.keys['ArrowLeft'] || this.keys['a']) {
+        } else if (this.keys['ArrowLeft'] || this.keys['a'] || this.keys['A']) {
+            console.log("Moving left");
             this.handleDirection('left');
-        } else if (this.keys['ArrowRight'] || this.keys['d']) {
+        } else if (this.keys['ArrowRight'] || this.keys['d'] || this.keys['D']) {
+            console.log("Moving right");
             this.handleDirection('right');
         }
     }
