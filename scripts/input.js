@@ -78,10 +78,24 @@ export default class InputHandler {
     // Functions for handling input actions
 
     handleInput() {
-
+        const now = Date.now();
+        if (now - this.lastMoveTime < this.moveDelay) return;
+        
+        if (this.keys['ArrowUp'] || this.keys['w']) {
+            this.handleDirection('forward');
+        } else if (this.keys['ArrowDown'] || this.keys['s']) {
+            this.handleDirection('backward');
+        } else if (this.keys['ArrowLeft'] || this.keys['a']) {
+            this.handleDirection('left');
+        } else if (this.keys['ArrowRight'] || this.keys['d']) {
+            this.handleDirection('right');
+        }
     }
 
     handleDirection(direction) {
-        
+        if (this.player && !this.player.isMoving) {
+            this.player.move(direction);
+            this.lastMoveTime = Date.now();
+        }
     }
 }
