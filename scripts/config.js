@@ -9,6 +9,7 @@ export const CONFIG = {
     PLAYER_SIZE: 0.8,
     PLAYER_JUMP_HEIGHT: 1.5,
     PLAYER_MOVE_SPEED: 200,
+    PLAYER_MOVE_COOLDOWN: 150,          // Time between moves in ms
     
     // Camera settings with new names
     CAMERA_POS_Y: 12,                   // Height above player
