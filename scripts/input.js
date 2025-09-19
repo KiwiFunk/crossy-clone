@@ -66,7 +66,22 @@ export default class InputHandler {
     }
 
     initKeyboardControls() {
+        document.addEventListener('keydown', (e) => {
+            this.keys[e.key.toLowerCase()] = true;
+            this.handleInput();
+        });
+        document.addEventListener('keyup', (e) => {
+            this.keys[e.key.toLowerCase()] = false;
+        });
     }
 
     // Functions for handling input actions
+
+    handleInput() {
+
+    }
+
+    handleDirection(direction) {
+        
+    }
 }
