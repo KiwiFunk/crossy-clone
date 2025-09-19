@@ -4,6 +4,7 @@ import Player from './player.js';
 import { TerrainGenerator } from './terrain.js';
 import Camera from './camera.js';
 import ScoreManager from './scoring.js'
+import InputHandler from './input.js';
 
 class Game {
     constructor() {
@@ -72,6 +73,9 @@ class Game {
         // Initialize the player first
         this.player = new Player(this.scene);
 
+        // Setup input handler for player movement
+        this.inputHandler = new InputHandler(this.player);
+
         // Then Init the terrain generation and create the initial terrain (Grass Start Area)
         this.terrainGenerator = new TerrainGenerator(this.scene);
         this.terrainGenerator.generateInitialTerrain();
@@ -89,11 +93,9 @@ class Game {
         this.scoreManager = new ScoreManager();
     }
 
-    // Create event listeners for player input, then add to keys object. (Object allows for direct lookup instead of looping through array)
+    // Create event listeners for window resize
     setupEventListeners() {
-        this.keys = {};
-        document.addEventListener('keydown', (e) => this.keys[e.key] = true);
-        document.addEventListener('keyup', (e) => this.keys[e.key] = false);
+        window.addEventListener('resize', () => this.onWindowResize());
     }
 
     onWindowResize() {
@@ -104,14 +106,10 @@ class Game {
 
     // This is called every frame to update game state
     update() {
-        // Handle player movement
-        if (this.keys['ArrowUp'] || this.keys['W'] || this.keys['w']) this.player.move('forward');
-        if (this.keys['ArrowDown'] || this.keys['S'] || this.keys['s']) this.player.move('backward');
-        if (this.keys['ArrowLeft'] || this.keys['A'] || this.keys['a']) this.player.move('left');
-        if (this.keys['ArrowRight'] || this.keys['D'] || this.keys['d']) this.player.move('right');
-
-        // Reset keys to prevent continuous movement
-        this.keys = {};
+        
+        /* We could add an update function to the input handler if needed
+        this.inputHandler.update();
+        */
 
         // Update game objects
         this.player.update();
