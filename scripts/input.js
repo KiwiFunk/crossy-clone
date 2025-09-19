@@ -68,6 +68,7 @@ export default class InputHandler {
     initKeyboardControls() {
         document.addEventListener('keydown', (e) => {
             this.keys[e.key.toLowerCase()] = true;
+
             this.handleInput();
         });
         document.addEventListener('keyup', (e) => {
@@ -97,5 +98,10 @@ export default class InputHandler {
             this.player.move(direction);
             this.lastMoveTime = Date.now();
         }
+    }
+
+    update() {
+        // Check for continuous input (keyboard)
+        this.handleInput();
     }
 }

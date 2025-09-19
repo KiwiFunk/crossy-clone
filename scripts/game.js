@@ -107,9 +107,8 @@ class Game {
     // This is called every frame to update game state
     update() {
         
-        /* We could add an update function to the input handler if needed
+        // Update input handler in case of held keys
         this.inputHandler.update();
-        */
 
         // Update game objects
         this.player.update();
