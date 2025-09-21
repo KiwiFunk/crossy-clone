@@ -14,7 +14,7 @@ class Obstacle {
         this.modelPath = null;      // Set path in child class
 
         // Model scale should be determined by the model itself - for now we need to set this as 0.1 as three will interpret 100cm as 100units(meters in our case)
-        this.modelScale = 0.3;
+        this.modelScale = 1.0;
 
         this.boundingBox = null;    // BBox calculated from loaded model
         this.type = 'obstacle';     // Default type
