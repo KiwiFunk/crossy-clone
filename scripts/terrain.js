@@ -21,8 +21,8 @@ export class TerrainGenerator {
             { type: 'river', weight: 0.10 }
         ];
         // How far ahead to generate terrain
-        this.maxDrawDistance = 20; 
-        this.safeZone = 4;
+        this.maxDrawDistance = CONFIG.MAX_DRAW_DISTANCE; 
+        this.safeZone = CONFIG.SAFE_ZONE_ROWS;
     }
 
     // Create the initial terrain on game start
@@ -177,7 +177,7 @@ export class TerrainRow {
         
         for (let x = -4; x <= 4; x += 2) {
             const marking = new THREE.Mesh(markingGeometry, markingMaterial);
-            marking.position.set(x, 0.11, this.z); // Slightly above road
+            marking.position.set(x, 0.2, this.z); // Slightly above road
             this.scene.add(marking);
             this.meshes.push(marking);
         }

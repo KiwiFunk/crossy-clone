@@ -48,9 +48,9 @@ export default class Player {
 
         // Use consistent spacing from config
         this.targetPosition = new THREE.Vector3(
-            this.gridPosition.x * CONFIG.ROW_SPACING,
+            this.gridPosition.x * CONFIG.TILE_SIZE,
             this.targetPosition.y,
-            this.gridPosition.z * CONFIG.ROW_SPACING
+            this.gridPosition.z * CONFIG.TILE_SIZE
         );
 
         // Animate the jump (Pass function as callback to reset isMoving)
