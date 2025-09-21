@@ -231,11 +231,16 @@ export class TerrainRow {
     addVehicles() {
         // Choose vehicle type (car or truck)
         const VehicleType = Math.random() > 0.5 ? Car : Truck;
-    
         const direction = Math.random() > 0.5 ? 'right' : 'left';
-        const startX = direction === 'right' ? -7 : 7;
+
+        // Start beyond the row boundaries
+        const startX = direction === 'right' 
+            ? -(CONFIG.ROW_WIDTH_IN_TILES * CONFIG.TILE_SIZE)/2 - 7 
+            : (CONFIG.ROW_WIDTH_IN_TILES * CONFIG.TILE_SIZE)/2 + 7;
         
-        const vehicle = new VehicleType(this.scene, startX, 0.2, this.z);
+        const y = this.getTerrainHeight() + 0.01;
+
+        const vehicle = new VehicleType(this.scene, startX, y, this.z);
         vehicle.direction = direction;
         
         // Add to obstacles array
