@@ -140,13 +140,8 @@ export class TerrainRow {
     }
 
     getTerrainHeight() {
-        switch(this.type) {
-            case 'grass': return 0.3;
-            case 'river': return 0.05;
-            default: return 0.2;
-        }
+        return CONFIG.TERRAIN_HEIGHTS[this.type.toUpperCase()] || 0.05;
     }
-
 
     getTerrainColor() {
         // Define colors for different terrain types. Replace with loading textures later
