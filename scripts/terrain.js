@@ -101,35 +101,42 @@ export class TerrainRow {
         this.meshes = [];           // Track all meshes for cleanup
         
         // Create the 3D terrain tile
-        this.createTerrain();
+        this.createTerrainTiles();
         
         // Add obstacles based on terrain type
         this.addObstacles();
     }
     
-    createTerrain() {
-        // Create a terrain tile (simple box geometry for now)
-        const geometry = new THREE.BoxGeometry(
-            CONFIG.TERRAIN_WIDTH, 
-            this.getTerrainHeight(),
-            CONFIG.TERRAIN_DEPTH
-        );
+    createTerrainTiles() {
+        const tileWidth = CONFIG.TILE_SIZE;    // 1m
+        const tileDepth = CONFIG.TILE_SIZE;    // 1m
+        const terrainHeight = this.getTerrainHeight();
+        
+        // Calculate the total width and starting X position
+        const totalWidth = CONFIG.ROW_WIDTH_IN_TILES * tileWidth; // 20m
+        const startX = -totalWidth / 2; // Center the row at x=0
+        
+        // Create individual tiles
+        for (let i = 0; i < CONFIG.ROW_WIDTH_IN_TILES; i++) {
+            const geometry = new THREE.BoxGeometry(tileWidth, terrainHeight, tileDepth);
+            const material = new THREE.MeshStandardMaterial({
+                color: this.getTerrainColor(),
+                roughness: 0.8
+            });
+            
+            const mesh = new THREE.Mesh(geometry, material);
+            
+            // Position each tile
+            const x = startX + (i * tileWidth) + (tileWidth / 2);
+            mesh.position.set(x, terrainHeight/2, this.z);
+            
+            mesh.receiveShadow = true;
+            this.scene.add(mesh);
+            this.meshes.push(mesh);
 
-        const material = new THREE.MeshStandardMaterial({
-            color: this.getTerrainColor(),
-            roughness: 0.8
-        });
-        
-        const mesh = new THREE.Mesh(geometry, material);
-        mesh.position.set(0, 0, this.z); // Position at proper Z
-        mesh.receiveShadow = true;       // Can receive shadows
-        
-        // Add to scene and track for cleanup
-        this.scene.add(mesh);
-        this.meshes.push(mesh);
-        
-        // Add simple texturing based on terrain type
-        this.addTerrainDetails();
+            // Add terrain details (e.g., road markings, rails)
+            this.addTerrainDetails();
+        }
     }
 
     getTerrainHeight() {

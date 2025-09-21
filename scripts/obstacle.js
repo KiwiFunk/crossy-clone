@@ -12,8 +12,11 @@ class Obstacle {
         this.mesh = null;
         this.isLoaded = false;
         this.modelPath = null;      // Set path in child class
-        this.modelScale = 0.35;
-        this.boundingBox = null;    // For collision detection
+
+        // Model scale should be determined by the model itself - for now we need to set this as 0.1 as three will interpret 100cm as 100units(meters in our case)
+        this.modelScale = 0.3;
+
+        this.boundingBox = null;    // BBox calculated from loaded model
         this.type = 'obstacle';     // Default type
         this.sound = null;          // Placeholder for sound effect (e.g Car horn)
         this.static = false;        // If true, obstacle does not move (e.g. rocks, trees)

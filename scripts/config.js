@@ -3,9 +3,9 @@ export const CONFIG = {
     UNIT_SIZE: 1.0,                    // 1 unit = 1 meter
     TILE_SIZE: 1.0,                    // Each terrain tile is 1m x 1m
     
-    // Terrain dimensions (in meters/units)
-    TERRAIN_WIDTH: 20,                 // Terrain row width: 20 meters
-    TERRAIN_DEPTH: 1,                  // Terrain row depth: 1 meter
+    // Terrain dimensions (in tiles)
+    ROW_WIDTH_IN_TILES: 20,             // Row width: 20 tiles (20 meters)
+    ROW_DEPTH_IN_TILES: 1,              // Row depth: 1 tile (1 meter)
     ROW_SPACING: 1.0,                  // Distance between rows: 1 meter
     
     // Terrain heights (in meters) - models will define their own heights
