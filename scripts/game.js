@@ -13,6 +13,9 @@ class Game {
         this.setupGameElements();
         this.setupEventListeners();
         this.animate();
+
+        // Make game instance globally accessible
+        window.game = this;
     }
 
     setupThreeJS() {

@@ -7,8 +7,21 @@ export default class Player {
         this.gridPosition = { x: 0, y: 0, z: 0 };
         this.targetPosition = new THREE.Vector3(0, CONFIG.PLAYER_SIZE/2, 0);
         this.size = CONFIG.PLAYER_SIZE;
+
+        // Player states
         this.isMoving = false;
         this.isJumping = false;
+
+        // Current Tile/Surface states
+        this.currentTileType = 'grass'; // We always start on grass
+        this.currentSurface = null;     // For interactable objects, e.g Logs
+
+        // Log/River handling - we may refactor later
+        this.isOnLog = false;
+        this.currentLog = null;
+        this.isInWater = false;
+
+        // Create Mesh for player
         this.createMesh();
     }
 
@@ -106,9 +119,18 @@ export default class Player {
         animateJump();
     }
 
+    getPosition() {
+        return this.gridPosition;
+    }
+
+    // This is called every frame from the main loop
     update() {
-        // Check if player is on a log and move with it
-        this.checkLogInteraction();
+
+        // Check what tile/surface the player is currently on
+        this.checkCurrentTile();
+
+        // Handle tile specific actions
+        this.handleTileInteraction();
 
         // Add idle animation
         if (!this.isJumping) {
@@ -117,86 +139,256 @@ export default class Player {
         }
     }
     
-    getPosition() {
-        return this.gridPosition;
-    }
-    
-    checkCollision(obstacles) {
-        if (!this.body) return false;
+    /**
+     * Determine what the player is currently standing on
+     * Set y value and perform any logic based on surface type
+     */
+    checkCurrentTile() {
+        // Reset states
+        const previousLog = this.currentLog;
+        this.currentSurface = null;
+        this.isOnLog = false;
+        this.currentLog = null;
+        this.isInWater = false;
+
+        // Find the current tile the player is on
+        const playerWorldZ = this.gridPosition.z * CONFIG.TILE_SIZE;
+
+        // Find the terrain row the current tile belongs to
+        const terrainRow = this.findTerrainRowAtZ(playerWorldZ);
         
-        // Create player bounding box
-        const playerBox = new THREE.Box3().setFromObject(this.body);
-        
-        for (const obstacle of obstacles) {
-            // Skip obstacles without a valid mesh
-            if (!obstacle.mesh || !obstacle.mesh.parent) continue;
+        if (terrainRow) {
+            this.currentTileType = terrainRow.type;
             
-            try {
-                // Attempt to create obstacle bounding box
-                const obstacleBox = new THREE.Box3().setFromObject(obstacle.mesh);
-                if (playerBox.intersectsBox(obstacleBox)) {
+            // Handle different tile types
+            switch (this.currentTileType) {
+                case 'grass':
+                case 'road':
+                case 'rail':
+                    this.handleSolidTile(terrainRow);
+                    break;
+                    
+                case 'river':
+                    this.handleRiverTile(terrainRow);
+                    break;
+                    
+                default:
+                    console.warn(`Unknown tile type: ${this.currentTileType}`);
+                    this.handleSolidTile(terrainRow);
+            }
+        } else {
+            // Fallback if no terrain found
+            this.currentTileType = 'grass';
+            this.setPlayerHeight(CONFIG.TERRAIN_HEIGHTS.GRASS);
+        }
+
+        // Handle log state changes
+        if (previousLog && previousLog !== this.currentLog) {
+            previousLog.playerLeft();
+        }
+        if (this.currentLog && previousLog !== this.currentLog) {
+            this.currentLog.playerLanded();
+        }
+    }
+
+    // Find the terrain row at a given Z coord (not sure if this is best way to handle)
+    findTerrainRowAtZ(worldZ) {
+        // Access terrain generator through game instance
+        if (window.game && window.game.terrainGenerator) {
+            const terrainRows = window.game.terrainGenerator.rows;
+            
+            // Find the row that contains this Z position
+            for (const row of terrainRows) {
+                const rowStart = row.z - (CONFIG.TILE_SIZE / 2);
+                const rowEnd = row.z + (CONFIG.TILE_SIZE / 2);
+                
+                if (worldZ >= rowStart && worldZ < rowEnd) {
+                    return row;
+                }
+            }
+        }
+        
+        return null; // No terrain found
+    }
+
+    handleSolidTile(terrainRow) {
+        // Set player height based on terrain
+        const terrainHeight = terrainRow.getTerrainHeight();
+        this.setPlayerHeight(terrainHeight);
+        
+        // If we're not on grass, check for obstacles.
+        if(terrainRow.type !== 'grass') {
+            this.checkCollision(terrainRow);
+        }
+        
+    }
+
+    handleRiverTile(terrainRow) {
+        // First check if player is on a log
+        const logFound = this.checkForLogsOnTile(terrainRow);
+        
+        if (logFound) {
+            // Player is on a log - they're safe
+            this.isOnLog = true;
+            this.isInWater = false;
+            
+            // Set height based on log height
+            const terrainHeight = terrainRow.getTerrainHeight();
+            this.setPlayerHeight(terrainHeight + 0.3); // Log height above water
+        } else {
+            // Player is in water - they should sink/die
+            this.isInWater = true;
+            this.isOnLog = false;
+            
+            const terrainHeight = terrainRow.getTerrainHeight();
+            this.setPlayerHeight(terrainHeight - 0.5); // Sink below water surface
+        }
+    }
+
+    // Check if there is a log on the current tile
+    checkForLogsOnTile(terrainRow) {
+        if (!terrainRow.obstacles) return false;
+        
+        // Get player's 'feet' position for accurate detection (more accurate than just BBox)
+        const playerFeet = new THREE.Vector3(
+            this.body.position.x,
+            this.body.position.y - (this.size/2),
+            this.body.position.z
+        );
+        
+        // Check each obstacle on this tile
+        for (const obstacle of terrainRow.obstacles) {
+            if (obstacle.subtype === 'log' && 
+                obstacle.isLoaded && 
+                obstacle.boundingBox) {
+                
+                // Expand bounding box slightly for easier detection
+                const expandedBox = obstacle.boundingBox.clone();
+                expandedBox.expandByScalar(0.1);
+                
+                // Check if player is on this log
+                if (expandedBox.containsPoint(playerFeet) && !this.isJumping) {
+                    this.currentLog = obstacle;
+                    this.currentSurface = obstacle;
                     return true;
                 }
-            } catch (error) {
-                console.warn('Collision check failed for obstacle:', obstacle);
-                // Skip this obstacle if there was an error
-                continue;
             }
         }
         
         return false;
     }
 
-    checkLogInteraction() {
-        let isOnAnyLog = false;
-        let currentLog = null;
+    // Check for collisions on a given row using AABB
+    checkCollision(terrainRow) {
+        // If this row didnt spawn with obstacles, return
+        if (!terrainRow.obstacles) return;
+
+        // Get player's bounding box
+        const playerBox = new THREE.Box3().setFromObject(this.body);
         
-        // Get player's feet position
-        const playerFeet = new THREE.Vector3(
-            this.body.position.x,
-            this.body.position.y - (this.size/2) - 0.1, // Slightly below player's bottom
-            this.body.position.z
-        );
-        
-        // Check all obstacles in the scene
-        this.scene.children.forEach(child => {
-            // Only check log objects that have bounding boxes
-            if (child.userData && 
-                child.userData.type === 'obstacle' &&
-                child.userData.obstacle &&
-                child.userData.obstacle.type === 'log' &&
-                child.userData.obstacle.boundingBox) {
+        for (const obstacle of terrainRow.obstacles) {
+            if (obstacle.isLoaded && 
+                obstacle.boundingBox && 
+                obstacle.type === 'obstacle') {
                 
-                const log = child.userData.obstacle;
-                
-                // Expand the box slightly upward to make detection easier
-                const expandedBox = log.boundingBox.clone();
-                expandedBox.max.y += 0.2;
-                
-                // Check if player is on this log
-                if (expandedBox.containsPoint(playerFeet) && !this.isJumping) {
-                    isOnAnyLog = true;
-                    currentLog = log;
+                // Check collision with nont
+                if (playerBox.intersectsBox(obstacle.boundingBox)) {
+                    this.currentSurface = obstacle;
                     
-                    // Tell log the player is on it (if not already)
-                    if (this.currentLog !== log) {
-                        if (this.currentLog) {
-                            this.currentLog.playerLeft();
-                        }
-                        log.playerLanded();
-                        this.currentLog = log;
+                    // If the obstacle is static (e.g. tree), block movement
+                    if (obstacle.static) {
+                        // Add logic for blocking move here
+                    } 
+                    // Else trigger a game over
+                    else if (['car', 'truck', 'train'].includes(obstacle.subtype)) {
+                        // Vehicles cause game over
+                        //this.triggerGameOver('vehicle');
                     }
-                    
-                    // Get carried by the log
-                    log.carryPlayer(this);
                 }
             }
-        });
-        
-        // Player jumped off or moved off the log
-        if (!isOnAnyLog && this.currentLog) {
-            this.currentLog.playerLeft();
-            this.currentLog = null;
         }
     }
+
+    handleTileInteraction() {
+        if (this.isInWater && !this.isOnLog) {
+            // Player is drowning
+            // Create an animation for this
+            //this.triggerGameOver('drowning');
+            return;
+        }
+        
+        if (this.isOnLog && this.currentLog) {
+            // Player is riding a log - move with it
+            this.currentLog.carryPlayer(this);
+        }
+        
+        // Handle tile-specific effects
+        switch (this.currentTileType) {
+            case 'grass':
+                // Safe zone - no special effects
+                break;
+                
+            case 'road':
+                // Road - watch for vehicles (handled in checkCollision)
+                break;
+                
+            case 'rail':
+                // Railway - watch for trains (handled in checkCollision)
+                break;
+                
+            case 'river':
+                // Water - sink or ride logs (handled above)
+                break;
+        }
+    }
+
+    setPlayerHeight(terrainHeight) {
+        const newY = terrainHeight + (this.size / 2);
+        
+        // Only update if not jumping
+        if (!this.isJumping) {
+            this.targetPosition.y = newY;
+            this.body.position.y = newY;
+        }
+    }
+
+    triggerGameOver(reason) {
+        console.log(`Game Over: ${reason}`);
+        
+        // Emit game over event
+        if (window.game && window.game.handleGameOver) {
+            window.game.handleGameOver(reason);
+        } else {
+            // Fallback game over handling
+            alert(`Game Over! Cause: ${reason}`);
+            this.resetPlayerPosition();
+        }
+    }
+
+    resetPlayerPosition() {
+        this.gridPosition = { x: 0, y: 0, z: 0 };
+        this.targetPosition = new THREE.Vector3(0, CONFIG.PLAYER_SIZE/2, 0);
+        this.body.position.copy(this.targetPosition);
+        this.isMoving = false;
+        this.isJumping = false;
+        this.currentTileType = 'grass';
+        this.currentSurface = null;
+        this.isOnLog = false;
+        this.currentLog = null;
+        this.isInWater = false;
+    }
+
+    /**
+     * Get detailed information about what the player is currently on
+     */
+    getCurrentTileInfo() {
+        return {
+            tileType: this.currentTileType,
+            isOnLog: this.isOnLog,
+            isInWater: this.isInWater,
+            currentSurface: this.currentSurface,
+            gridPosition: { ...this.gridPosition }
+        };
+    }
+    
 }
