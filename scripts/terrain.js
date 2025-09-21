@@ -267,19 +267,18 @@ export class TerrainRow {
         const speedValue = Math.random() * 0.03 + 0.02;
         const signedSpeed = direction === 'right' ?  speedValue : -speedValue;
 
-        // off-screen baseX (same for every log in this row)
-        const halfW    = CONFIG.TERRAIN_WIDTH / 2;
-        const baseX    = direction === 'right'
-                        ? -halfW - 5 
-                        :  halfW + 5;
+        // Start beyond row boundaries
+        const rowHalfWidth = (CONFIG.ROW_WIDTH_IN_TILES * CONFIG.TILE_SIZE) / 2;
+        const baseX = direction === 'right' ? -rowHalfWidth - 5 : rowHalfWidth + 5;
 
         for (let i = 0; i < numLogs; i++) {
             // stagger each log’s spawn so they don’t overlap
             const randomOffset = (Math.random() - 0.5) * 10;
             const startX       = baseX + randomOffset;
+            const y = this.getTerrainHeight() + 0.01;
 
             // create & configure
-            const log          = new Log(this.scene, startX, 0.05, this.z);
+            const log          = new Log(this.scene, startX, y, this.z);
             log.direction      = direction;
             log.speed          = signedSpeed;
 
