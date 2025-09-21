@@ -6,6 +6,7 @@ import Truck from './obstacles/truck.js';
 import Train from './obstacles/train.js';
 import Log from './obstacles/log.js';
 import Tree from './obstacles/tree.js';
+import Rail from './decor/rail.js';
 
 export class TerrainGenerator {
     constructor(scene) {
@@ -134,9 +135,14 @@ export class TerrainRow {
             this.scene.add(mesh);
             this.meshes.push(mesh);
 
-            // Add terrain details (e.g., road markings, rails)
-            this.addTerrainDetails();
+            if (this.type === 'rail') {
+                const rail = new Rail(this.scene, x, terrainHeight, this.z);
+                this.meshes.push(rail.mesh || rail); // Track for cleanup
+            }
         }
+
+        // Add terrain details to the completed row if applicable (e.g. road markings, rails)
+        this.addTerrainDetails();
     }
 
     getTerrainHeight() {
@@ -184,20 +190,7 @@ export class TerrainRow {
     }
     
     addRailroadTracks() {
-        // Create geometry with three for now. Use custom models later?
-        const railGeometry = new THREE.BoxGeometry(10, 0.05, 0.1);
-        const railMaterial = new THREE.MeshStandardMaterial({ 
-            color: 0x888888, 
-            metalness: 0.8 
-        });
-        
-        // Add two rails
-        for (let offset of [-0.2, 0.2]) {
-            const rail = new THREE.Mesh(railGeometry, railMaterial);
-            rail.position.set(0, 0.15, this.z + offset);
-            this.scene.add(rail);
-            this.meshes.push(rail);
-        }
+        // This logic needs fixing
     }   
 
     addObstacles() {
