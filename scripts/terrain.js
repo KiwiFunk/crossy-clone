@@ -296,10 +296,12 @@ export class TerrainRow {
     addTrees() {
         const numTrees = Math.floor(Math.random() * 8) + 1;
 
-        const minX = -CONFIG.TERRAIN_WIDTH / 2 + 2;
-        const maxX = CONFIG.TERRAIN_WIDTH / 2 - 2;
-        const centerZone = 3;
-        const minSpacing = 1.5;
+        // Define placement constraints within the row
+        const rowHalfWidth = (CONFIG.ROW_WIDTH_IN_TILES * CONFIG.TILE_SIZE) / 2;
+        const minX = -rowHalfWidth + 2;  // 2m from edge
+        const maxX = rowHalfWidth - 2;   // 2m from edge
+        const centerZone = 3;            // Keep center 3m clear
+        const minSpacing = 1.5;          // 1.5m between trees
 
         const placedX = [];
 
@@ -318,8 +320,9 @@ export class TerrainRow {
             if (tooClose) continue;
 
             placedX.push(treeX);
+            const y = this.getTerrainHeight();
 
-            const tree = new Tree(this.scene, treeX, 0.2, this.z);
+            const tree = new Tree(this.scene, treeX, y, this.z);
             console.log(`Tree ${placedX.length} placed at x=${treeX.toFixed(2)} on grass row z=${this.z}`);
         }
 
