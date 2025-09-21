@@ -1,15 +1,15 @@
-import Obstacle from '../obstacle.js';
+import Mesh from '../mesh.js';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
-class Log extends Obstacle {
+class Log extends Mesh {
     constructor(scene, x, y, z) {
         super(scene, x, y, z);
         
         // Class properties
         this.modelPath = 'assets/log.glb';
         this.type = 'log';
-        this.speed = Obstacle.getRandomSpeed(0.02, 0.05); // Logs move slower than trains
+        this.speed = Mesh.getRandomSpeed(0.02, 0.05); // Logs move slower than trains
         
         // Log-specific properties
         this.endCapPath = 'assets/logend.glb';

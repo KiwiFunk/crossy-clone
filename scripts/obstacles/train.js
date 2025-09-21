@@ -1,8 +1,8 @@
-import Obstacle from '../obstacle.js';
+import Mesh from '../mesh.js';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
-class Train extends Obstacle {
+class Train extends Mesh {
     constructor(scene, x, y, z) {
         super(scene, x, y, z);
 

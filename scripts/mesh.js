@@ -1,25 +1,31 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
-class Obstacle {
+class Mesh {
     constructor(scene, x, y, z, direction = 'left') {
         this.scene = scene;
         this.x = x;
         this.y = y;
         this.z = z;
+
+        // Movement properties
         this.speed = null;
         this.direction = direction; // 'left' or 'right'
+
+        // Model properties
         this.mesh = null;
         this.isLoaded = false;
         this.modelPath = null;      // Set path in child class
+        this.modelScale = 1.0;      // Scale should be handled in the mesh, not the subclass.
 
-        // Model scale should be determined by the model itself - for now we need to set this as 0.1 as three will interpret 100cm as 100units(meters in our case)
-        this.modelScale = 1.0;
-
+        // Physics properties
         this.boundingBox = null;    // BBox calculated from loaded model
-        this.type = 'obstacle';     // Default type
+        this.static = false;        // If true, mesh does not move (e.g. rocks, trees)
+
+        // Misc properties
+        this.type = 'obstacle';     // Default type (Obstacle, Decor etc.)
         this.sound = null;          // Placeholder for sound effect (e.g Car horn)
-        this.static = false;        // If true, obstacle does not move (e.g. rocks, trees)
+        
     }
 
     // Use static as the utility is not tied to instance. We want to call it before creating instances. (during the constructor)
@@ -30,7 +36,7 @@ class Obstacle {
     // Load 3D model from GLTF file
     loadModel() {
         if (!this.modelPath) {
-            console.warn('No model path specified for obstacle');
+            console.warn('No model path specified for asset');
             return;
         }
         
@@ -94,7 +100,7 @@ class Obstacle {
 
     update() {
         if (!this.mesh) return;
-        if (this.static) return; // Static obstacles do not move
+        if (this.static) return; // Static meshes do not move
         
         // Move based on direction
         if (this.direction === 'right') {
@@ -146,4 +152,4 @@ class Obstacle {
     }
 }
 
-export default Obstacle;
+export default Mesh;

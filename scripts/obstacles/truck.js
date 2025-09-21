@@ -1,11 +1,11 @@
-import Obstacle from '../obstacle.js';
+import Mesh from '../mesh.js';
 
-class Truck extends Obstacle {
+class Truck extends Mesh {
     constructor(scene, x, y, z) {
         super(scene, x, y, z);
         this.modelPath = 'assets/truck.glb';
         this.type = 'truck';
-        this.speed = Obstacle.getRandomSpeed(0.02, 0.04);
+        this.speed = Mesh.getRandomSpeed(0.02, 0.04);
 
         this.loadModel();
     }
