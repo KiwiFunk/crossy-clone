@@ -1,10 +1,21 @@
 export const CONFIG = {
-    // Grid and spacing
-    GRID_SIZE: 1,
-    ROW_SPACING: 1,
-    TERRAIN_WIDTH: 20,
-    TERRAIN_DEPTH: 1,
+    // Core scaling system: 1 unit = 1 meter = 100cm
+    UNIT_SIZE: 1.0,                    // 1 unit = 1 meter
+    TILE_SIZE: 1.0,                    // Each terrain tile is 1m x 1m
     
+    // Terrain dimensions (in meters/units)
+    TERRAIN_WIDTH: 20,                 // Terrain row width: 20 meters
+    TERRAIN_DEPTH: 1,                  // Terrain row depth: 1 meter
+    ROW_SPACING: 1.0,                  // Distance between rows: 1 meter
+    
+    // Terrain heights (in meters) - models will define their own heights
+    TERRAIN_HEIGHTS: {
+        GRASS: 0.20,                   // Grass: 20cm high
+        ROAD: 0.15,                    // Road: 15cm high
+        RAIL: 0.15,                    // Rail: 15cm high
+        RIVER: 0.01,                   // River: 1cm high
+    },
+
     // Player settings
     PLAYER_SIZE: 0.8,
     PLAYER_JUMP_HEIGHT: 1.5,
