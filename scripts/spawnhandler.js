@@ -17,6 +17,13 @@ export class SpawnManager {
             terrainHeight: 0.1,            // Height of terrain
             ...options                     // Override with any passed options
         };
+
+        // Handle the spawning if chance permits
+        if (Math.random() <= this.chance) {
+            return this.spawnAssets();
+        }
+        
+        return []; // Return empty array if nothing spawned
     }
 
     spawnAssets() {
