@@ -1,3 +1,6 @@
+import { CONFIG } from './config.js';
+import * as THREE from 'three';
+
 export class SpawnManager {
     constructor(scene, EntityClass, count, chance, terrainRowZ, options = {}) {
        this.scene = scene;              // Scene we are spawning into
@@ -53,7 +56,6 @@ export class SpawnManager {
             // If the mesh is static, we will need to avoid handling things such as speed
 
         // Push the collection of assets to the scene
-    };
-    
-
+        }
+    }
 }
