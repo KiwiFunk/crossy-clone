@@ -54,7 +54,7 @@ export const CONFIG = {
     // Model Dimensions
     MODEL_DIMENSIONS: {
         LOG: {
-            END_CAP_WIDTH: 0.5638515055179596,
+            END_CAP_WIDTH: 0.55,
             SEGMENT_WIDTH: 2,    
             HEIGHT: 0.5966004729270935,           
             DEPTH: 0.5966004729270935             

@@ -63,33 +63,26 @@ class Log extends Mesh {
         // 1. front cap
         const frontGltf = await loadGltf(this.endCapPath);
         const frontCap = this.preparePart(frontGltf.scene);
-        const frontCapWidth = this.getMeshWidth(frontCap);
         frontCap.position.x = 0;
         this.logGroup.add(frontCap);
 
         // 2. segment template
         const segmentGltf = await loadGltf(this.modelPath);
         const segmentTemplate = this.preparePart(segmentGltf.scene);
-        const segmentWidth = this.getMeshWidth(segmentTemplate);
 
-        // place segments
+        // 3. place segments
         for (let i = 0; i < this.segmentCount; i++) {
             const seg = segmentTemplate.clone();
             seg.position.x =  i * segmentWidth;
             this.logGroup.add(seg);
         }
 
-        // 3. back cap
+        // 4. back cap
         const backGltf = await loadGltf(this.endCapPath);
         const backCap = this.preparePart(backGltf.scene);
         backCap.rotation.y = Math.PI;
         backCap.position.x = this.segmentCount * segmentWidth;
         this.logGroup.add(backCap);
-
-        // 4. compute total width
-        this.totalWidth = frontCapWidth
-                        + this.segmentCount * segmentWidth
-                        + frontCapWidth;
 
         // 5. finalize
         this.isLoaded = true;
@@ -155,11 +148,6 @@ class Log extends Mesh {
             }
         });
         return part;
-    }
-
-    getMeshWidth(obj) {
-        const bbox = new THREE.Box3().setFromObject(obj);
-        return bbox.getSize(new THREE.Vector3()).x;
     }
     
     updateSinkAnimation() {

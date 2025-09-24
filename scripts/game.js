@@ -147,7 +147,7 @@ window.addEventListener('load', () => {
     const game = new Game();
 });
 
-const calculateMeshSizes = false;
+const calculateMeshSizes = true;
 
 // Test mesh dimensions
 if(calculateMeshSizes) {
