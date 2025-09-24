@@ -196,23 +196,19 @@ export class TerrainRow {
     addObstacles() {
         // Add obstacles based on terrain type
         switch(this.type) {
+            
             case 'road':
-                // 70% chance to add vehicles on a road
-                if (Math.random() > 0.3) {
-                    this.addVehicles();
-                }
+                const VehicleType = Math.random() > 0.5 ? Car : Truck;
+                this.SpawnManager(this.scene, VehicleType, 1, 0.7, this.z);
                 break;
                 
             case 'rail':
-                // 40% chance to add train on rails
-                if (Math.random() > 0.6) {
-                    this.addTrain();
-                }
+                this.SpawnManager(this.scene, Train, 1, 1.0, this.z);
                 break;
 
             case 'river':
-                // Logs must always be present on rivers
-                this.addLogs();
+                let numLogs = Math.floor(Math.random() * 3) + 1;
+                this.SpawnManager(this.scene, Log, numLogs, 1.0, this.z);
                 break;
                 
             case 'grass':
@@ -220,110 +216,6 @@ export class TerrainRow {
                 break;
         }
     }
-
-    addVehicles() {
-        // Choose vehicle type (car or truck)
-        const VehicleType = Math.random() > 0.5 ? Car : Truck;
-        const direction = Math.random() > 0.5 ? 'right' : 'left';
-
-        // Start beyond the row boundaries
-        const startX = direction === 'right' 
-            ? -(CONFIG.ROW_WIDTH_IN_TILES * CONFIG.TILE_SIZE)/2 - 7 
-            : (CONFIG.ROW_WIDTH_IN_TILES * CONFIG.TILE_SIZE)/2 + 7;
-        
-        const y = this.getTerrainHeight() + 0.01;
-
-        const vehicle = new VehicleType(this.scene, startX, y, this.z);
-        vehicle.direction = direction;
-        
-        // Add to obstacles array
-        this.obstacles.push(vehicle);
-    }
-    
-    addTrain() {
-        const direction = Math.random() > 0.5 ? 'right' : 'left';
-        const startX = direction === 'right' ? -10 : 10;
-        
-        const train = new Train(this.scene, startX, 0.2, this.z);
-        train.direction = direction;
-        
-        this.obstacles.push(train);
-    }
-
-    // This needs to be reworked so totalWidth can be used to prevent log overlap
-    addLogs() {
-        // 1–3 logs this row
-        const numLogs    = Math.floor(Math.random() * 3) + 1;
-
-        // pick direction & magnitude once, per row
-        const direction  = Math.random() > 0.5 ? 'right' : 'left';
-        const speedValue = Math.random() * 0.03 + 0.02;
-        const signedSpeed = direction === 'right' ?  speedValue : -speedValue;
-
-        // Start beyond row boundaries
-        const rowHalfWidth = (CONFIG.ROW_WIDTH_IN_TILES * CONFIG.TILE_SIZE) / 2;
-        const baseX = direction === 'right' ? -rowHalfWidth - 5 : rowHalfWidth + 5;
-
-        for (let i = 0; i < numLogs; i++) {
-            // stagger each log’s spawn so they don’t overlap
-            const randomOffset = (Math.random() - 0.5) * 10;
-            const startX       = baseX + randomOffset;
-            const y = this.getTerrainHeight() + 0.01;
-
-            // create & configure
-            const log          = new Log(this.scene, startX, y, this.z);
-            log.direction      = direction;
-            log.speed          = signedSpeed;
-
-            // store for collision, lookup, etc.
-            this.obstacles.push(log);
-            if (log.logGroup) {
-                log.logGroup.userData = {
-                    type:     'obstacle',
-                    obstacle: log
-                };
-            }
-        }
-    }
-
-    addTrees() {
-        const numTrees = Math.floor(Math.random() * 8) + 1;
-
-        // Define placement constraints within the row
-        const rowHalfWidth = (CONFIG.ROW_WIDTH_IN_TILES * CONFIG.TILE_SIZE) / 2;
-        const minX = -rowHalfWidth + 2;  // 2m from edge
-        const maxX = rowHalfWidth - 2;   // 2m from edge
-        const centerZone = 3;            // Keep center 3m clear
-        const minSpacing = 1.5;          // 1.5m between trees
-
-        const placedX = [];
-
-        let attempts = 0;
-        let maxAttempts = numTrees * 10;
-
-        while (placedX.length < numTrees && attempts < maxAttempts) {
-            let treeX = minX + Math.random() * (maxX - minX);
-            attempts++;
-
-            // Reject if too close to center
-            if (Math.abs(treeX) < centerZone) continue;
-
-            // Reject if too close to any existing tree
-            const tooClose = placedX.some(x => Math.abs(x - treeX) < minSpacing);
-            if (tooClose) continue;
-
-            placedX.push(treeX);
-            const y = this.getTerrainHeight();
-
-            const tree = new Tree(this.scene, treeX, y, this.z);
-            console.log(`Tree ${placedX.length} placed at x=${treeX.toFixed(2)} on grass row z=${this.z}`);
-        }
-
-        if (placedX.length < numTrees) {
-            console.warn(`Only placed ${placedX.length} trees out of ${numTrees} due to spacing constraints.`);
-        }
-    }
-
 
     update() {
         // Update all obstacles (e.g., move vehicles)
