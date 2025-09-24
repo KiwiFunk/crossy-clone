@@ -1,6 +1,7 @@
 import Mesh from '../mesh.js';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { CONFIG } from '../config.js';
 
 class Log extends Mesh {
     constructor(scene, x, y, z) {
@@ -8,15 +9,20 @@ class Log extends Mesh {
         
         // Class properties
         this.modelPath = 'assets/log.glb';
-        this.type = 'log';
+        this.type = 'obstacle';
         this.speed = Mesh.getRandomSpeed(0.02, 0.05); // Logs move slower than trains
         
         // Log-specific properties
         this.endCapPath = 'assets/logend.glb';
         this.logGroup = new THREE.Group();
-        this.segmentCount = Math.floor(Math.random() * 3) + 1; // Random length (1-3 segments)
-        this.totalWidth = 0; // Will be calculated after loading
-        
+        this.segmentCount = Math.floor(Math.random() * 3) + 1; // Calculate random length when instantiated
+
+        // Get predefined model dimensions from config
+        const dims = CONFIG.MODEL_DIMENSIONS.LOG;
+        this.endCapWidth = dims.END_CAP_WIDTH;
+        this.segmentWidth = dims.SEGMENT_WIDTH;
+        this.totalWidth = this.calculateTotalWidth();      
+
         // Animation properties for sinking effect
         this.originalY = y;
         this.sinkDepth = 0.15;      // How far log sinks when player stands on it
@@ -27,8 +33,22 @@ class Log extends Mesh {
         
         // Position the group in the scene
         this.logGroup.position.set(this.x, this.y, this.z);
+
+        // Override the mesh with the complete log group
+        this.mesh = this.logGroup;
         
         this.loadLog();
+    }
+
+    // Calculate total width using config dimensions
+    calculateTotalWidth() {
+        return this.endCapWidth + (this.segmentCount * this.segmentWidth) + this.endCapWidth;
+    }
+
+    // Static method to use when spawning calculations are performed outside this class
+    static calculateTotalWidth(segmentCount) {
+        const dims = CONFIG.MODEL_DIMENSIONS.LOG;
+        return dims.END_CAP_WIDTH + (segmentCount * dims.SEGMENT_WIDTH) + dims.END_CAP_WIDTH;
     }
 
     // Use async/await to load multiple parts sequentially

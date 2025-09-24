@@ -83,8 +83,8 @@ export async function calculateMeshDimensions(path) {
     });
 
     const mesh = gltf.scene;
-    const box = new THREE.Box3().setFromObject(mesh);
-    const size = box.getSize(new THREE.Vector3());
+    const bbox = new THREE.Box3().setFromObject(mesh);
+    const size = bbox.getSize(new THREE.Vector3());
     
     console.log(`=== Calculating dimensions for ${path} ===`);
 
