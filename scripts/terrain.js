@@ -135,10 +135,6 @@ export class TerrainRow {
             this.scene.add(mesh);
             this.meshes.push(mesh);
 
-            if (this.type === 'rail') {
-                const rail = new Rail(this.scene, x, terrainHeight, this.z);
-                this.meshes.push(rail.mesh || rail); // Track for cleanup
-            }
         }
 
         // Add terrain details to the completed row if applicable (e.g. road markings, rails)
@@ -165,11 +161,12 @@ export class TerrainRow {
         // Apply Alphas or other details/meshes based on terrain type
         switch(this.type) {
             case 'road':
+                // THESE SHOULD USE THE SPAWNMANEGER TOO
                 this.addRoadMarkings();
                 break;
                 
             case 'rail':
-                this.addRailroadTracks();
+                this.SpawnManager(this.scene, Rail, CONFIG.ROW_WIDTH_IN_TILES, 1.0, this.z);
                 break;
 
             // Implement other details like grass/river fx later
@@ -188,10 +185,6 @@ export class TerrainRow {
             this.meshes.push(marking);
         }
     }
-    
-    addRailroadTracks() {
-        // This logic needs fixing
-    }   
 
     addObstacles() {
         // Add obstacles based on terrain type

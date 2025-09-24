@@ -1,9 +1,22 @@
 export class SpawnManager {
-    constructor(scene, mesh, count, chance, terrainRowZ) {
+    constructor(scene, EntityClass, count, chance, terrainRowZ, options = {}) {
        this.scene = scene;              // Scene we are spawning into
-       this.mesh = mesh;                // Mesh to spawn
-       this.row = terrainRowZ;          // Which Row are we spawning in
-       this.chance = chance;            // Chance of spawning
+       this.EntityClass = EntityClass;  // Entity class to instantiate (Car, Truck, Log, Train, etc.)
+       this.row = terrainRowZ;          // Which Row are we spawning in (Z Position)
+       this.count = count;              // How many to spawn
+       this.chance = chance;            // Chance of spawning (0.0 - 1.0)
+       this.options = options;          // Additional options for spawning (e.g., speed, direction)
+
+       // Set up default options
+        this.options = {
+            avoidCenter: true,             // Keep center area clear
+            centerClearance: 3,            // How many units to keep clear in center
+            heightOffset: 0.01,            // Y-position offset above terrain
+            isMoving: true,                // Is this a moving obstacle?
+            minSpacing: 1.5,               // Minimum spacing between objects
+            terrainHeight: 0.1,            // Height of terrain
+            ...options                     // Override with any passed options
+        };
     }
 
     spawnAssets() {
@@ -33,7 +46,7 @@ export class SpawnManager {
             // If the mesh is static, we will need to avoid handling things such as speed
 
         // Push the collection of assets to the scene
-    }
+    };
     
 
-};
+}
