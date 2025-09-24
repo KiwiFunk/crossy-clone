@@ -58,3 +58,26 @@ function degreesToRadians(degrees) {
 function radiansToDegrees(radians) {
     return radians * (180 / Math.PI);
 }
+
+// Calculate dimensions of a mesh
+async function calculateMeshDimensions(path) {
+    console.log(`=== Calculating dimensions for ${path} ===`);
+
+    const loader = new GLTFLoader();
+
+    const gltf = await new Promise((resolve, reject) => {
+        loader.load(path, resolve, null, reject);
+    });
+
+    const mesh = gltf.scene;
+    const box = new THREE.Box3().setFromObject(mesh);
+    const size = box.getSize(new THREE.Vector3());
+
+    console,log("Mesh dimensions:", {
+        width: size.x,
+        height: size.y,
+        depth: size.z
+    });
+
+    console.log(`=== Finished calculating dimensions for ${path} ===`);
+}
