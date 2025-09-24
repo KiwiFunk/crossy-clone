@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { CONFIG } from './config.js';
+import { calculateMeshDimensions } from './config.js';
 import Player from './player.js';
 import { TerrainGenerator } from './terrain.js';
 import Camera from './camera.js';
@@ -146,3 +146,13 @@ class Game {
 window.addEventListener('load', () => {
     const game = new Game();
 });
+
+const calculateMeshSizes = false;
+
+// Test mesh dimensions
+if(calculateMeshSizes) {
+    (async () => {
+        await calculateMeshDimensions('./assets/log.glb');
+        await calculateMeshDimensions('./assets/logend.glb');
+    })();
+}

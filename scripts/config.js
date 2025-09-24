@@ -1,3 +1,6 @@
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+
 export const CONFIG = {
     // Core scaling system: 1 unit = 1 meter = 100cm
     UNIT_SIZE: 1.0,                    // 1 unit = 1 meter
@@ -46,7 +49,18 @@ export const CONFIG = {
         RAIL: 0x777777,
         RIVER: 0x4444FF,
         PLAYER: 0x0000ff
-    }
+    },
+
+    // Model Dimensions
+    MODEL_DIMENSIONS: {
+        LOG: {
+            END_CAP_WIDTH: 0.5638515055179596,
+            SEGMENT_WIDTH: 2,    
+            HEIGHT: 0.5966004729270935,           
+            DEPTH: 0.5966004729270935             
+        },
+    },
+    
 };
 
 // Convert degrees to radians
@@ -60,9 +74,8 @@ function radiansToDegrees(radians) {
 }
 
 // Calculate dimensions of a mesh
-async function calculateMeshDimensions(path) {
-    console.log(`=== Calculating dimensions for ${path} ===`);
-
+export async function calculateMeshDimensions(path) {
+    
     const loader = new GLTFLoader();
 
     const gltf = await new Promise((resolve, reject) => {
@@ -72,8 +85,10 @@ async function calculateMeshDimensions(path) {
     const mesh = gltf.scene;
     const box = new THREE.Box3().setFromObject(mesh);
     const size = box.getSize(new THREE.Vector3());
+    
+    console.log(`=== Calculating dimensions for ${path} ===`);
 
-    console,log("Mesh dimensions:", {
+    console.log("Mesh dimensions:", {
         width: size.x,
         height: size.y,
         depth: size.z
