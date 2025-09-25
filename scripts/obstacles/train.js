@@ -1,6 +1,7 @@
 import Mesh from '../mesh.js';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { CONFIG } from '../config.js';
 
 class Train extends Mesh {
     constructor(scene, x, y, z) {
@@ -17,11 +18,20 @@ class Train extends Mesh {
         this.partOffsets = [];              // Track each part's offset
         this.carriageSpacing = 2.8;
         this.numCarriages = Math.floor(Math.random() * 3) + 2; // 2 to 4 carriages
+
+        // Handle model dimensions
+        this.trainWidth = CONFIG.MODEL_DIMENSIONS.TRAIN.TRAIN_WIDTH;
+        this.carriageWidth = CONFIG.MODEL_DIMENSIONS.TRAIN.CARRIAGE_WIDTH;
+        this.totalWidth = this.calculateTotalWidth();
         
         // Position the group in the scene
         this.trainGroup.position.set(this.x, this.y, this.z);
         
         this.loadTrain();
+    }
+
+    calculateTotalWidth() {
+        return this.trainWidth + ((this.numCarriages + this.carriageSpacing) * this.carriageWidth);
     }
 
     loadTrain() {
