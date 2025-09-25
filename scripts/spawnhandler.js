@@ -76,42 +76,120 @@ export class SpawnManager {
         }
 
         // Calculate X pos for all entities in array
+        if (this.options.isMoving && this.count === 1) {
+            // If there is only one movng entity, we can just set startX
+            entities[0].entity.x = startX;
+            entities[0].positioned = true;
+        } else {
+            // For multiple, or static entities we need to calculate spacing
+            for (const entityData of entities) {
+                let positioned = false;
+                let attempts = 0;
+                const maxAttempts = 10; // Avoid infinite loops
 
+                while (!positioned && attempts < maxAttempts) {
 
+                    attempts++;
+                    let x;
 
+                    if (this.options.isMoving) {
+                        // Moving entities start at the edge with some variation
+                        const variation = (Math.random() - 0.5) * 3;
+                        x = startX + variation;
+                    } else {
+                        // Static entities use distribution that avoids center unless count === row width
+                        x = this.generatePosWithEdgeWeighting(rowHalfWidth);
+                    }
+                    
+                    // Skip if in center and we're avoiding center
+                    if (this.options.avoidCenter && Math.abs(x) < this.options.centerClearance) {
+                        continue;
+                    }
+                    
+                    // Check for overlaps with existing entities
+                    const overlapping = occupiedRanges.some(range => {
+                        const minDist = (entityData.width + range.width) / 2 + this.options.minSpacing;
+                        return Math.abs(x - range.x) < minDist;
+                    });
+                    
+                    if (!overlapping) {
+                        // Valid position found
+                        entityData.entity.x = x;
+                        entityData.positioned = true;
+                        positioned = true;
+                        
+                        // Register occupied space
+                        occupiedRanges.push({
+                            x: x,
+                            width: entityData.width
+                        });
+                    }
+                }
 
+                // If we couldn't position after max attempts, delete the entity
+                if (!positioned) {
+                    entityData.entity = null; // Mark for deletion
+                }
 
-
-
-
-
-
-
-        // Plan object positions to avoid overlap
-        const plannedPositions = [];
-
-      
-
-        // Loop through the plans array and try to place each asset
-
-        // Loop through using count parameter
-        for (let i = 0; i < this.plans.length; i++) {
-            // Clone the mesh and add it to an array of objects to add
-            // Add the XPos to the occupiedZones width, using the model width to calculate the range
-            // If the randomized x location is in this array, try again
-            // else limit the number of attempts to avoid infinite loops
-            // exit
-            // If the mesh is static, we will need to avoid handling things such as speed
-
-        // Push the collection of assets to the scene
+            }
         }
+
+        // Add all successfully positioned entities to the scene
+        for (const entityData of entities) {
+            // Get positioned entity
+            const entity = entityData.entity;
+            
+            // Set entity position
+            entity.x = entity.x || 0;
+            entity.y = y;
+            entity.z = this.row;
+            
+            // Set properties for moving entities
+            if (this.options.isMoving) {
+                entity.direction = direction;
+                entity.speed = speed;
+            }
+            
+            // Now add to scene (recreating with the scene parameter)
+            const finalEntity = new this.EntityClass(
+                this.scene, 
+                entity.x, 
+                entity.y, 
+                entity.z,
+                entity.segmentCount // Pass segment count if it exists
+            );
+            
+            // Copy properties to final entity
+            if (this.options.isMoving) {
+                finalEntity.direction = direction;
+                finalEntity.speed = speed;
+            }
+            
+            // Add to return array
+            spawnedEntities.push(finalEntity);
+        }
+        
+        return spawnedEntities;
     }
 
-    createAssetPlans() [
-        // Plan out our assets for this row
-        // If we are spawnming multiple, we need to use object widths to avoid overlap
-        // Return an array of planned X positions
-        // Assets comprised of multiple parts need their class to return some kind of flag to allow this to be handled. We can return a 2D array with the width of each part in the sub-array
+    // Generate position with edge weighting 
+    generatePositionWithEdgeWeighting(rowHalfWidth) {
+        // Use a power curve to weight toward edges
+        const side = Math.random() > 0.5 ? 1 : -1;
+        const value = Math.pow(Math.random(), 1.5); // Higher power = more edge weighting
+        return side * value * rowHalfWidth * 0.8; // 80% of half width to stay on terrain
+    }
+    
+    // Get default speed based on entity type (Replace with CONFIG values)
+    getDefaultSpeed() {
+        const className = this.EntityClass.name.toLowerCase();
+        
+        if (className.includes('train')) return 0.12;
+        if (className.includes('car')) return 0.05 + (Math.random() * 0.02);
+        if (className.includes('truck')) return 0.03 + (Math.random() * 0.01);
+        if (className.includes('log')) return 0.02 + (Math.random() * 0.015);
+        
+        return 0.04; // Default for unknown types
+    }
 
-    ]
 }
