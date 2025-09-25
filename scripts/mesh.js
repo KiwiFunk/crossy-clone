@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { CONFIG } from './config.js';
 
 class Mesh {
     constructor(scene, x, y, z, direction = 'left') {
@@ -17,6 +18,7 @@ class Mesh {
         this.isLoaded = false;
         this.modelPath = null;      // Set path in child class
         this.modelScale = 1.0;      // Scale should be handled in the mesh, not the subclass.
+        this.totalWidth = CONFIG.TILE_SIZE; // Default width is one tile
 
         // Physics properties
         this.boundingBox = null;    // BBox calculated from loaded model
