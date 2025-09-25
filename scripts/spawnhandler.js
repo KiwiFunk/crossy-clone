@@ -36,11 +36,10 @@ export class SpawnManager {
         const spawnedEntities = [];
 
         // If !Static, determine direction and speed
-        if(this.options.isMoving) {
-            const direction = Math.random() > 0.5 ? 'right' : 'left';
-            const baseSpeed = this.getDefaultSpeed();
-            const speed = direction === 'right' ? baseSpeed : -baseSpeed;
-        }
+        const direction = Math.random() > 0.5 ? 'right' : 'left';
+        const baseSpeed = this.getDefaultSpeed();
+        const speed = direction === 'right' ? baseSpeed : -baseSpeed;
+        
 
         // Calculate initial X pos (for moving objects, this is offscreen)
         let startX = 0;
@@ -173,7 +172,7 @@ export class SpawnManager {
     }
 
     // Generate position with edge weighting 
-    generatePositionWithEdgeWeighting(rowHalfWidth) {
+    generatePosWithEdgeWeighting(rowHalfWidth) {
         // Use a power curve to weight toward edges
         const side = Math.random() > 0.5 ? 1 : -1;
         const value = Math.pow(Math.random(), 1.5); // Higher power = more edge weighting
