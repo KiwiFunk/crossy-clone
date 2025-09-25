@@ -1,5 +1,7 @@
 import * as THREE from 'three';
 import { CONFIG } from './config.js';
+import { SpawnManager } from './spawnhandler.js';
+
 // Import our obstacle subclasses
 import Car from './obstacles/car.js';
 import Truck from './obstacles/truck.js';
@@ -166,7 +168,28 @@ export class TerrainRow {
                 break;
                 
             case 'rail':
-                this.SpawnManager(this.scene, Rail, CONFIG.ROW_WIDTH_IN_TILES, 1.0, this.z, this.type);
+                // Create rail decorations using SpawnManager
+                const railOptions = {
+                    avoidCenter: false,    // Rails cover the entire row
+                    isMoving: false,       // Rails don't move
+                    heightOffset: 0.01,    // Slightly above terrain
+                    minSpacing: 1.0        // Rails are placed every 1m
+                };
+                
+                const railEntities = new SpawnManager(
+                    this.scene,            // Scene reference 
+                    Rail,                  // Rail class
+                    CONFIG.ROW_WIDTH_IN_TILES, // Create one for each tile
+                    1.0,                   // 100% chance to spawn
+                    this.z,                // Z position
+                    this.type,             // Terrain type
+                    railOptions            // Options
+                );
+                
+                // Add rail entities to meshes array for cleanup
+                if (Array.isArray(railEntities)) {
+                    this.meshes.push(...railEntities);
+                }
                 break;
 
             // Implement other details like grass/river fx later
@@ -189,23 +212,111 @@ export class TerrainRow {
     addObstacles() {
         // Add obstacles based on terrain type
         switch(this.type) {
-            
             case 'road':
+                // Randomly choose Car or Truck
                 const VehicleType = Math.random() > 0.5 ? Car : Truck;
-                this.SpawnManager(this.scene, VehicleType, 1, 0.7, this.z);
+                
+                // Vehicle options
+                const vehicleOptions = {
+                    isMoving: true,
+                    heightOffset: 0.01
+                };
+                
+                // Create vehicles using SpawnManager
+                const vehicles = new SpawnManager(
+                    this.scene,
+                    VehicleType,
+                    1,              // Just one vehicle per row
+                    0.7,            // 70% chance to spawn
+                    this.z,
+                    this.type,
+                    vehicleOptions
+                );
+                
+                // Add vehicles to obstacles array
+                if (Array.isArray(vehicles)) {
+                    this.obstacles.push(...vehicles);
+                }
                 break;
                 
             case 'rail':
-                this.SpawnManager(this.scene, Train, 1, 1.0, this.z);
+                // Train options
+                const trainOptions = {
+                    isMoving: true,
+                    heightOffset: 0.01
+                };
+                
+                // Create trains using SpawnManager
+                const trains = new SpawnManager(
+                    this.scene,
+                    Train,
+                    1,              // Just one train per row
+                    0.4,            // 40% chance to spawn
+                    this.z,
+                    this.type,
+                    trainOptions
+                );
+                
+                // Add trains to obstacles array
+                if (Array.isArray(trains)) {
+                    this.obstacles.push(...trains);
+                }
                 break;
 
             case 'river':
-                let numLogs = Math.floor(Math.random() * 3) + 1;
-                this.SpawnManager(this.scene, Log, numLogs, 1.0, this.z);
+                // Random number of logs (1-3)
+                const numLogs = Math.floor(Math.random() * 3) + 1;
+                
+                // Log options
+                const logOptions = {
+                    isMoving: true,
+                    heightOffset: 0.2     // Float logs above water
+                };
+                
+                // Create logs using SpawnManager
+                const logs = new SpawnManager(
+                    this.scene,
+                    Log,
+                    numLogs,
+                    1.0,            // Always spawn logs (river needs to be crossable)
+                    this.z,
+                    this.type,
+                    logOptions
+                );
+                
+                // Add logs to obstacles array
+                if (Array.isArray(logs)) {
+                    this.obstacles.push(...logs);
+                }
                 break;
                 
             case 'grass':
-                this.addTrees();
+                // Random number of trees (3-6)
+                const numTrees = Math.floor(Math.random() * 4) + 3;
+                
+                // Tree options
+                const treeOptions = {
+                    isMoving: false,
+                    avoidCenter: true,     // Keep center clear
+                    centerClearance: 3,    // 3 units clear in center
+                    heightOffset: 0        // Trees sit directly on grass
+                };
+                
+                // Create trees using SpawnManager
+                const trees = new SpawnManager(
+                    this.scene,
+                    Tree,
+                    numTrees,
+                    0.8,            // 80% chance for trees
+                    this.z,
+                    this.type,
+                    treeOptions
+                );
+                
+                // Add trees to obstacles array
+                if (Array.isArray(trees)) {
+                    this.obstacles.push(...trees);
+                }
                 break;
         }
     }
