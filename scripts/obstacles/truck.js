@@ -1,4 +1,5 @@
 import Mesh from '../mesh.js';
+import { CONFIG } from '../config.js';
 
 class Truck extends Mesh {
     constructor(scene, x, y, z) {
@@ -6,6 +7,7 @@ class Truck extends Mesh {
         this.modelPath = 'assets/truck.glb';
         this.type = 'truck';
         this.speed = Mesh.getRandomSpeed(0.02, 0.04);
+        this.totalWidth = CONFIG.MODEL_DIMENSIONS.TRUCK.WIDTH;
 
         this.loadModel();
     }
