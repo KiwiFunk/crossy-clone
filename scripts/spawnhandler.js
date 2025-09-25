@@ -61,10 +61,21 @@ export class SpawnManager {
         const terrainHeight = CONFIG.TERRAIN_HEIGHTS[this.terrainType.toUpperCase()] || 0.05;
         const y = terrainHeight + this.options.heightOffset;
 
-        // Iterate using the count parameter
+        // Create all entities using count param and determine their model widths
         for (let i = 0; i < this.count; i++) {
 
+            // Create entity, but don't add to scene yet (pass null as scene)
+            const entity = new this.EntityClass(null, 0, y, this.row);
+            
+            // Store in entities array for positioning later
+            entities.push({
+                entity: entity,
+                width: entity.totalWidth || 1.0, // Default to 1.0 if width not defined
+                positioned: false
+            });
         }
+
+        // Calculate X pos for all entities in array
 
 
 
