@@ -2,13 +2,14 @@ import { CONFIG } from './config.js';
 import * as THREE from 'three';
 
 export class SpawnManager {
-    constructor(scene, EntityClass, count, chance, terrainRowZ, options = {}) {
-       this.scene = scene;              // Scene we are spawning into
-       this.EntityClass = EntityClass;  // Entity class to instantiate (Car, Truck, Log, Train, etc.)
-       this.row = terrainRowZ;          // Which Row are we spawning in (Z Position)
-       this.count = count;              // How many to spawn
-       this.chance = chance;            // Chance of spawning (0.0 - 1.0)
-       this.options = options;          // Additional options for spawning (e.g., speed, direction)
+    constructor(scene, EntityClass, count, chance, terrainRowZ, terrainType, options = {}) {
+        this.scene = scene;              // Scene we are spawning into
+        this.EntityClass = EntityClass;  // Entity class to instantiate (Car, Truck, Log, Train, etc.)
+        this.count = count;              // How many to spawn
+        this.chance = chance;            // Chance of spawning (0.0 - 1.0)
+        this.row = terrainRowZ;          // Which Row are we spawning in (Z Position)
+        this.terrainType = terrainType;  // Type of terrain (to calculate y pos)
+        this.options = options;          // Additional options for spawning (e.g., speed, direction)
 
        // Set up default options
         this.options = {
@@ -17,7 +18,6 @@ export class SpawnManager {
             heightOffset: 0.01,            // Y-position offset above terrain
             isMoving: true,                // Is this a moving obstacle?
             minSpacing: 1.5,               // Minimum spacing between objects
-            terrainHeight: 0.1,            // Height of terrain
             ...options                     // Override with any passed options
         };
 
@@ -31,31 +31,57 @@ export class SpawnManager {
 
     spawnAssets() {
 
-        // 1. Get the row dimensions
+        // Calculate row information
         const rowHalfWidth = (CONFIG.ROW_WIDTH_IN_TILES * CONFIG.TILE_SIZE) / 2;
+        const spawnedEntities = [];
 
-        // 2. If !Static, determine direction and speed
+        // If !Static, determine direction and speed
         if(this.options.isMoving) {
             const direction = Math.random() > 0.5 ? 'right' : 'left';
-            const baseSpeed = this.getAppropriateSpeed();
+            const baseSpeed = this.getDefaultSpeed();
             const speed = direction === 'right' ? baseSpeed : -baseSpeed;
         }
 
-        // Moving objects spawn offscreen
+        // Calculate initial X pos (for moving objects, this is offscreen)
         let startX = 0;
         if (this.options.isMoving) {
-            const spawnDistance = 5; // 5 meters outside view
+            const spawnDistance = rowHalfWidth + 2; // Start just offscreen (2m offset)
             startX = direction === 'right' 
                 ? -rowHalfWidth - spawnDistance 
                 : rowHalfWidth + spawnDistance;
         }
 
+        // Track occupied zones to avoid overlap
+        const occupiedRanges = [];
+
+        // Store entities in array before adding to scene
+        const entities = [];
+
+        // Calculate Y pos from terrain type and offset
+        const terrainHeight = CONFIG.TERRAIN_HEIGHTS[this.terrainType.toUpperCase()] || 0.05;
+        const y = terrainHeight + this.options.heightOffset;
+
+        // Iterate using the count parameter
+        for (let i = 0; i < this.count; i++) {
+
+        }
+
+
+
+
+
+
+
+
+
+
+
         // Plan object positions to avoid overlap
         const plannedPositions = [];
-        const spawnedEntities = [];
 
-        // 3. Create asset plans to avoid overlap
-        const plans = this.createAssetPlans();
+      
+
+        // Loop through the plans array and try to place each asset
 
         // Loop through using count parameter
         for (let i = 0; i < this.plans.length; i++) {
