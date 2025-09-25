@@ -147,12 +147,16 @@ window.addEventListener('load', () => {
     const game = new Game();
 });
 
-const calculateMeshSizes = true;
+const calculateMeshSizes = false;
 
 // Test mesh dimensions
 if(calculateMeshSizes) {
     (async () => {
         await calculateMeshDimensions('./assets/log.glb');
         await calculateMeshDimensions('./assets/logend.glb');
+        await calculateMeshDimensions('./assets/car.glb');
+        await calculateMeshDimensions('./assets/train.glb');
+        await calculateMeshDimensions('./assets/traincarriage.glb');
+        await calculateMeshDimensions('./assets/truck.glb');
     })();
 }

@@ -166,7 +166,7 @@ export class TerrainRow {
                 break;
                 
             case 'rail':
-                this.SpawnManager(this.scene, Rail, CONFIG.ROW_WIDTH_IN_TILES, 1.0, this.z);
+                this.SpawnManager(this.scene, Rail, CONFIG.ROW_WIDTH_IN_TILES, 1.0, this.z, this.type);
                 break;
 
             // Implement other details like grass/river fx later
