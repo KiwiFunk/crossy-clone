@@ -19,13 +19,16 @@ export class SpawnManager {
             minSpacing: 1.5,               // Minimum spacing between objects
             ...options                     // Override with any passed options
         };
+    }
 
-        // Handle the spawning if chance permits
-        if (Math.random() <= this.chance) {
-            return this.spawnAssets();
+    // Main method to spawn entites - called when creating manager
+    spawn() {
+        // Roll to see if we should spawn anything using chance value
+        if (Math.random() > this.chance) {
+            return [];
         }
-        
-        return []; // Return empty array if nothing spawned
+
+        return this.spawnAssets();
     }
 
     spawnAssets() {
