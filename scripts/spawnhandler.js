@@ -9,9 +9,8 @@ export class SpawnManager {
         this.chance = chance;            // Chance of spawning (0.0 - 1.0)
         this.row = terrainRowZ;          // Which Row are we spawning in (Z Position)
         this.terrainType = terrainType;  // Type of terrain (to calculate y pos)
-        this.options = options;          // Additional options for spawning (e.g., speed, direction)
 
-       // Set up default options
+        // Set up default options
         this.options = {
             avoidCenter: true,             // Keep center area clear
             centerClearance: 3,            // How many units to keep clear in center
@@ -40,7 +39,6 @@ export class SpawnManager {
         const baseSpeed = this.getDefaultSpeed();
         const speed = direction === 'right' ? baseSpeed : -baseSpeed;
         
-
         // Calculate initial X pos (for moving objects, this is offscreen)
         let startX = 0;
         if (this.options.isMoving) {
@@ -53,31 +51,33 @@ export class SpawnManager {
         // Track occupied zones to avoid overlap
         const occupiedRanges = [];
 
-        // Store entities in array before adding to scene
-        const entities = [];
-
         // Calculate Y pos from terrain type and offset
         const terrainHeight = CONFIG.TERRAIN_HEIGHTS[this.terrainType.toUpperCase()] || 0.05;
         const y = terrainHeight + this.options.heightOffset;
 
-        // Create all entities using count param and determine their model widths
-        for (let i = 0; i < this.count; i++) {
+        // Step 1: Create all entities for this row with temporary positions, then get their totalWidth value.
+        const entities = [];
 
-            // Create entity, but don't add to scene yet (pass null as scene)
-            const entity = new this.EntityClass(null, 0, y, this.row);
+        for (let i = 0; i < this.count; i++) {
+            // Create entity, with a temporary position
+            const entity = new this.EntityClass(this.scene, 0, y, this.row);
+
+            // Get the totalWidth from the entity instance (Fallback to tile size)
+            const width = entity.totalWidth || CONFIG.TILE_SIZE;
             
             // Store in entities array for positioning later
             entities.push({
-                entity: entity,
-                width: entity.totalWidth || 1.0, // Default to 1.0 if width not defined
-                positioned: false
+                entity,
+                width,
+                positioned: false,
+                finalX: 0
             });
         }
 
-        // Calculate X pos for all entities in array
+        // Step 2: Calculate final X pos for all entities in array
         if (this.options.isMoving && this.count === 1) {
-            // If there is only one movng entity, we can just set startX
-            entities[0].entity.x = startX;
+            // Single moving entity - just use startX
+            entities[0].finalX = startX;
             entities[0].positioned = true;
         } else {
             // For multiple, or static entities we need to calculate spacing
@@ -113,59 +113,56 @@ export class SpawnManager {
                     
                     if (!overlapping) {
                         // Valid position found
-                        entityData.entity.x = x;
+                        entityData.finalX = x;
                         entityData.positioned = true;
                         positioned = true;
                         
                         // Register occupied space
                         occupiedRanges.push({
-                            x: x,
+                            x,
                             width: entityData.width
                         });
                     }
                 }
 
-                // If we couldn't position after max attempts, delete the entity
-                if (!positioned) {
-                    entityData.entity = null; // Mark for deletion
+                // If we couldn't find a good position, use a fallback
+                if (!entityData.positioned) {
+                    const fallbackX = (Math.random() - 0.5) * rowHalfWidth * 1.5;
+                    entityData.finalX = fallbackX;
+                    entityData.positioned = true;
+                    console.warn(`Could not find non-overlapping position for ${this.EntityClass.name}. Using fallback position.`);
                 }
 
             }
         }
 
-        // Add all successfully positioned entities to the scene
+        // Step 3: Position all entities at their calculated locations
         for (const entityData of entities) {
-            // Get positioned entity
-            const entity = entityData.entity;
-            
-            // Set entity position
-            entity.x = entity.x || 0;
-            entity.y = y;
-            entity.z = this.row;
-            
-            // Set properties for moving entities
-            if (this.options.isMoving) {
-                entity.direction = direction;
-                entity.speed = speed;
+            if (entityData.positioned) {
+                const entity = entityData.entity;
+                
+                // Update entity position
+                entity.x = entityData.finalX;
+                
+                // Update the mesh position if it exists
+                if (entity.mesh) {
+                    entity.mesh.position.x = entityData.finalX;
+                }
+                
+                // Set movement properties for moving entities
+                if (this.options.isMoving) {
+                    entity.direction = direction;
+                    entity.speed = speed;
+                }
+                
+                // Add to result array
+                spawnedEntities.push(entity);
+            } else {
+                // If not positioned, remove from scene and clean up
+                if (entityData.entity.mesh && this.scene) {
+                    this.scene.remove(entityData.entity.mesh);
+                }
             }
-            
-            // Now add to scene (recreating with the scene parameter)
-            const finalEntity = new this.EntityClass(
-                this.scene, 
-                entity.x, 
-                entity.y, 
-                entity.z,
-                entity.segmentCount // Pass segment count if it exists
-            );
-            
-            // Copy properties to final entity
-            if (this.options.isMoving) {
-                finalEntity.direction = direction;
-                finalEntity.speed = speed;
-            }
-            
-            // Add to return array
-            spawnedEntities.push(finalEntity);
         }
         
         return spawnedEntities;
