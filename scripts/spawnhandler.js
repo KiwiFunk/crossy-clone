@@ -34,7 +34,7 @@ export class SpawnManager {
         const rowHalfWidth = (CONFIG.ROW_WIDTH_IN_TILES * CONFIG.TILE_SIZE) / 2;
         const spawnedEntities = [];
 
-        // If !Static, determine direction and speed
+        // Determine direction and speed
         const direction = Math.random() > 0.5 ? 'right' : 'left';
         const baseSpeed = this.getDefaultSpeed();
         const speed = direction === 'right' ? baseSpeed : -baseSpeed;
@@ -59,7 +59,7 @@ export class SpawnManager {
         const entities = [];
 
         for (let i = 0; i < this.count; i++) {
-            // Create entity, with a temporary position
+            // Create entity, with a temporary X position
             const entity = new this.EntityClass(this.scene, 0, y, this.row);
 
             // Get the totalWidth from the entity instance (Fallback to tile size)
@@ -125,7 +125,7 @@ export class SpawnManager {
                     }
                 }
 
-                // If we couldn't find a good position, use a fallback
+                // If we couldn't find a good position, use a fallback (Update to just destroy instead, otherwise janky look)
                 if (!entityData.positioned) {
                     const fallbackX = (Math.random() - 0.5) * rowHalfWidth * 1.5;
                     entityData.finalX = fallbackX;
@@ -136,7 +136,7 @@ export class SpawnManager {
             }
         }
 
-        // Step 3: Position all entities at their calculated locations
+        // Step 3: Position all entities at their calculated locations then ADD to scene 
         for (const entityData of entities) {
             if (entityData.positioned) {
                 const entity = entityData.entity;
@@ -154,9 +154,13 @@ export class SpawnManager {
                     entity.direction = direction;
                     entity.speed = speed;
                 }
-                
-                // Add to result array
+
+                // Once calculated X position is set, call addToScene to add the mesh to the scene
+                entity.addToScene();
+
+                // Add to result array for tracking
                 spawnedEntities.push(entity);
+
             } else {
                 // If not positioned, remove from scene and clean up
                 if (entityData.entity.mesh && this.scene) {
