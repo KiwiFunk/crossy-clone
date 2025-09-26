@@ -147,9 +147,10 @@ export class SpawnManager {
                 // Update entity position
                 entity.x = entityData.finalX;
                 
-                // Update the mesh position if it exists
+                // If the Async loading somehow finised before, update it too (edge case)
                 if (entity.mesh) {
                     entity.mesh.position.x = entityData.finalX;
+                    console.log(`Mesh already loaded early, updated position to x=${entityData.finalX}`);
                 }
                 
                 // Set movement properties for moving entities
@@ -157,9 +158,6 @@ export class SpawnManager {
                     entity.direction = direction;
                     entity.speed = speed;
                 }
-
-                // Once calculated X position is set, call addToScene to add the mesh to the scene
-                entity.addToScene();
 
                 // Add to result array for tracking
                 spawnedEntities.push(entity);
