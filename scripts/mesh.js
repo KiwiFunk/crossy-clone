@@ -3,7 +3,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { CONFIG } from './config.js';
 
 class Mesh {
-    constructor(scene, x, y, z, direction = 'left') {
+    constructor(scene, x, y, z, direction = 'left', addToSceneImmediately = false) {
         this.scene = scene;
         this.x = x;
         this.y = y;
@@ -19,6 +19,9 @@ class Mesh {
         this.modelPath = null;      // Set path in child class
         this.modelScale = 1.0;      // Scale should be handled in the mesh, not the subclass.
         this.totalWidth = CONFIG.TILE_SIZE; // Default width is one tile
+
+        // Scene addition control
+        this.addToSceneImmediately = addToSceneImmediately;
 
         // Physics properties
         this.boundingBox = null;    // BBox calculated from loaded model
@@ -43,11 +46,11 @@ class Mesh {
         }
         
         const loader = new GLTFLoader();
-        
+
         loader.load(this.modelPath, 
             // Success callback
             (gltf) => {
-                // Remove placeholder
+                // Remove placeholder if it exists
                 if (this.mesh) {
                     this.scene.remove(this.mesh);
                     if (this.mesh.geometry) this.mesh.geometry.dispose();
@@ -83,7 +86,11 @@ class Mesh {
                     }
                 });
                 
-                this.scene.add(this.mesh);
+                // Only add to scene immediately if flag is set
+                if (this.addToSceneImmediately && this.scene) {
+                    this.scene.add(this.mesh);
+                }
+                
                 this.isLoaded = true;
                 this.updateBoundingBox();
                 
@@ -98,6 +105,15 @@ class Mesh {
                 console.error(`Error loading ${this.type} model:`, error);
             }
         );
+        
+    }
+
+    // Add loaded model to scene (Called after positioning is handled in SpawnManager class)
+    addToScene() {
+        if (this.scene && this.mesh && !this.scene.children.includes(this.mesh)) {
+            this.scene.add(this.mesh);
+            console.log(`${this.type} added to scene at position (${this.x.toFixed(2)}, ${this.y.toFixed(2)}, ${this.z.toFixed(2)})`);
+        }
     }
 
     update() {
