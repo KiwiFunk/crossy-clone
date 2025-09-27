@@ -32,15 +32,12 @@ export class SpawnManager {
     }
 
     spawnAssets() {
-
         // Calculate row information
         const rowHalfWidth = (CONFIG.ROW_WIDTH_IN_TILES * CONFIG.TILE_SIZE) / 2;
         const spawnedEntities = [];
 
         // Determine direction and speed
         const direction = Math.random() > 0.5 ? 'right' : 'left';
-        const baseSpeed = this.getDefaultSpeed();
-        const speed = direction === 'right' ? baseSpeed : -baseSpeed;
         
         // Calculate initial X pos (for moving objects, this is offscreen)
         let startX = 0;
@@ -64,7 +61,8 @@ export class SpawnManager {
         for (let i = 0; i < this.count; i++) {
             // Create entity, with a temporary X position
             const entity = new this.EntityClass(this.scene, 0, y, this.row);
-
+            entity.direction = direction;
+            
             // Get the totalWidth from the entity instance (Fallback to tile size)
             const width = entity.totalWidth || CONFIG.TILE_SIZE;
             
@@ -152,12 +150,6 @@ export class SpawnManager {
                     entity.mesh.position.x = entityData.finalX;
                     console.log(`Mesh already loaded early, updated position to x=${entityData.finalX}`);
                 }
-                
-                // Set movement properties for moving entities
-                if (this.options.isMoving) {
-                    entity.direction = direction;
-                    entity.speed = speed;
-                }
 
                 // Add to result array for tracking
                 spawnedEntities.push(entity);
@@ -179,18 +171,6 @@ export class SpawnManager {
         const side = Math.random() > 0.5 ? 1 : -1;
         const value = Math.pow(Math.random(), 1.5); // Higher power = more edge weighting
         return side * value * rowHalfWidth * 0.8; // 80% of half width to stay on terrain
-    }
-    
-    // Get default speed based on entity type (Replace with CONFIG values)
-    getDefaultSpeed() {
-        const className = this.EntityClass.name.toLowerCase();
-        
-        if (className.includes('train')) return 0.12;
-        if (className.includes('car')) return 0.05 + (Math.random() * 0.02);
-        if (className.includes('truck')) return 0.03 + (Math.random() * 0.01);
-        if (className.includes('log')) return 0.02 + (Math.random() * 0.015);
-        
-        return 0.04; // Default for unknown types
     }
 
 }
