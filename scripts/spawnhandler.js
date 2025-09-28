@@ -46,7 +46,7 @@ export class SpawnManager {
         if (this.options.isMoving) {
             const speeds = CONFIG.MODEL_SPEEDS[this.EntityClass.name.toUpperCase()];
             const baseSpeed = Math.random() * (speeds.MAX - speeds.MIN) + speeds.MIN;
-            const difficultyModifier = this.row / 2000;
+            const difficultyModifier = Math.abs(this.row) / 2000;
             finalSpeed = baseSpeed + difficultyModifier;
         }
 
