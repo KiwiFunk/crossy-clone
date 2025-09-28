@@ -16,13 +16,6 @@ export default class Player extends Mesh {
         this.isJumping = false;
         this.lastPosition = { ...this.gridPosition };
 
-        // Terrain
-        this.currentTileType = 'grass';
-        this.currentSurface = null;
-        this.isOnLog = false;
-        this.currentLog = null;
-        this.isInWater = false;
-
         // Create player mesh
         this.createMesh();
         this.updateBoundingBox();
@@ -103,8 +96,12 @@ export default class Player extends Mesh {
     }
 
     update() {
-        this.checkCurrentTile();
-        this.handleTileInteraction();
+        if (this.currentSurface?.isMovingPlatform) {
+            const delta = this.currentSurface.getMovementDelta();
+            this.mesh.position.add(delta);
+            this.updateBoundingBox();
+            this.gridPosition.x = Math.round(this.mesh.position.x / CONFIG.TILE_SIZE);
+        }
 
         if (!this.isJumping) {
             this.mesh.position.y = this.targetPosition.y +
@@ -114,135 +111,36 @@ export default class Player extends Mesh {
         this.updateBoundingBox();
     }
 
-    checkCurrentTile() {
-        const previousLog = this.currentLog;
-        this.currentSurface = null;
-        this.isOnLog = false;
-        this.currentLog = null;
-        this.isInWater = false;
+    /**
+     * Check for collisions with obstacles using AABB.
+     * If the obstacle is flagged as a platform, ride it, else return a boolean.
+     * Called from the main game.js update loop
+     * @param {*} obstacles 
+     * @returns {boolean} True if collision detected, else false
+     */
+    checkCollisions(obstacles) {
+        for (const obstacle of obstacles) {
+            if (!obstacle.isLoaded || !obstacle.boundingBox) continue;
 
-        const worldZ = this.gridPosition.z * CONFIG.TILE_SIZE;
-        const terrainRow = this.findTerrainRowAtZ(worldZ);
+            if (this.boundingBox.intersectsBox(obstacle.boundingBox)) {
 
-        if (terrainRow) {
-            this.currentTileType = terrainRow.type;
-            switch (terrainRow.type) {
-                case 'grass':
-                case 'road':
-                case 'rail':
-                    this.handleSolidTile(terrainRow);
-                    break;
-                case 'river':
-                    this.handleRiverTile(terrainRow);
-                    break;
-                default:
-                    console.warn(`Unknown tile type: ${terrainRow.type}`);
-                    this.handleSolidTile(terrainRow);
-            }
-        } else {
-            this.currentTileType = 'grass';
-            this.setPlayerHeight(CONFIG.TERRAIN_HEIGHTS.GRASS);
-        }
-
-        if (previousLog && previousLog !== this.currentLog) previousLog.playerLeft();
-        if (this.currentLog && previousLog !== this.currentLog) this.currentLog.playerLanded();
-    }
-
-    findTerrainRowAtZ(worldZ) {
-        if (window.game?.terrainGenerator?.rows) {
-            return window.game.terrainGenerator.rows.find(row => {
-                const start = row.z - CONFIG.TILE_SIZE / 2;
-                const end = row.z + CONFIG.TILE_SIZE / 2;
-                return worldZ >= start && worldZ < end;
-            });
-        }
-        return null;
-    }
-
-    handleSolidTile(row) {
-        this.setPlayerHeight(row.getTerrainHeight());
-        if (row.type !== 'grass') this.checkCollision(row);
-    }
-
-    handleRiverTile(row) {
-        const onLog = this.checkForLogsOnTile(row);
-        this.isOnLog = onLog;
-        this.isInWater = !onLog;
-
-        const baseHeight = row.getTerrainHeight();
-        this.setPlayerHeight(onLog ? baseHeight + 0.3 : baseHeight - 0.5);
-    }
-
-    checkForLogsOnTile(row) {
-        if (!row.obstacles) return false;
-
-        const feet = new THREE.Vector3(
-            this.mesh.position.x,
-            this.mesh.position.y - this.size / 2,
-            this.mesh.position.z
-        );
-
-        for (const obstacle of row.obstacles) {
-            if (obstacle.subtype === 'log' && obstacle.isLoaded && obstacle.boundingBox) {
-                const expanded = obstacle.boundingBox.clone().expandByScalar(0.1);
-                if (expanded.containsPoint(feet) && !this.isJumping) {
-                    this.currentLog = obstacle;
+                // If the intersecting obstacle has the isMovingPlatform flag, ride it
+                if (obstacle.isMovingPlatform && typeof obstacle.getMovementDelta === 'function') {
+                    // Ride the platform
+                    const delta = obstacle.getMovementDelta();
+                    this.mesh.position.add(delta);
+                    this.updateBoundingBox();
+                    this.gridPosition.x = Math.round(this.mesh.position.x / CONFIG.TILE_SIZE);
                     this.currentSurface = obstacle;
+                } else {
+                    // Trigger game over
+                    console.log("Game Over: collided with obstacle");
                     return true;
                 }
             }
         }
 
         return false;
-    }
-
-    checkCollision(row) {
-        if (!row.obstacles) return;
-
-        const playerBox = new THREE.Box3().setFromObject(this.mesh);
-
-        for (const obstacle of row.obstacles) {
-            if (obstacle.isLoaded && obstacle.boundingBox && obstacle.type === 'obstacle') {
-                if (playerBox.intersectsBox(obstacle.boundingBox)) {
-                    this.currentSurface = obstacle;
-                    if (obstacle.static) {
-                        // Block movement logic here
-                    } else if (['car', 'truck', 'train'].includes(obstacle.subtype)) {
-                        // this.triggerGameOver('vehicle');
-                    }
-                }
-            }
-        }
-    }
-
-    handleTileInteraction() {
-        if (this.isInWater && !this.isOnLog) {
-            // this.triggerGameOver('drowning');
-            return;
-        }
-
-        if (this.isOnLog && this.currentLog) {
-            this.currentLog.carryPlayer(this);
-            this.gridPosition.x = Math.round(this.mesh.position.x / CONFIG.TILE_SIZE);
-        }
-    }
-
-    setPlayerHeight(terrainHeight) {
-        const newY = terrainHeight + this.size / 2;
-        if (!this.isJumping) {
-            this.targetPosition.y = newY;
-            this.mesh.position.y = newY;
-        }
-    }
-
-    triggerGameOver(reason) {
-        console.log(`Game Over: ${reason}`);
-        if (window.game?.handleGameOver) {
-            window.game.handleGameOver(reason);
-        } else {
-            alert(`Game Over! Cause: ${reason}`);
-            this.resetPlayerPosition();
-        }
     }
 
     resetPlayerPosition() {
@@ -258,13 +156,4 @@ export default class Player extends Mesh {
         this.isInWater = false;
     }
 
-    getCurrentTileInfo() {
-        return {
-            tileType: this.currentTileType,
-            isOnLog: this.isOnLog,
-            isInWater: this.isInWater,
-            currentSurface: this.currentSurface,
-            gridPosition: { ...this.gridPosition }
-        };
-    }
 }

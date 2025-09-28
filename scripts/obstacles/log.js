@@ -19,18 +19,15 @@ class Log extends Mesh {
         this.segmentCount = Math.floor(Math.random() * 3) + 1;
         this.totalWidth = this.calculateTotalWidth();
 
-        // Animation
-        this.originalY = y;
-        this.sinkDepth = 0.15;
-        this.animationSpeed = 0.01;
-        this.isSinking = false;
-        this.isRising = false;
-        this.hasPlayerOnTop = false;
-
         // Composite mesh group
         this.logGroup = new THREE.Group();
         this.logGroup.position.set(this.x, this.y, this.z);
         this.mesh = this.logGroup; // Informs parent class what to track
+
+        // Movement tracking
+        this.lastX = this.x; // Store previous X position
+        this.movementDelta = new THREE.Vector3(0, 0, 0); // Store movement per frame
+        this.isMovingPlatform = true; // Flag so player knows this is rideable
 
         // Begin loading
         this.loadLog();
@@ -102,8 +99,10 @@ class Log extends Mesh {
         // Movement + bounding box handled by parent
         super.update();
 
-        // Sinking animation
-        this.updateSinkAnimation();
+        // Update movement delta
+        const deltaX = this.x - this.lastX;
+        this.movementDelta.set(deltaX, 0, 0);
+        this.lastX = this.x;
 
         // Looping (override boundary logic for logs)
         const boundaryX = 15 + this.totalWidth / 2;
@@ -112,53 +111,9 @@ class Log extends Mesh {
         this.logGroup.position.x = this.x;
     }
 
-    updateSinkAnimation() {
-        if (this.isSinking) {
-            this.logGroup.position.y -= this.animationSpeed;
-            if (this.logGroup.position.y <= this.originalY - this.sinkDepth) {
-                this.logGroup.position.y = this.originalY - this.sinkDepth;
-                this.isSinking = false;
-            }
-        }
-
-        if (this.isRising) {
-            this.logGroup.position.y += this.animationSpeed;
-            if (this.logGroup.position.y >= this.originalY) {
-                this.logGroup.position.y = this.originalY;
-                this.isRising = false;
-            }
-        }
-    }
-
-    playerLanded() {
-        if (!this.hasPlayerOnTop) {
-            this.isSinking = true;
-            this.isRising = false;
-            this.hasPlayerOnTop = true;
-            console.log("Player landed on log!");
-        }
-    }
-
-    playerLeft() {
-        if (this.hasPlayerOnTop) {
-            this.isRising = true;
-            this.isSinking = false;
-            this.hasPlayerOnTop = false;
-            console.log("Player left log!");
-        }
-    }
-
-    carryPlayer(player) {
-        if (!player || !player.body) return;
-
-        const movement = this.direction === 'right' ? this.speed : -this.speed;
-        player.body.position.x += movement;
-
-        if (player.isBoundingBoxSet) {
-            player.boundingBox.translate(new THREE.Vector3(movement, 0, 0));
-        }
-
-        player.gridPosition.x = Math.round(player.body.position.x / CONFIG.TILE_SIZE);
+    // Return a copy of the movement delta to prevent modifying internal data for the entity
+    getMovementDelta() {
+        return this.movementDelta.clone(); 
     }
 
     destroy() {

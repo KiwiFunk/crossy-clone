@@ -94,12 +94,11 @@ class Game {
 
         this.scoreManager.updateScore(this.cameraController.getZPosition());
 
+        // Check for collisions with obstacles using AABB
         const obstacles = this.terrainGenerator.getAllObstacles();
-        if (this.player.checkCollision) {
-            if (this.player.checkCollision(obstacles)) {
-                console.log("Collision detected!");
-                // Handle lives or game over here
-            }
+        const collided = this.player.checkCollisions(obstacles);
+        if (collided) {
+            // Handle game over/game state change here
         }
     }
 
