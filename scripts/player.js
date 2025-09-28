@@ -15,6 +15,8 @@ export default class Player extends Mesh {
         this.isMoving = false;
         this.isJumping = false;
         this.lastPosition = { ...this.gridPosition };
+        this.verticalState = 'ON_GROUND';       // 'ON_GROUND', 'ON_PLATFORM', 'JUMPING'
+        this.currentSurface = null;             // Hold reference to terrain type or ridable platform
 
         // Create player mesh
         this.createMesh();
