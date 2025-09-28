@@ -49,14 +49,27 @@ class Log extends Mesh {
             );
 
         try {
+            // Step 1: Load each unique asset only once.
+            const [endCapGltf, segmentGltf] = await Promise.all([
+                loadGltf(this.endCapPath),
+                loadGltf(this.modelPath)
+            ]);
+
+            // Step 2: CRITICAL CHECK - After loading is complete, check if we've been destroyed.
+            if (this._isDestroyed) {
+                console.log('Log models loaded, but entity was already destroyed. Disposing...');
+                this.disposeMesh(endCapGltf.scene);
+                this.disposeMesh(segmentGltf.scene);
+                return; // Abort!
+            }
+            
+            // Step 3: If not destroyed, proceed with assembling the log
             // Front cap
-            const frontGltf = await loadGltf(this.endCapPath);
-            const frontCap = this.preparePart(frontGltf.scene);
+            const frontCap = this.preparePart(endCapGltf.scene);
             frontCap.position.x = 0;
             this.logGroup.add(frontCap);
 
             // Segment template
-            const segmentGltf = await loadGltf(this.modelPath);
             const segmentTemplate = this.preparePart(segmentGltf.scene);
 
             // Segments
@@ -66,9 +79,8 @@ class Log extends Mesh {
                 this.logGroup.add(seg);
             }
 
-            // Back cap
-            const backGltf = await loadGltf(this.endCapPath);
-            const backCap = this.preparePart(backGltf.scene);
+            // Back cap - Clone the already prepared front cap
+            const backCap = frontCap.clone();
             backCap.rotation.y = Math.PI;
             backCap.position.x = this.segmentCount * this.segmentWidth;
             this.logGroup.add(backCap);

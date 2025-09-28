@@ -32,6 +32,9 @@ class Mesh {
         this.static = false;
         this.type = 'obstacle';
         this.sound = null;
+
+        this._isDestroyed = false;
+
     }
 
     loadModel() {
@@ -45,6 +48,13 @@ class Mesh {
         loader.load(
             this.modelPath,
             (gltf) => {
+                // If destroy was called during load, dispose of the asset and stop
+                if (this._isDestroyed) {
+                    console.log(`Model for ${this.type} loaded, but entity was already destroyed. Disposing...`);
+                    this.disposeMesh(gltf.scene); // Clean up the geometry/materials
+                    return; // Abort! Do not add to the scene.
+                }
+
                 // Clean up old mesh (e.g placeholder was used)
                 if (this.mesh) {
                     this.scene.remove(this.mesh);
@@ -135,6 +145,8 @@ class Mesh {
     }
 
     destroy() {
+        this._isDestroyed = true;
+
         if (this.mesh) {
             this.scene.remove(this.mesh);
             this.disposeMesh(this.mesh);

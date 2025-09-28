@@ -101,6 +101,10 @@ export class SpawnManager {
                 switch (this.options.fallbackStrategy) {
                     case 'destroy':
                         console.warn(`Destroyed ${this.EntityClass.name} due to placement failure.`);
+                        if (entityData.entity.destroy) {
+                            entityData.entity.destroy();
+                        }
+                        entityData.entity = null; // Mark for removal
                         continue;
                     case 'force':
                         entityData.finalX = (Math.random() - 0.5) * rowHalfWidth * 1.5;
@@ -117,8 +121,9 @@ export class SpawnManager {
         }
         // Finalize entity positions and add to spawnedEntities array for tracking/cleanup
         for (const { entity, finalX, positioned } of entities) {
-            if (!positioned) {
-                if (entity.mesh && this.scene) this.scene.remove(entity.mesh);
+            if (!entity || !positioned) {
+                // Redundant check, *should* not happen due to above logic
+                if (entity && entity.mesh && this.scene) this.scene.remove(entity.mesh);
                 continue;
             }
 
