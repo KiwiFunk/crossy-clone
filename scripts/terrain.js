@@ -258,7 +258,7 @@ export class TerrainRow {
                     1.0,            // Always spawn logs
                     this.z,
                     this.type,
-                    { isMoving: true, heightOffset: 0.2 }
+                    { isMoving: true, heightOffset: 0.2, fallbackStrategy: 'destroy' } // destroy overlapping logs
                 );
                 
                 const logs = logManager.spawn();
