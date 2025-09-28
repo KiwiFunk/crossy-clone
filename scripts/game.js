@@ -32,20 +32,31 @@ class Game {
     }
 
     setupLighting() {
-        const hemisphereLight = new THREE.HemisphereLight(0x8dc1de, 0x90ad56, 0.7);
+        const hemisphereLight = new THREE.HemisphereLight(0x8dc1de, 0x90ad56, 0.9);
         this.scene.add(hemisphereLight);
 
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-        directionalLight.position.set(-10, 10, -8);
-        directionalLight.castShadow = true;
-        directionalLight.shadow.mapSize.set(2048, 2048);
-        directionalLight.shadow.camera.left = -10;
-        directionalLight.shadow.camera.right = 10;
-        directionalLight.shadow.camera.top = 10;
-        directionalLight.shadow.camera.bottom = -10;
-        this.scene.add(directionalLight);
+        // Store the light on the Game instance so we can update it
+        this.directionalLight = new THREE.DirectionalLight(0xffffff, 0.9);
+        this.directionalLight.position.set(-10, 10, -8);
+        this.directionalLight.castShadow = true;
+        this.directionalLight.shadow.mapSize.set(2048, 2048);
 
-        const fillLight = new THREE.DirectionalLight(0xffffff, 0.3);
+        // Set up shadow Cam properties
+        const shadowCamSize = 12;
+        this.directionalLight.shadow.camera.left = -shadowCamSize;
+        this.directionalLight.shadow.camera.right = shadowCamSize;
+        this.directionalLight.shadow.camera.top = shadowCamSize;
+        this.directionalLight.shadow.camera.bottom = -shadowCamSize;
+        this.directionalLight.shadow.camera.near = 0.8;
+        this.directionalLight.shadow.camera.far = 20; // Adjust as needed
+
+        this.scene.add(this.directionalLight);
+
+        // Set Target so shadow cam can follow player
+        this.directionalLight.target = new THREE.Object3D();
+        this.scene.add(this.directionalLight.target);
+
+        const fillLight = new THREE.DirectionalLight(0xffffff, 0.26);
         fillLight.position.set(10, -10, 8);
         fillLight.castShadow = false;
         this.scene.add(fillLight);
@@ -90,6 +101,21 @@ class Game {
         if (playerDied) {
             console.log("Player fell behind and died!");
             // Handle game over logic here
+        }
+
+        // Set Tracked Lighting to follow player
+        if (this.player.mesh) {
+            const playerPos = this.player.mesh.position;
+
+            // The light's target should be the player's position.
+            this.directionalLight.target.position.copy(playerPos);
+
+            // The light's position should be offset from the player's position.
+            this.directionalLight.position.set(
+                playerPos.x - 10,
+                playerPos.y + 10,
+                playerPos.z - 8
+            );
         }
 
         this.scoreManager.updateScore(this.cameraController.getZPosition());
