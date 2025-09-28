@@ -21,8 +21,14 @@ export default class Player {
         this.currentLog = null;
         this.isInWater = false;
 
+        // Create bounding box for player
+        this.boundingBox = new THREE.Box3();
+        this.boundingBoxSet = false;
+
         // Create Mesh for player
         this.createMesh();
+
+        this.updateBoundingBox();
     }
 
     // Simple cube as test - replace with model later
@@ -33,6 +39,13 @@ export default class Player {
         this.body.position.copy(this.targetPosition);
         this.body.castShadow = true;
         this.scene.add(this.body);
+    }
+
+    updateBoundingBox() {
+        if (this.body) {
+            this.boundingBox.setFromObject(this.body);
+            this.boundingBoxSet = true;
+        }
     }
 
     move(direction) {
@@ -70,6 +83,18 @@ export default class Player {
         this.jumpAnimation(() => {
             this.isMoving = false;
         });
+
+        if (this.isBoundingBoxSet) {
+            // Calculate movement delta
+            const deltaX = this.body.position.x - this.previousX;
+            const deltaZ = this.body.position.z - this.previousZ;
+            
+            this.boundingBox.translate(new THREE.Vector3(deltaX, 0, deltaZ));
+            
+            // Update previous positions
+            this.previousX = this.body.position.x;
+            this.previousZ = this.body.position.z;
+        }
         
         return {
             previousPosition,

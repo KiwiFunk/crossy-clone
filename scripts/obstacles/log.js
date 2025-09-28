@@ -155,9 +155,18 @@ class Log extends Mesh {
 
     carryPlayer(player) {
         if (!player || !player.body) return;
+        
+        // Move player with log
         const movement = this.direction === 'right' ? this.speed : -this.speed;
         player.body.position.x += movement;
-        player.targetPosition.x = player.body.position.x;
+        
+        // Translate player's bounding box
+        if (player.isBoundingBoxSet) {
+            player.boundingBox.translate(new THREE.Vector3(movement, 0, 0));
+        }
+        
+        // Update player's grid position to match
+        player.gridPosition.x = Math.round(player.body.position.x / CONFIG.TILE_SIZE);
     }
 
     updateBoundingBox() {
