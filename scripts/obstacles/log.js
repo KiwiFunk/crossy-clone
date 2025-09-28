@@ -155,7 +155,9 @@ class Log extends Mesh {
 
     carryPlayer(player) {
         if (!player || !player.body) return;
-        player.body.position.x += this.direction === 'right' ? this.speed : -this.speed;
+        const movement = this.direction === 'right' ? this.speed : -this.speed;
+        player.body.position.x += movement;
+        player.targetPosition.x = player.body.position.x;
     }
 
     updateBoundingBox() {

@@ -27,6 +27,10 @@ class Mesh {
         // Misc properties
         this.type = 'obstacle';     // Default type (Obstacle, Decor etc.)
         this.sound = null;          // Placeholder for sound effect (e.g Car horn)
+
+        // BBox initialization
+        this.boundingBox = new THREE.Box3();
+        this.boundingBoxSet = false;
         
     }
 
@@ -77,12 +81,13 @@ class Mesh {
                         child.receiveShadow = true;
                     }
                 });
-                
+
+                // Set BBox for collision detection
+                this.boundingBox.setFromObject(this.mesh);
+                this.boundingBoxSet = true;
 
                 this.scene.add(this.mesh);
-                this.isLoaded = true;
-                this.updateBoundingBox();
-                
+                this.isLoaded = true;                
                 console.log(`${this.type} model loaded`);
             },
             // Progress callback
@@ -101,18 +106,17 @@ class Mesh {
         if (!this.mesh) return;
         if (this.static) return; // Static meshes do not move
         
-        // Move based on direction
-        if (this.direction === 'right') {
-            this.x += this.speed;
-        } else {
-            this.x -= this.speed;
-        }
+        // Calculate movement
+        const movement = this.direction === 'right' ? this.speed : -this.speed;
+        this.x += movement;
         
-        // Update position
+        // Move mesh
         this.mesh.position.x = this.x;
         
-        // Update bounding box if available
-        this.updateBoundingBox();
+        // Translate bounding box by the same amount
+        if (this.boundingBoxSet) {
+            this.boundingBox.translate(new THREE.Vector3(movement, 0, 0));
+        }
         
         // Loop back when off-screen
         const boundaryX = 10; // Default boundary
@@ -122,12 +126,6 @@ class Mesh {
         } else if (this.x < -boundaryX) {
             this.x = boundaryX;
             this.mesh.position.x = this.x;
-        }
-    }
-    
-    updateBoundingBox() {
-        if (this.mesh) {
-            this.boundingBox = new THREE.Box3().setFromObject(this.mesh);
         }
     }
 

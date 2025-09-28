@@ -309,6 +309,9 @@ export default class Player {
         }
     }
 
+    /**
+     * Handle interactions based on the current tile type player is on
+     */
     handleTileInteraction() {
         if (this.isInWater && !this.isOnLog) {
             // Player is drowning
@@ -318,8 +321,9 @@ export default class Player {
         }
         
         if (this.isOnLog && this.currentLog) {
-            // Player is riding a log - move with it
+            // Player is riding a log - move with it and update grid pos to match
             this.currentLog.carryPlayer(this);
+            this.gridPosition.x = Math.round(this.body.position.x / CONFIG.TILE_SIZE);
         }
         
         // Handle tile-specific effects
