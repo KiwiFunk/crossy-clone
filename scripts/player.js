@@ -96,13 +96,6 @@ export default class Player extends Mesh {
     }
 
     update() {
-        if (this.currentSurface?.isMovingPlatform) {
-            const delta = this.currentSurface.getMovementDelta();
-            this.mesh.position.add(delta);
-            this.updateBoundingBox();
-            this.gridPosition.x = Math.round(this.mesh.position.x / CONFIG.TILE_SIZE);
-        }
-
         if (!this.isJumping) {
             this.mesh.position.y = this.targetPosition.y +
                 Math.sin(Date.now() / 500) * 0.05;
@@ -131,7 +124,6 @@ export default class Player extends Mesh {
                     this.mesh.position.add(delta);
                     this.updateBoundingBox();
                     this.gridPosition.x = Math.round(this.mesh.position.x / CONFIG.TILE_SIZE);
-                    this.currentSurface = obstacle;
                 } else {
                     // Trigger game over
                     console.log("Game Over: collided with obstacle");
@@ -149,11 +141,6 @@ export default class Player extends Mesh {
         this.mesh.position.copy(this.targetPosition);
         this.isMoving = false;
         this.isJumping = false;
-        this.currentTileType = 'grass';
-        this.currentSurface = null;
-        this.isOnLog = false;
-        this.currentLog = null;
-        this.isInWater = false;
     }
 
 }
