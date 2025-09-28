@@ -266,7 +266,7 @@ export class TerrainRow {
                 break;
                 
             case 'grass':
-                const numTrees = Math.floor(Math.random() * 4) + 3;
+                const numTrees = Math.floor(Math.random() * 6) + 4;
                 
                 const treeManager = new SpawnManager(
                     this.scene,
