@@ -6,135 +6,83 @@ import { CONFIG } from '../config.js';
 class Log extends Mesh {
     constructor(scene, x, y, z) {
         super(scene, x, y, z);
-        
-        // Class properties
-        this.modelPath = 'assets/log.glb';
-        this.type = 'obstacle';
-        this.speed = Mesh.getRandomSpeed(0.02, 0.05); // Logs move slower than trains
-        
-        // Log-specific properties
-        this.endCapPath = 'assets/logend.glb';
-        this.logGroup = new THREE.Group();
-        this.segmentCount = Math.floor(Math.random() * 3) + 1; // Calculate random length when instantiated
 
-        // Get predefined model dimensions from config
+        // Core properties
+        this.modelPath = 'assets/log.glb';
+        this.endCapPath = 'assets/logend.glb';
+        this.type = 'obstacle';
+        this.speed = Mesh.getRandomSpeed(0.02, 0.05);
+
+        // Log dimensions
         const dims = CONFIG.MODEL_DIMENSIONS.LOG;
         this.endCapWidth = dims.END_CAP_WIDTH;
         this.segmentWidth = dims.SEGMENT_WIDTH;
-        this.totalWidth = this.calculateTotalWidth();      
+        this.segmentCount = Math.floor(Math.random() * 3) + 1;
+        this.totalWidth = this.calculateTotalWidth();
 
-        // Animation properties for sinking effect
+        // Animation
         this.originalY = y;
-        this.sinkDepth = 0.15;      // How far log sinks when player stands on it
-        this.animationSpeed = 0.01;  // Speed of sink/rise animation
+        this.sinkDepth = 0.15;
+        this.animationSpeed = 0.01;
         this.isSinking = false;
         this.isRising = false;
         this.hasPlayerOnTop = false;
-        
-        // Position the group in the scene
-        this.logGroup.position.set(this.x, this.y, this.z);
 
-        // Override the mesh with the complete log group
+        // Composite mesh group
+        this.logGroup = new THREE.Group();
+        this.logGroup.position.set(this.x, this.y, this.z);
         this.mesh = this.logGroup;
-        
+
+        // Begin loading
         this.loadLog();
     }
 
-    // Calculate total width using config dimensions
     calculateTotalWidth() {
         return this.endCapWidth + (this.segmentCount * this.segmentWidth) + this.endCapWidth;
     }
 
-    // Static method to use when spawning calculations are performed outside this class
     static calculateTotalWidth(segmentCount) {
         const dims = CONFIG.MODEL_DIMENSIONS.LOG;
         return dims.END_CAP_WIDTH + (segmentCount * dims.SEGMENT_WIDTH) + dims.END_CAP_WIDTH;
     }
 
-    // Use async/await to load multiple parts sequentially
     async loadLog() {
-
-        const loadGltf = path => {
-            return new Promise((res, rej) =>
-            new GLTFLoader().load(path, gltf => res(gltf), null, err => rej(err))
+        const loadGltf = path =>
+            new Promise((res, rej) =>
+                new GLTFLoader().load(path, gltf => res(gltf), null, err => rej(err))
             );
-        };
 
-        // 1. front cap
-        const frontGltf = await loadGltf(this.endCapPath);
-        const frontCap = this.preparePart(frontGltf.scene);
-        frontCap.position.x = 0;
-        this.logGroup.add(frontCap);
+        try {
+            // Front cap
+            const frontGltf = await loadGltf(this.endCapPath);
+            const frontCap = this.preparePart(frontGltf.scene);
+            frontCap.position.x = 0;
+            this.logGroup.add(frontCap);
 
-        // 2. segment template
-        const segmentGltf = await loadGltf(this.modelPath);
-        const segmentTemplate = this.preparePart(segmentGltf.scene);
+            // Segment template
+            const segmentGltf = await loadGltf(this.modelPath);
+            const segmentTemplate = this.preparePart(segmentGltf.scene);
 
-        // 3. place segments
-        for (let i = 0; i < this.segmentCount; i++) {
-            const seg = segmentTemplate.clone();
-            seg.position.x =  i * segmentWidth;
-            this.logGroup.add(seg);
-        }
-
-        // 4. back cap
-        const backGltf = await loadGltf(this.endCapPath);
-        const backCap = this.preparePart(backGltf.scene);
-        backCap.rotation.y = Math.PI;
-        backCap.position.x = this.segmentCount * segmentWidth;
-        this.logGroup.add(backCap);
-
-        // 5. finalize
-        this.isLoaded = true;
-        this.scene.add(this.logGroup);
-        this.updateBoundingBox();
-    }
-
-    createLogPart(gltfScene, offsetX) {
-        const part = gltfScene.clone();
-        
-        // Position within the group
-        part.position.set(offsetX, 0, 0);
-        part.scale.set(this.modelScale, this.modelScale, this.modelScale);
-        
-        // Enable shadows
-        part.traverse((child) => {
-            if (child.isMesh) {
-                child.castShadow = true;
-                child.receiveShadow = true;
+            // Segments
+            for (let i = 0; i < this.segmentCount; i++) {
+                const seg = segmentTemplate.clone();
+                seg.position.x = i * this.segmentWidth;
+                this.logGroup.add(seg);
             }
-        });
-        
-        return part;
-    }
 
-    update() {
-        if (!this.isLoaded) return;
-        
-        // Move the entire log group
-        if (this.direction === 'right') {
-            this.x += this.speed;
-        } else {
-            this.x -= this.speed;
-        }
-        
-        // Update group position
-        this.logGroup.position.x = this.x;
-        
-        // Handle sinking and rising animation
-        this.updateSinkAnimation();
-        
-        // Update bounding box for collision detection
-        this.updateBoundingBox();
-        
-        // Loop back when off-screen (use larger boundary based on log size)
-        const boundaryX = 15 + (this.totalWidth / 2);
-        if (this.x > boundaryX) {
-            this.x = -boundaryX;
-            this.logGroup.position.x = this.x;
-        } else if (this.x < -boundaryX) {
-            this.x = boundaryX;
-            this.logGroup.position.x = this.x;
+            // Back cap
+            const backGltf = await loadGltf(this.endCapPath);
+            const backCap = this.preparePart(backGltf.scene);
+            backCap.rotation.y = Math.PI;
+            backCap.position.x = this.segmentCount * this.segmentWidth;
+            this.logGroup.add(backCap);
+
+            // Finalize
+            this.isLoaded = true;
+            this.scene.add(this.logGroup);
+            this.updateBoundingBox();
+        } catch (err) {
+            console.error(`Failed to load log parts:`, err);
         }
     }
 
@@ -143,15 +91,34 @@ class Log extends Mesh {
         part.scale.set(this.modelScale, this.modelScale, this.modelScale);
         part.traverse(c => {
             if (c.isMesh) {
-            c.castShadow = true;
-            c.receiveShadow = true;
+                c.castShadow = true;
+                c.receiveShadow = true;
             }
         });
         return part;
     }
-    
+
+    update() {
+        if (!this.isLoaded) return;
+
+        // Movement
+        this.x += this.direction === 'right' ? this.speed : -this.speed;
+        this.logGroup.position.x = this.x;
+
+        // Animation
+        this.updateSinkAnimation();
+
+        // Bounding box
+        this.updateBoundingBox();
+
+        // Looping
+        const boundaryX = 15 + this.totalWidth / 2;
+        if (this.x > boundaryX) this.x = -boundaryX;
+        if (this.x < -boundaryX) this.x = boundaryX;
+        this.logGroup.position.x = this.x;
+    }
+
     updateSinkAnimation() {
-        // Handle sinking when player is on the log
         if (this.isSinking) {
             this.logGroup.position.y -= this.animationSpeed;
             if (this.logGroup.position.y <= this.originalY - this.sinkDepth) {
@@ -159,8 +126,7 @@ class Log extends Mesh {
                 this.isSinking = false;
             }
         }
-        
-        // Handle rising when player jumps off
+
         if (this.isRising) {
             this.logGroup.position.y += this.animationSpeed;
             if (this.logGroup.position.y >= this.originalY) {
@@ -169,8 +135,7 @@ class Log extends Mesh {
             }
         }
     }
-    
-    // Called when player lands on the log
+
     playerLanded() {
         if (!this.hasPlayerOnTop) {
             this.isSinking = true;
@@ -179,8 +144,7 @@ class Log extends Mesh {
             console.log("Player landed on log!");
         }
     }
-    
-    // Called when player jumps off the log
+
     playerLeft() {
         if (this.hasPlayerOnTop) {
             this.isRising = true;
@@ -189,38 +153,28 @@ class Log extends Mesh {
             console.log("Player left log!");
         }
     }
-    
-    // Move player along with the log
+
     carryPlayer(player) {
         if (!player || !player.body) return;
-        
-        // Apply log's movement to player
-        if (this.direction === 'right') {
-            player.body.position.x += this.speed;
-        } else {
-            player.body.position.x -= this.speed;
-        }
+        player.body.position.x += this.direction === 'right' ? this.speed : -this.speed;
     }
-    
+
     updateBoundingBox() {
-        if (!this.logGroup) return;
-        this.boundingBox = new THREE.Box3().setFromObject(this.logGroup);
+        if (this.logGroup) {
+            this.boundingBox = new THREE.Box3().setFromObject(this.logGroup);
+        }
     }
 
     destroy() {
         if (this.logGroup) {
             this.scene.remove(this.logGroup);
-            
-            // Dispose of all parts to prevent memory leaks
-            this.logGroup.traverse((child) => {
+            this.logGroup.traverse(child => {
                 if (child.isMesh) {
                     if (child.geometry) child.geometry.dispose();
                     if (child.material) {
-                        if (Array.isArray(child.material)) {
-                            child.material.forEach(m => m.dispose());
-                        } else {
-                            child.material.dispose();
-                        }
+                        Array.isArray(child.material)
+                            ? child.material.forEach(m => m.dispose())
+                            : child.material.dispose();
                     }
                 }
             });
