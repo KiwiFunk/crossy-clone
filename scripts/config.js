@@ -81,6 +81,13 @@ export const CONFIG = {
             DEPTH: 1.0
         },
     },
+
+    MODEL_SPEEDS: {
+        CAR: { MIN: 0.03, MAX: 0.09 },
+        TRUCK: { MIN: 0.02, MAX: 0.04 },
+        TRAIN: { MIN: 0.12, MAX: 0.15 },
+        LOG: { MIN: 0.02, MAX: 0.06 }
+    }
     
 };
 
