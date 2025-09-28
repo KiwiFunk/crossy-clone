@@ -25,7 +25,7 @@ class Mesh {
         this.boundingBoxSet = false;
 
         // Debug
-        this.debugBoundingBox = true;
+        this.debugBoundingBox = false;
         this.boundingBoxHelper = null;
 
         // Misc
