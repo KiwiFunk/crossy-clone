@@ -10,8 +10,7 @@ class Log extends Mesh {
         // Core properties
         this.modelPath = 'assets/log.glb';
         this.endCapPath = 'assets/logend.glb';
-        this.type = 'obstacle';
-        this.speed = Mesh.getRandomSpeed(0.02, 0.05);
+        this.type = 'log';
 
         // Log dimensions
         const dims = CONFIG.MODEL_DIMENSIONS.LOG;

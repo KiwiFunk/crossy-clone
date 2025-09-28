@@ -30,11 +30,6 @@ class Mesh {
         
     }
 
-    // Use static as the utility is not tied to instance. We want to call it before creating instances. (during the constructor)
-    static getRandomSpeed(min, max) {
-        return Math.random() * (max - min) + min;
-    }
-
     // Load 3D model from GLTF file
     loadModel() {
         if (!this.modelPath) {

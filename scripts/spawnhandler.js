@@ -42,6 +42,15 @@ export class SpawnManager {
             ? direction === 'right' ? -rowHalfWidth - 2 : rowHalfWidth + 2
             : 0;
 
+        // Calculate the speed for this row using ranges defined in CONFIG, with a difficulty modifier based of Z value
+        let finalSpeed = null;
+        if (this.options.isMoving) {
+            const speeds = CONFIG.MODEL_SPEEDS[this.EntityClass.name.toUpperCase()];
+            const baseSpeed = Math.random() * (speeds.MAX - speeds.MIN) + speeds.MIN;
+            const difficultyModifier = this.row / 2000;
+            finalSpeed = baseSpeed + difficultyModifier;
+        }
+
         // Track occupied tiles to prevent overlaps, create array to store positioned Entities
         const tileOccupancy = new Array(CONFIG.ROW_WIDTH_IN_TILES).fill(false);
         const spawnedEntities = [];
@@ -49,7 +58,10 @@ export class SpawnManager {
         // Create entities array using count parameter with an initial x of 0
         const entities = Array.from({ length: this.count }, () => {
             const entity = new this.EntityClass(this.scene, 0, y, this.row);
+
             entity.direction = direction;
+            entity.speed = finalSpeed;
+
             const width = entity.totalWidth || CONFIG.TILE_SIZE;
             return { entity, width, positioned: false, finalX: 0 };
         });

@@ -6,7 +6,6 @@ class Car extends Mesh {
         super(scene, x, y, z);
         this.modelPath = 'assets/car.glb';
         this.type = 'car';
-        this.speed = Mesh.getRandomSpeed(0.03, 0.08);
         this.totalWidth = CONFIG.MODEL_DIMENSIONS.CAR.WIDTH;
 
         this.loadModel();
