@@ -32,7 +32,7 @@ class Game {
     }
 
     setupLighting() {
-        const hemisphereLight = new THREE.HemisphereLight(0x8dc1de, 0x90ad56, 0.6);
+        const hemisphereLight = new THREE.HemisphereLight(0x8dc1de, 0x90ad56, 0.7);
         this.scene.add(hemisphereLight);
 
         const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
@@ -45,7 +45,7 @@ class Game {
         directionalLight.shadow.camera.bottom = -10;
         this.scene.add(directionalLight);
 
-        const fillLight = new THREE.DirectionalLight(0xffffff, 0.26);
+        const fillLight = new THREE.DirectionalLight(0xffffff, 0.3);
         fillLight.position.set(10, -10, 8);
         fillLight.castShadow = false;
         this.scene.add(fillLight);

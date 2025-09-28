@@ -26,9 +26,9 @@ export const CONFIG = {
     PLAYER_MOVE_COOLDOWN: 150,          // Time between moves in ms
     
     // Camera settings with new names
-    CAMERA_POS_Y: 12,                   // Height above player
-    CAMERA_POS_Z: 8,                    // Distance behind player
-    CAMERA_POS_X: 5.2,                  // Side offset (negative = left of player)
+    CAMERA_POS_Y: 10,                   // Height above player
+    CAMERA_POS_Z: 6,                    // Distance behind player
+    CAMERA_POS_X: 4.8,                  // Side offset (negative = left of player)
     CAMERA_FOLLOW_SPEED: 0.05,          // Camera smoothing
     
     // Camera rotation settings
@@ -47,7 +47,7 @@ export const CONFIG = {
         GRASS_B: 0xB5ED5D,
         ROAD: 0x555555,
         RAIL: 0x777777,
-        RIVER: 0x4444FF,
+        RIVER: 0x81F5FF,
         PLAYER: 0x0000ff
     },
 
