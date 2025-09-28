@@ -48,7 +48,8 @@ export const CONFIG = {
         ROAD: 0x555555,
         RAIL: 0x777777,
         RIVER: 0x81F5FF,
-        PLAYER: 0x0000ff
+        PLAYER: 0x0000ff,
+        BACKGROUND: 0x87CEEB
     },
 
     // Model Dimensions

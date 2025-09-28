@@ -20,35 +20,38 @@ class Game {
 
     setupThreeJS() {
         this.scene = new THREE.Scene();
-        this.scene.background = new THREE.Color(0x87CEEB); // Sky blue
+        this.scene.background = new THREE.Color(CONFIG.COLORS.BACKGROUND);
 
         this.renderer = new THREE.WebGLRenderer({ antialias: true });
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.renderer.setPixelRatio(window.devicePixelRatio);
         this.renderer.shadowMap.enabled = true;
 
+        this.renderer.outputEncoding = THREE.sRGBEncoding;
+        this.renderer.toneMapping = THREE.NoToneMapping;
+
         document.body.appendChild(this.renderer.domElement);
         window.addEventListener('resize', () => this.onWindowResize());
     }
 
     setupLighting() {
-        const hemisphereLight = new THREE.HemisphereLight(0x8dc1de, 0x90ad56, 0.9);
+        const hemisphereLight = new THREE.HemisphereLight(0x8dc1de, 0x90ad56, 0.8);
         this.scene.add(hemisphereLight);
 
         // Store the light on the Game instance so we can update it
-        this.directionalLight = new THREE.DirectionalLight(0xffffff, 0.9);
+        this.directionalLight = new THREE.DirectionalLight(0xffffff, 1.0);
         this.directionalLight.position.set(-10, 10, -8);
         this.directionalLight.castShadow = true;
         this.directionalLight.shadow.mapSize.set(2048, 2048);
 
         // Set up shadow Cam properties
-        const shadowCamSize = 12;
+        const shadowCamSize = 10;
         this.directionalLight.shadow.camera.left = -shadowCamSize;
         this.directionalLight.shadow.camera.right = shadowCamSize;
         this.directionalLight.shadow.camera.top = shadowCamSize;
         this.directionalLight.shadow.camera.bottom = -shadowCamSize;
-        this.directionalLight.shadow.camera.near = 0.8;
-        this.directionalLight.shadow.camera.far = 20; // Adjust as needed
+        this.directionalLight.shadow.camera.near = 0.5;
+        this.directionalLight.shadow.camera.far = 25; // Adjust as needed
 
         this.scene.add(this.directionalLight);
 
@@ -56,7 +59,7 @@ class Game {
         this.directionalLight.target = new THREE.Object3D();
         this.scene.add(this.directionalLight.target);
 
-        const fillLight = new THREE.DirectionalLight(0xffffff, 0.26);
+        const fillLight = new THREE.DirectionalLight(0xffffff, 0.2);
         fillLight.position.set(10, -10, 8);
         fillLight.castShadow = false;
         this.scene.add(fillLight);
