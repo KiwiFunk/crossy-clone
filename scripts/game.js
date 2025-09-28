@@ -94,9 +94,15 @@ class Game {
 
         this.scoreManager.updateScore(this.cameraController.getZPosition());
 
+        // Get nearby obstacles for collision checks
+        const nearbyRows = this.terrainGenerator.rows.filter(row => {
+            const distance = Math.abs(row.z - this.player.mesh.position.z);
+            return distance <= CONFIG.TILE_SIZE * 2; // Check current row, one in front, one behind
+        });
+        const nearbyObstacles = nearbyRows.flatMap(row => row.obstacles);
+
         // Check for collisions with obstacles using AABB
-        const obstacles = this.terrainGenerator.getAllObstacles();
-        const collided = this.player.checkCollisions(obstacles);
+        const collided = this.player.checkCollisions(nearbyObstacles);
         if (collided) {
             // Handle game over/game state change here
         }
