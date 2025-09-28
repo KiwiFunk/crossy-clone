@@ -1,176 +1,180 @@
 import { CONFIG } from './config.js';
-import * as THREE from 'three';
 
 export class SpawnManager {
     constructor(scene, EntityClass, count, chance, terrainRowZ, terrainType, options = {}) {
-        this.scene = scene;              // Scene we are spawning into
-        this.EntityClass = EntityClass;  // Entity class to instantiate (Car, Truck, Log, Train, etc.)
-        this.count = count;              // How many to spawn
-        this.chance = chance;            // Chance of spawning (0.0 - 1.0)
-        this.row = terrainRowZ;          // Which Row are we spawning in (Z Position)
-        this.terrainType = terrainType;  // Type of terrain (to calculate y pos)
+        this.scene = scene;
+        this.EntityClass = EntityClass;
+        this.count = count;
+        this.chance = chance;
+        this.row = terrainRowZ;
+        this.terrainType = terrainType;
 
-        // Set up default options
         this.options = {
-            avoidCenter: true,             // Keep center area clear
-            centerClearance: 3,            // How many units to keep clear in center
-            heightOffset: 0.01,            // Y-position offset above terrain
-            isMoving: true,                // Is this a moving obstacle?
-            minSpacing: 1.5,               // Minimum spacing between objects
-            ...options                     // Override with any passed options
+            avoidCenter: true,
+            centerClearance: 3,
+            heightOffset: 0.01,
+            isMoving: true,
+            minSpacing: 1.5,
+            variance: false,
+            fallbackStrategy: 'warn', // 'destroy', 'force', 'warn'
+            biasStrength: 1.0,
+            ...options
         };
     }
-
-    // Main method to spawn entites - called when creating manager
+    // Entry point to attempt spawning
     spawn() {
-        // Roll to see if we should spawn anything using chance value
-        if (Math.random() > this.chance) {
-            return [];
-        }
-
-        return this.spawnAssets();
+        return Math.random() > this.chance ? [] : this.spawnAssets();
     }
 
+    /**
+     * Main spawning logic: creates entities, assigns positions, and adds them to the scene.
+     * @returns {Array} Array of successfully spawned entities
+     */
     spawnAssets() {
-        // Calculate row information
+        // Calculate row information (Total Width and height)
         const rowHalfWidth = (CONFIG.ROW_WIDTH_IN_TILES * CONFIG.TILE_SIZE) / 2;
-        const spawnedEntities = [];
-
-        // Determine direction and speed
-        const direction = Math.random() > 0.5 ? 'right' : 'left';
-        
-        // Calculate initial X pos (for moving objects, this is offscreen)
-        let startX = 0;
-        if (this.options.isMoving) {
-            const spawnDistance = rowHalfWidth + 2; // Start just offscreen (2m offset)
-            startX = direction === 'right' 
-                ? -rowHalfWidth - spawnDistance 
-                : rowHalfWidth + spawnDistance;
-        }
-
-        // Track occupied zones to avoid overlap
-        const occupiedRanges = [];
-
-        // Calculate Y pos from terrain type and offset
         const terrainHeight = CONFIG.TERRAIN_HEIGHTS[this.terrainType.toUpperCase()] || 0.05;
         const y = terrainHeight + this.options.heightOffset;
 
-        // Step 1: Create all entities for this row with temporary positions, then get their totalWidth value.
-        const entities = [];
+        // Set up movement direction and startX for moving entities
+        const direction = Math.random() > 0.5 ? 'right' : 'left';
+        const startX = this.options.isMoving
+            ? direction === 'right' ? -rowHalfWidth - 2 : rowHalfWidth + 2
+            : 0;
 
-        for (let i = 0; i < this.count; i++) {
-            // Create entity, with a temporary X position
+        // Track occupied tiles to prevent overlaps, create array to store positioned Entities
+        const tileOccupancy = new Array(CONFIG.ROW_WIDTH_IN_TILES).fill(false);
+        const spawnedEntities = [];
+
+        // Create entities array using count parameter with an initial x of 0
+        const entities = Array.from({ length: this.count }, () => {
             const entity = new this.EntityClass(this.scene, 0, y, this.row);
             entity.direction = direction;
-            
-            // Get the totalWidth from the entity instance (Fallback to tile size)
             const width = entity.totalWidth || CONFIG.TILE_SIZE;
-            
-            // Store in entities array for positioning later
-            entities.push({
-                entity,
-                width,
-                positioned: false,
-                finalX: 0
-            });
-        }
+            return { entity, width, positioned: false, finalX: 0 };
+        });
 
-        // Step 2: Calculate final X pos for all entities in array
-        if (this.options.isMoving && this.count === 1) {
-            // Single moving entity - just use startX
-            entities[0].finalX = startX;
-            entities[0].positioned = true;
-        } else {
-            // For multiple, or static entities we need to calculate spacing
-            for (const entityData of entities) {
-                let positioned = false;
-                let attempts = 0;
-                const maxAttempts = 10; // Avoid infinite loops
-
-                while (!positioned && attempts < maxAttempts) {
-
-                    attempts++;
-                    let x;
-
-                    if (this.options.isMoving) {
-                        // Moving entities start at the edge with some variation
-                        const variation = (Math.random() - 0.5) * 3;
-                        x = startX + variation;
-                    } else {
-                        // Static entities use distribution that avoids center unless count === row width
-                        x = this.generatePosWithEdgeWeighting(rowHalfWidth);
-                    }
-                    
-                    // Skip if in center and we're avoiding center
-                    if (this.options.avoidCenter && Math.abs(x) < this.options.centerClearance) {
-                        continue;
-                    }
-                    
-                    // Check for overlaps with existing entities
-                    const overlapping = occupiedRanges.some(range => {
-                        const minDist = (entityData.width + range.width) / 2 + this.options.minSpacing;
-                        return Math.abs(x - range.x) < minDist;
-                    });
-                    
-                    if (!overlapping) {
-                        // Valid position found
-                        entityData.finalX = x;
-                        entityData.positioned = true;
-                        positioned = true;
-                        
-                        // Register occupied space
-                        occupiedRanges.push({
-                            x,
-                            width: entityData.width
-                        });
-                    }
-                }
-
-                // If we couldn't find a good position, use a fallback (Update to just destroy instead, otherwise janky look)
-                if (!entityData.positioned) {
-                    const fallbackX = (Math.random() - 0.5) * rowHalfWidth * 1.5;
-                    entityData.finalX = fallbackX;
-                    entityData.positioned = true;
-                    console.warn(`Could not find non-overlapping position for ${this.EntityClass.name}. Using fallback position.`);
-                }
-
-            }
-        }
-
-        // Step 3: Position all entities at their calculated locations then ADD to scene 
+        // Start to position each entity in entity array
         for (const entityData of entities) {
-            if (entityData.positioned) {
-                const entity = entityData.entity;
-                
-                // Update entity position
-                entity.x = entityData.finalX;
-                
-                // If the Async loading somehow finised before, update it too (edge case)
-                if (entity.mesh) {
-                    entity.mesh.position.x = entityData.finalX;
-                    console.log(`Mesh already loaded early, updated position to x=${entityData.finalX}`);
+            if (this.options.isMoving && this.count === 1) {
+                // Single moving entity place at startX
+                entityData.finalX = startX;
+                entityData.positioned = true;
+                continue;
+            }
+
+            let attempts = 0;
+            const maxAttempts = 10;
+
+            while (!entityData.positioned && attempts < maxAttempts) {
+                attempts++;
+                const tilesNeeded = Math.ceil(entityData.width / CONFIG.TILE_SIZE);
+                const pos = this.generateTileBasedPosition(rowHalfWidth, tilesNeeded, tileOccupancy);
+
+                if (!pos) continue;
+
+                const { x, tileIndex } = pos;
+
+                // Skip if too close to center
+                if (this.options.avoidCenter && Math.abs(x) < this.options.centerClearance) continue;
+
+                // Check if the position is valid, then reserve the space if true
+                if (this.canPlaceAt(tileIndex, tilesNeeded, tileOccupancy)) {
+                    this.reserveTiles(tileIndex, tilesNeeded, tileOccupancy);
+                    entityData.finalX = x;
+                    entityData.positioned = true;
                 }
-
-                // Add to result array for tracking
-                spawnedEntities.push(entity);
-
-            } else {
-                // If not positioned, remove from scene and clean up
-                if (entityData.entity.mesh && this.scene) {
-                    this.scene.remove(entityData.entity.mesh);
+            }
+            // If asset could not be placed, handle according to fallback strategy
+            if (!entityData.positioned) {
+                switch (this.options.fallbackStrategy) {
+                    case 'destroy':
+                        console.warn(`Destroyed ${this.EntityClass.name} due to placement failure.`);
+                        continue;
+                    case 'force':
+                        entityData.finalX = (Math.random() - 0.5) * rowHalfWidth * 1.5;
+                        entityData.positioned = true;
+                        break;
+                    case 'warn':
+                    default:
+                        entityData.finalX = (Math.random() - 0.5) * rowHalfWidth * 1.5;
+                        entityData.positioned = true;
+                        console.warn(`Could not find non-overlapping position for ${this.EntityClass.name}. Using fallback.`);
+                        break;
                 }
             }
         }
-        
+        // Finalize entity positions and add to spawnedEntities array for tracking/cleanup
+        for (const { entity, finalX, positioned } of entities) {
+            if (!positioned) {
+                if (entity.mesh && this.scene) this.scene.remove(entity.mesh);
+                continue;
+            }
+
+            entity.x = finalX;
+            if (entity.mesh) entity.mesh.position.x = finalX;
+            spawnedEntities.push(entity);
+        }
+
         return spawnedEntities;
     }
 
-    // Generate position with edge weighting 
-    generatePosWithEdgeWeighting(rowHalfWidth) {
-        // Use a power curve to weight toward edges
-        const side = Math.random() > 0.5 ? 1 : -1;
-        const value = Math.pow(Math.random(), 1.5); // Higher power = more edge weighting
-        return side * value * rowHalfWidth * 0.8; // 80% of half width to stay on terrain
+    /**
+     * Generates a tile-based position with edge bias and optional variance.
+     * Filters out tiles that can't fit the entity.
+     * @param {number} rowHalfWidth - Half the width of the row
+     * @param {number} tilesNeeded - Number of tiles the entity spans
+     * @param {Array} tileOccupancy - Boolean array of tile usage
+     * @returns {Object|null} Position object with x and tileIndex, or null if none available
+     */
+    generateTileBasedPosition(rowHalfWidth, tilesNeeded, tileOccupancy) {
+        const { ROW_WIDTH_IN_TILES: numTiles, TILE_SIZE: tileSize } = CONFIG;
+
+        const tilePositions = Array.from({ length: numTiles }, (_, i) => {
+            const x = -rowHalfWidth + i * tileSize + tileSize / 2;
+            // Calculate edgeScore with bias towards edges
+            const edgeScore = Math.pow(Math.abs((i / (numTiles - 1)) - 0.5) * 2, this.options.biasStrength);
+            return { x, edgeScore, tileIndex: i };
+        });
+
+        const validTiles = tilePositions.filter(pos => {
+            const { tileIndex } = pos;
+            return this.canPlaceAt(tileIndex, tilesNeeded, tileOccupancy);
+        });
+
+        if (validTiles.length === 0) return null;
+
+        // Weighted random selection based on edgeScore
+        const totalWeight = validTiles.reduce((sum, p) => sum + p.edgeScore, 0);
+        const rand = Math.random() * totalWeight;
+
+        let cumulative = 0;
+        for (const pos of validTiles) {
+            cumulative += pos.edgeScore;
+            if (rand <= cumulative) {
+                let finalX = pos.x;
+                if (this.options.variance) {
+                    const maxVariance = Math.min(0.1, tileSize * 0.05);
+                    finalX += (Math.random() - 0.5) * maxVariance * 2;
+                }
+                return { x: finalX, tileIndex: pos.tileIndex };
+            }
+        }
+
+        return null;
     }
 
+    canPlaceAt(tileIndex, tilesNeeded, tileOccupancy) {
+        if (tileIndex + tilesNeeded > tileOccupancy.length) return false;
+        for (let i = tileIndex; i < tileIndex + tilesNeeded; i++) {
+            if (tileOccupancy[i]) return false;
+        }
+        return true;
+    }
+
+    reserveTiles(tileIndex, tilesNeeded, tileOccupancy) {
+        for (let i = tileIndex; i < tileIndex + tilesNeeded; i++) {
+            tileOccupancy[i] = true;
+        }
+    }
 }

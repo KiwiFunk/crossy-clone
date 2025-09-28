@@ -170,10 +170,10 @@ export class TerrainRow {
             case 'rail':
                 // Create rail decorations using SpawnManager
                 const railOptions = {
-                    avoidCenter: false,    // Rails cover the entire row
-                    isMoving: false,       // Rails don't move
-                    heightOffset: 0.01,    // Slightly above terrain
-                    minSpacing: 1.0        // Rails are placed every 1m
+                    avoidCenter: false,     // Rails cover the entire row
+                    isMoving: false,        // Rails don't move
+                    heightOffset: 0.01,     // Slightly above terrain
+                    minSpacing: 0           // Modular asset, we dont want any spacing
                 };
                 
                 const railEntities = new SpawnManager(
@@ -186,9 +186,10 @@ export class TerrainRow {
                     railOptions            // Options
                 );
                 
+                const rails = railEntities.spawn();
                 // Add rail entities to meshes array for cleanup
-                if (Array.isArray(railEntities)) {
-                    this.meshes.push(...railEntities);
+                if (Array.isArray(rails)) {
+                    this.meshes.push(...rails);
                 }
                 break;
 
@@ -214,6 +215,7 @@ export class TerrainRow {
         switch(this.type) {
             case 'road':
                 const VehicleType = Math.random() > 0.5 ? Car : Truck;
+                const VehicleCount = Math.floor(Math.random() * 3) + 1; // 1 to 3 vehicles
                 
                 const vehicleManager = new SpawnManager(
                     this.scene,
@@ -235,7 +237,7 @@ export class TerrainRow {
                     this.scene,
                     Train,
                     1,              // Just one train per row
-                    0.4,            // 40% chance to spawn
+                    0.8,            // 80% chance to spawn
                     this.z,
                     this.type,
                     { isMoving: true, heightOffset: 0.01 }
@@ -276,7 +278,8 @@ export class TerrainRow {
                         isMoving: false,
                         avoidCenter: true,
                         centerClearance: 3,
-                        heightOffset: 0
+                        heightOffset: 0,
+                        variance: true
                     }
                 );
                 
