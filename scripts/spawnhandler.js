@@ -112,7 +112,13 @@ export class SpawnManager {
             }
 
             entity.x = finalX;
-            if (entity.mesh) entity.mesh.position.x = finalX;
+
+            // Handle edge case where mesh already loaded before X was set
+            if (entity.mesh) {
+                entity.mesh.position.x = finalX;
+                console.log("Mesh loaded before finalX was set");
+            }
+
             spawnedEntities.push(entity);
         }
 
