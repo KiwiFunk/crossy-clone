@@ -1,394 +1,245 @@
+import Mesh from './mesh.js';
 import * as THREE from 'three';
 import { CONFIG } from './config.js';
 
-export default class Player {
+export default class Player extends Mesh {
     constructor(scene) {
-        this.scene = scene;
-        this.gridPosition = { x: 0, y: 0, z: 0 };
-        this.targetPosition = new THREE.Vector3(0, CONFIG.PLAYER_SIZE/2, 0);
-        this.size = CONFIG.PLAYER_SIZE;
+        const startY = CONFIG.PLAYER_SIZE / 2;
+        super(scene, 0, startY, 0);
 
-        // Player states
+        this.size = CONFIG.PLAYER_SIZE;
+        this.gridPosition = { x: 0, y: 0, z: 0 };
+        this.targetPosition = new THREE.Vector3(0, startY, 0);
+
+        // State
         this.isMoving = false;
         this.isJumping = false;
+        this.lastPosition = { ...this.gridPosition };
 
-        // Current Tile/Surface states
-        this.currentTileType = 'grass'; // We always start on grass
-        this.currentSurface = null;     // For interactable objects, e.g Logs
-
-        // Log/River handling - we may refactor later
+        // Terrain
+        this.currentTileType = 'grass';
+        this.currentSurface = null;
         this.isOnLog = false;
         this.currentLog = null;
         this.isInWater = false;
 
-        // Create bounding box for player
-        this.boundingBox = new THREE.Box3();
-        this.boundingBoxSet = false;
-
-        // Create Mesh for player
+        // Create player mesh
         this.createMesh();
-
         this.updateBoundingBox();
     }
 
-    // Simple cube as test - replace with model later
     createMesh() {
-        const bodyGeometry = new THREE.BoxGeometry(this.size, this.size, this.size);
-        const bodyMaterial = new THREE.MeshStandardMaterial({ color: CONFIG.COLORS.PLAYER });
-        this.body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-        this.body.position.copy(this.targetPosition);
-        this.body.castShadow = true;
-        this.scene.add(this.body);
-    }
-
-    updateBoundingBox() {
-        if (this.body) {
-            this.boundingBox.setFromObject(this.body);
-            this.boundingBoxSet = true;
-        }
+        const geometry = new THREE.BoxGeometry(this.size, this.size, this.size);
+        const material = new THREE.MeshStandardMaterial({ color: CONFIG.COLORS.PLAYER });
+        this.mesh = new THREE.Mesh(geometry, material);
+        this.mesh.position.copy(this.targetPosition);
+        this.mesh.castShadow = true;
+        this.scene.add(this.mesh);
     }
 
     move(direction) {
-        if (this.isMoving) return; // Prevent rapid moves
+        if (this.isMoving) return;
+
         this.isMoving = true;
         this.isJumping = true;
-
-        // Store last position (using spread)
         this.lastPosition = { ...this.gridPosition };
 
-        // Update grid position based on direction
         switch (direction) {
-            case 'forward':
-                this.gridPosition.z -= 1;
-                break;
-            case 'backward':
-                this.gridPosition.z += 1;
-                break;
-            case 'left':
-                this.gridPosition.x -= 1;
-                break;
-            case 'right':
-                this.gridPosition.x += 1;
-                break;
+            case 'forward': this.gridPosition.z -= 1; break;
+            case 'backward': this.gridPosition.z += 1; break;
+            case 'left': this.gridPosition.x -= 1; break;
+            case 'right': this.gridPosition.x += 1; break;
         }
 
-        // Use consistent spacing from config
-        this.targetPosition = new THREE.Vector3(
+        this.targetPosition.set(
             this.gridPosition.x * CONFIG.TILE_SIZE,
             this.targetPosition.y,
             this.gridPosition.z * CONFIG.TILE_SIZE
         );
 
-        // Animate the jump (Pass function as callback to reset isMoving)
         this.jumpAnimation(() => {
             this.isMoving = false;
         });
 
-        if (this.isBoundingBoxSet) {
-            // Calculate movement delta
-            const deltaX = this.body.position.x - this.previousX;
-            const deltaZ = this.body.position.z - this.previousZ;
-            
-            this.boundingBox.translate(new THREE.Vector3(deltaX, 0, deltaZ));
-            
-            // Update previous positions
-            this.previousX = this.body.position.x;
-            this.previousZ = this.body.position.z;
-        }
-        
         return {
-            previousPosition,
+            previousPosition: { ...this.lastPosition },
             newPosition: { ...this.gridPosition }
         };
     }
-    
-    // Refactor to make callback mandatory?
+
     jumpAnimation(callback) {
         const jumpHeight = this.size * CONFIG.PLAYER_JUMP_HEIGHT;
         const jumpDuration = CONFIG.PLAYER_MOVE_SPEED;
         const startTime = Date.now();
-        const startY = this.body.position.y;
-        const jumpTarget = this.targetPosition.clone();
-        const startPosition = this.body.position.clone();
-        
-        const animateJump = () => {
-            const now = Date.now();
-            const elapsed = now - startTime;
+        const startY = this.mesh.position.y;
+        const startPos = this.mesh.position.clone();
+        const target = this.targetPosition.clone();
+
+        const animate = () => {
+            const elapsed = Date.now() - startTime;
             const progress = Math.min(elapsed / jumpDuration, 1);
-            
-            // Interpolate position
-            this.body.position.x = startPosition.x + (jumpTarget.x - startPosition.x) * progress;
-            this.body.position.z = startPosition.z + (jumpTarget.z - startPosition.z) * progress;
-            
-            // Add jump arc
-            if (progress <= 0.5) {
-                this.body.position.y = startY + jumpHeight * (progress * 2);
-            } else {
-                this.body.position.y = startY + jumpHeight * (2 - progress * 2);
-            }
-            
-            // Rotate based on direction
-            this.body.rotation.y = Math.atan2(
-                jumpTarget.x - startPosition.x,
-                jumpTarget.z - startPosition.z
+
+            this.mesh.position.x = startPos.x + (target.x - startPos.x) * progress;
+            this.mesh.position.z = startPos.z + (target.z - startPos.z) * progress;
+
+            this.mesh.position.y = progress <= 0.5
+                ? startY + jumpHeight * (progress * 2)
+                : startY + jumpHeight * (2 - progress * 2);
+
+            this.mesh.rotation.y = Math.atan2(
+                target.x - startPos.x,
+                target.z - startPos.z
             );
-            
+
             if (progress < 1) {
-                requestAnimationFrame(animateJump);
+                requestAnimationFrame(animate);
             } else {
                 this.isJumping = false;
                 if (callback) callback();
             }
         };
-        
-        animateJump();
+
+        animate();
     }
 
-    getPosition() {
-        return this.gridPosition;
-    }
-
-    // This is called every frame from the main loop
     update() {
-
-        // Check what tile/surface the player is currently on
         this.checkCurrentTile();
-
-        // Handle tile specific actions
         this.handleTileInteraction();
 
-        // Add idle animation
         if (!this.isJumping) {
-            this.body.position.y = this.targetPosition.y + 
+            this.mesh.position.y = this.targetPosition.y +
                 Math.sin(Date.now() / 500) * 0.05;
         }
+
+        this.updateBoundingBox();
     }
-    
-    /**
-     * Determine what the player is currently standing on
-     * Set y value and perform any logic based on surface type
-     */
+
     checkCurrentTile() {
-        // Reset states
         const previousLog = this.currentLog;
         this.currentSurface = null;
         this.isOnLog = false;
         this.currentLog = null;
         this.isInWater = false;
 
-        // Find the current tile the player is on
-        const playerWorldZ = this.gridPosition.z * CONFIG.TILE_SIZE;
+        const worldZ = this.gridPosition.z * CONFIG.TILE_SIZE;
+        const terrainRow = this.findTerrainRowAtZ(worldZ);
 
-        // Find the terrain row the current tile belongs to
-        const terrainRow = this.findTerrainRowAtZ(playerWorldZ);
-        
         if (terrainRow) {
             this.currentTileType = terrainRow.type;
-            
-            // Handle different tile types
-            switch (this.currentTileType) {
+            switch (terrainRow.type) {
                 case 'grass':
                 case 'road':
                 case 'rail':
                     this.handleSolidTile(terrainRow);
                     break;
-                    
                 case 'river':
                     this.handleRiverTile(terrainRow);
                     break;
-                    
                 default:
-                    console.warn(`Unknown tile type: ${this.currentTileType}`);
+                    console.warn(`Unknown tile type: ${terrainRow.type}`);
                     this.handleSolidTile(terrainRow);
             }
         } else {
-            // Fallback if no terrain found
             this.currentTileType = 'grass';
             this.setPlayerHeight(CONFIG.TERRAIN_HEIGHTS.GRASS);
         }
 
-        // Handle log state changes
-        if (previousLog && previousLog !== this.currentLog) {
-            previousLog.playerLeft();
-        }
-        if (this.currentLog && previousLog !== this.currentLog) {
-            this.currentLog.playerLanded();
-        }
+        if (previousLog && previousLog !== this.currentLog) previousLog.playerLeft();
+        if (this.currentLog && previousLog !== this.currentLog) this.currentLog.playerLanded();
     }
 
-    // Find the terrain row at a given Z coord (not sure if this is best way to handle)
     findTerrainRowAtZ(worldZ) {
-        // Access terrain generator through game instance
-        if (window.game && window.game.terrainGenerator) {
-            const terrainRows = window.game.terrainGenerator.rows;
-            
-            // Find the row that contains this Z position
-            for (const row of terrainRows) {
-                const rowStart = row.z - (CONFIG.TILE_SIZE / 2);
-                const rowEnd = row.z + (CONFIG.TILE_SIZE / 2);
-                
-                if (worldZ >= rowStart && worldZ < rowEnd) {
-                    return row;
-                }
-            }
+        if (window.game?.terrainGenerator?.rows) {
+            return window.game.terrainGenerator.rows.find(row => {
+                const start = row.z - CONFIG.TILE_SIZE / 2;
+                const end = row.z + CONFIG.TILE_SIZE / 2;
+                return worldZ >= start && worldZ < end;
+            });
         }
-        
-        return null; // No terrain found
+        return null;
     }
 
-    handleSolidTile(terrainRow) {
-        // Set player height based on terrain
-        const terrainHeight = terrainRow.getTerrainHeight();
-        this.setPlayerHeight(terrainHeight);
-        
-        // If we're not on grass, check for obstacles.
-        if(terrainRow.type !== 'grass') {
-            this.checkCollision(terrainRow);
-        }
-        
+    handleSolidTile(row) {
+        this.setPlayerHeight(row.getTerrainHeight());
+        if (row.type !== 'grass') this.checkCollision(row);
     }
 
-    handleRiverTile(terrainRow) {
-        // First check if player is on a log
-        const logFound = this.checkForLogsOnTile(terrainRow);
-        
-        if (logFound) {
-            // Player is on a log - they're safe
-            this.isOnLog = true;
-            this.isInWater = false;
-            
-            // Set height based on log height
-            const terrainHeight = terrainRow.getTerrainHeight();
-            this.setPlayerHeight(terrainHeight + 0.3); // Log height above water
-        } else {
-            // Player is in water - they should sink/die
-            this.isInWater = true;
-            this.isOnLog = false;
-            
-            const terrainHeight = terrainRow.getTerrainHeight();
-            this.setPlayerHeight(terrainHeight - 0.5); // Sink below water surface
-        }
+    handleRiverTile(row) {
+        const onLog = this.checkForLogsOnTile(row);
+        this.isOnLog = onLog;
+        this.isInWater = !onLog;
+
+        const baseHeight = row.getTerrainHeight();
+        this.setPlayerHeight(onLog ? baseHeight + 0.3 : baseHeight - 0.5);
     }
 
-    // Check if there is a log on the current tile
-    checkForLogsOnTile(terrainRow) {
-        if (!terrainRow.obstacles) return false;
-        
-        // Get player's 'feet' position for accurate detection (more accurate than just BBox)
-        const playerFeet = new THREE.Vector3(
-            this.body.position.x,
-            this.body.position.y - (this.size/2),
-            this.body.position.z
+    checkForLogsOnTile(row) {
+        if (!row.obstacles) return false;
+
+        const feet = new THREE.Vector3(
+            this.mesh.position.x,
+            this.mesh.position.y - this.size / 2,
+            this.mesh.position.z
         );
-        
-        // Check each obstacle on this tile
-        for (const obstacle of terrainRow.obstacles) {
-            if (obstacle.subtype === 'log' && 
-                obstacle.isLoaded && 
-                obstacle.boundingBox) {
-                
-                // Expand bounding box slightly for easier detection
-                const expandedBox = obstacle.boundingBox.clone();
-                expandedBox.expandByScalar(0.1);
-                
-                // Check if player is on this log
-                if (expandedBox.containsPoint(playerFeet) && !this.isJumping) {
+
+        for (const obstacle of row.obstacles) {
+            if (obstacle.subtype === 'log' && obstacle.isLoaded && obstacle.boundingBox) {
+                const expanded = obstacle.boundingBox.clone().expandByScalar(0.1);
+                if (expanded.containsPoint(feet) && !this.isJumping) {
                     this.currentLog = obstacle;
                     this.currentSurface = obstacle;
                     return true;
                 }
             }
         }
-        
+
         return false;
     }
 
-    // Check for collisions on a given row using AABB
-    checkCollision(terrainRow) {
-        // If this row didnt spawn with obstacles, return
-        if (!terrainRow.obstacles) return;
+    checkCollision(row) {
+        if (!row.obstacles) return;
 
-        // Get player's bounding box
-        const playerBox = new THREE.Box3().setFromObject(this.body);
-        
-        for (const obstacle of terrainRow.obstacles) {
-            if (obstacle.isLoaded && 
-                obstacle.boundingBox && 
-                obstacle.type === 'obstacle') {
-                
-                // Check collision with nont
+        const playerBox = new THREE.Box3().setFromObject(this.mesh);
+
+        for (const obstacle of row.obstacles) {
+            if (obstacle.isLoaded && obstacle.boundingBox && obstacle.type === 'obstacle') {
                 if (playerBox.intersectsBox(obstacle.boundingBox)) {
                     this.currentSurface = obstacle;
-                    
-                    // If the obstacle is static (e.g. tree), block movement
                     if (obstacle.static) {
-                        // Add logic for blocking move here
-                    } 
-                    // Else trigger a game over
-                    else if (['car', 'truck', 'train'].includes(obstacle.subtype)) {
-                        // Vehicles cause game over
-                        //this.triggerGameOver('vehicle');
+                        // Block movement logic here
+                    } else if (['car', 'truck', 'train'].includes(obstacle.subtype)) {
+                        // this.triggerGameOver('vehicle');
                     }
                 }
             }
         }
     }
 
-    /**
-     * Handle interactions based on the current tile type player is on
-     */
     handleTileInteraction() {
         if (this.isInWater && !this.isOnLog) {
-            // Player is drowning
-            // Create an animation for this
-            //this.triggerGameOver('drowning');
+            // this.triggerGameOver('drowning');
             return;
         }
-        
+
         if (this.isOnLog && this.currentLog) {
-            // Player is riding a log - move with it and update grid pos to match
             this.currentLog.carryPlayer(this);
-            this.gridPosition.x = Math.round(this.body.position.x / CONFIG.TILE_SIZE);
-        }
-        
-        // Handle tile-specific effects
-        switch (this.currentTileType) {
-            case 'grass':
-                // Safe zone - no special effects
-                break;
-                
-            case 'road':
-                // Road - watch for vehicles (handled in checkCollision)
-                break;
-                
-            case 'rail':
-                // Railway - watch for trains (handled in checkCollision)
-                break;
-                
-            case 'river':
-                // Water - sink or ride logs (handled above)
-                break;
+            this.gridPosition.x = Math.round(this.mesh.position.x / CONFIG.TILE_SIZE);
         }
     }
 
     setPlayerHeight(terrainHeight) {
-        const newY = terrainHeight + (this.size / 2);
-        
-        // Only update if not jumping
+        const newY = terrainHeight + this.size / 2;
         if (!this.isJumping) {
             this.targetPosition.y = newY;
-            this.body.position.y = newY;
+            this.mesh.position.y = newY;
         }
     }
 
     triggerGameOver(reason) {
         console.log(`Game Over: ${reason}`);
-        
-        // Emit game over event
-        if (window.game && window.game.handleGameOver) {
+        if (window.game?.handleGameOver) {
             window.game.handleGameOver(reason);
         } else {
-            // Fallback game over handling
             alert(`Game Over! Cause: ${reason}`);
             this.resetPlayerPosition();
         }
@@ -396,8 +247,8 @@ export default class Player {
 
     resetPlayerPosition() {
         this.gridPosition = { x: 0, y: 0, z: 0 };
-        this.targetPosition = new THREE.Vector3(0, CONFIG.PLAYER_SIZE/2, 0);
-        this.body.position.copy(this.targetPosition);
+        this.targetPosition.set(0, CONFIG.PLAYER_SIZE / 2, 0);
+        this.mesh.position.copy(this.targetPosition);
         this.isMoving = false;
         this.isJumping = false;
         this.currentTileType = 'grass';
@@ -407,9 +258,6 @@ export default class Player {
         this.isInWater = false;
     }
 
-    /**
-     * Get detailed information about what the player is currently on
-     */
     getCurrentTileInfo() {
         return {
             tileType: this.currentTileType,
@@ -419,5 +267,4 @@ export default class Player {
             gridPosition: { ...this.gridPosition }
         };
     }
-    
 }
