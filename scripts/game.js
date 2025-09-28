@@ -119,7 +119,7 @@ window.addEventListener('load', () => {
     const game = new Game();
 });
 
-const calculateMeshSizes = false;
+const calculateMeshSizes = true;
 
 if (calculateMeshSizes) {
     (async () => {

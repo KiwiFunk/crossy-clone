@@ -250,6 +250,8 @@ export class TerrainRow {
 
             case 'river':
                 const numLogs = Math.floor(Math.random() * 3) + 1;
+
+                const yOffset = (0 - CONFIG.MODEL_DIMENSIONS.LOG.HEIGHT / 4) + 0.08;
                 
                 const logManager = new SpawnManager(
                     this.scene,
@@ -258,7 +260,7 @@ export class TerrainRow {
                     1.0,            // Always spawn logs
                     this.z,
                     this.type,
-                    { isMoving: true, heightOffset: 0.2, fallbackStrategy: 'destroy' } // destroy overlapping logs
+                    { isMoving: true, heightOffset: yOffset, fallbackStrategy: 'destroy' } // destroy overlapping logs
                 );
                 
                 const logs = logManager.spawn();
