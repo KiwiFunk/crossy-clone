@@ -30,7 +30,7 @@ class Log extends Mesh {
         // Composite mesh group
         this.logGroup = new THREE.Group();
         this.logGroup.position.set(this.x, this.y, this.z);
-        this.mesh = this.logGroup;
+        this.mesh = this.logGroup; // Informs parent class what to track
 
         // Begin loading
         this.loadLog();
@@ -79,7 +79,6 @@ class Log extends Mesh {
             // Finalize
             this.isLoaded = true;
             this.scene.add(this.logGroup);
-            this.updateBoundingBox();
         } catch (err) {
             console.error(`Failed to load log parts:`, err);
         }
@@ -100,17 +99,13 @@ class Log extends Mesh {
     update() {
         if (!this.isLoaded) return;
 
-        // Movement
-        this.x += this.direction === 'right' ? this.speed : -this.speed;
-        this.logGroup.position.x = this.x;
+        // Movement + bounding box handled by parent
+        super.update();
 
-        // Animation
+        // Sinking animation
         this.updateSinkAnimation();
 
-        // Bounding box
-        this.updateBoundingBox();
-
-        // Looping
+        // Looping (override boundary logic for logs)
         const boundaryX = 15 + this.totalWidth / 2;
         if (this.x > boundaryX) this.x = -boundaryX;
         if (this.x < -boundaryX) this.x = boundaryX;
@@ -155,40 +150,19 @@ class Log extends Mesh {
 
     carryPlayer(player) {
         if (!player || !player.body) return;
-        
-        // Move player with log
+
         const movement = this.direction === 'right' ? this.speed : -this.speed;
         player.body.position.x += movement;
-        
-        // Translate player's bounding box
+
         if (player.isBoundingBoxSet) {
             player.boundingBox.translate(new THREE.Vector3(movement, 0, 0));
         }
-        
-        // Update player's grid position to match
+
         player.gridPosition.x = Math.round(player.body.position.x / CONFIG.TILE_SIZE);
     }
 
-    updateBoundingBox() {
-        if (this.logGroup) {
-            this.boundingBox = new THREE.Box3().setFromObject(this.logGroup);
-        }
-    }
-
     destroy() {
-        if (this.logGroup) {
-            this.scene.remove(this.logGroup);
-            this.logGroup.traverse(child => {
-                if (child.isMesh) {
-                    if (child.geometry) child.geometry.dispose();
-                    if (child.material) {
-                        Array.isArray(child.material)
-                            ? child.material.forEach(m => m.dispose())
-                            : child.material.dispose();
-                    }
-                }
-            });
-        }
+        super.destroy(); // Handles mesh + bounding box cleanup
     }
 }
 
