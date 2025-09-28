@@ -14,8 +14,7 @@ export class SpawnManager {
             centerClearance: 3,
             heightOffset: 0.01,
             isMoving: true,
-            minSpacing: 1.5,
-            variance: false,
+            variance: true,
             fallbackStrategy: 'warn', // 'destroy', 'force', 'warn'
             biasStrength: 1.0,
             ...options

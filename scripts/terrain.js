@@ -173,7 +173,8 @@ export class TerrainRow {
                     avoidCenter: false,     // Rails cover the entire row
                     isMoving: false,        // Rails don't move
                     heightOffset: 0.01,     // Slightly above terrain
-                    minSpacing: 0           // Modular asset, we dont want any spacing
+                    minSpacing: 0,          // Modular asset, we dont want any spacing
+                    variance: false         // No variance for rails
                 };
                 
                 const railEntities = new SpawnManager(
@@ -220,7 +221,7 @@ export class TerrainRow {
                 const vehicleManager = new SpawnManager(
                     this.scene,
                     VehicleType,
-                    1,              // Just one vehicle per row
+                    VehicleCount,
                     0.7,            // 70% chance to spawn
                     this.z,
                     this.type,
@@ -278,8 +279,7 @@ export class TerrainRow {
                         isMoving: false,
                         avoidCenter: true,
                         centerClearance: 3,
-                        heightOffset: 0,
-                        variance: true
+                        heightOffset: 0        
                     }
                 );
                 
