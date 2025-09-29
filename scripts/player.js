@@ -15,6 +15,7 @@ export default class Player extends Mesh {
         this.isMoving = false;
         this.isJumping = false;
         this.lastPosition = { ...this.gridPosition };
+        this.currentPlatform = null;    // Track current platform 
 
         // Create player mesh
         this.createMesh();
@@ -112,6 +113,9 @@ export default class Player extends Mesh {
      * @returns {boolean} True if collision detected, else false
      */
     checkCollisions(obstacles) {
+
+        let platformThisFrame = null;
+
         for (const obstacle of obstacles) {
             if (!obstacle.isLoaded || !obstacle.boundingBox) continue;
 
@@ -119,6 +123,10 @@ export default class Player extends Mesh {
 
                 // If the intersecting obstacle has the isMovingPlatform flag, ride it
                 if (obstacle.isMovingPlatform && typeof obstacle.getMovementDelta === 'function') {
+
+                    // Set this platform as the current platform
+                    platformThisFrame = obstacle;
+
                     // Ride the platform
                     const delta = obstacle.getMovementDelta();
                     this.mesh.position.add(delta);
@@ -132,6 +140,25 @@ export default class Player extends Mesh {
             }
         }
 
+        // TRIGGER HOOKS
+        if (platformThisFrame !== this.currentPlatform) {
+            // The platform has changed!
+
+            // If we were on a platform before, trigger its 'onPlayerExit' hook.
+            if (this.currentPlatform && this.currentPlatform.triggerHook) {
+                this.currentPlatform.triggerHook('onPlayerExit');
+            }
+
+            // If we are on a new platform now, trigger its 'onPlayerEnter' hook.
+            if (platformThisFrame && platformThisFrame.triggerHook) {
+                platformThisFrame.triggerHook('onPlayerEnter', this); // Pass the player as data
+            }
+
+            // Update the current platform for the next frame.
+            this.currentPlatform = platformThisFrame;
+        }
+
+        // No collision, return false
         return false;
     }
 
