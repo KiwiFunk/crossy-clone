@@ -40,6 +40,17 @@ class Log extends Mesh {
         this.sinkAmount = 0.2;
         this.baseY = y;
 
+        // Register Hooks
+        this.registerHook('onPlayerEnter', (player) => {
+            console.log("Player entered log!");
+            this.isPlayerOn = true;
+        });
+
+        this.registerHook('onPlayerExit', () => {
+            console.log("Player exited log!");
+            this.isPlayerOn = false;
+        });
+
         // Begin loading
         this.loadLog();
     }
