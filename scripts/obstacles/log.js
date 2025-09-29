@@ -122,6 +122,15 @@ class Log extends Mesh {
         // Movement + bounding box handled by parent
         super.update();
 
+        // Sink animation if player is on log
+        let targetY= this.baseY;
+        if (this.isPlayerOn) {
+            targetY = this.baseY - this.sinkAmount;
+        }
+        // Use Lerp for smooth animation
+        this.y += (targetY - this.y) * 0.1;
+        this.logGroup.position.y = this.y;
+
         // Update movement delta
         const deltaX = this.x - this.lastX;
         this.movementDelta.set(deltaX, 0, 0);
