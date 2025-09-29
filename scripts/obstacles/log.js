@@ -151,6 +151,31 @@ class Log extends Mesh {
     destroy() {
         super.destroy(); // Handles mesh + bounding box cleanup
     }
+
+    /**
+     * Allows other objects to register a function to be called on a specific event.
+     * @param {string} hookName - The name of the hook (e.g., 'onPlayerEnter').
+     * @param {Function} callback - The function to execute.
+     */
+    registerHook(hookName, callback) {
+        if (this.hooks.hasOwnProperty(hookName)) {
+            this.hooks[hookName] = callback;
+        } else {
+            console.warn(`Attempted to register an unknown hook: ${hookName}`);
+        }
+    }
+
+    /**
+     * Executes a registered hook's callback function.
+     * @param {string} hookName - The name of the hook to trigger.
+     * @param {*} data - Optional data to pass to the callback.
+     */
+    triggerHook(hookName, data) {
+        if (this.hooks[hookName]) {
+            this.hooks[hookName](data);
+        }
+    }
+
 }
 
 export default Log;
