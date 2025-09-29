@@ -29,6 +29,17 @@ class Log extends Mesh {
         this.movementDelta = new THREE.Vector3(0, 0, 0); // Store movement per frame
         this.isMovingPlatform = true; // Flag so player knows this is rideable
 
+        //Hooks
+        this.hooks = {
+            onPlayerEnter: null,
+            onPlayerExit: null
+        };
+        this.isPlayerOn = false;
+
+        // States for animation
+        this.sinkAmount = 0.2;
+        this.baseY = y;
+
         // Begin loading
         this.loadLog();
     }
