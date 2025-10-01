@@ -119,7 +119,7 @@ class Game {
             );
         }
 
-        this.scoreManager.updateScore(this.cameraController.getZPosition());
+        this.scoreManager.updateScore(this.player.gridPosition.z);
 
         // Get nearby obstacles for collision checks
         const nearbyRows = this.terrainGenerator.rows.filter(row => {

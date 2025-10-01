@@ -14,7 +14,7 @@ export class TerrainGenerator {
     constructor(scene) {
         this.scene = scene;
         this.rows = [];
-        this.lastZ = 5; // Init game with positive Z (further from camera)
+        this.lastZ = 0; // Sets the Z pos the generation starts at (Player dynamically set from this)
         this.rowSpacing = CONFIG.ROW_SPACING;
         // Register terrain types with their weightings for procedural generation (Make sure to Normalize values so === 1.0)
         this.terrainTypes = [

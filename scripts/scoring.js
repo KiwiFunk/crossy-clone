@@ -1,5 +1,3 @@
-import { CONFIG } from './config.js';
-
 export default class ScoreManager {
     constructor() {
         this.score = 0;
@@ -14,12 +12,12 @@ export default class ScoreManager {
         this.updateUI();
     }
     
-    updateScore(cameraZ) {
-        // Update score when camera moves to a new furthest Z position
-        // In Three.js, lower Z values = further forward
-        if (cameraZ < this.bestZ) {
-            this.bestZ = cameraZ;
-            this.score = Math.floor(Math.abs(this.bestZ) / (CONFIG.GRID_SIZE/10)); // Adjust grid size
+    updateScore(playerZ) {
+        // Update score when player moves to a new furthest Z position
+        console.log(playerZ);
+        if (playerZ < this.bestZ) {
+            this.bestZ = playerZ;
+            this.score = Math.abs(this.bestZ) * 10;
             
             if (this.score > this.highScore) {
                 this.highScore = this.score;
