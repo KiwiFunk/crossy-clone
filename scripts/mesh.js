@@ -12,6 +12,7 @@ class Mesh {
         // Movement
         this.speed = null;
         this.direction = direction;
+        this.boundary = 10;                     // X position at which to loop back
 
         // Model
         this.mesh = null;
@@ -105,7 +106,7 @@ class Mesh {
         this.updateBoundingBox();
 
         // Looping
-        const boundaryX = 10;
+        const boundaryX = this.boundary;
         if (this.x > boundaryX) this.x = -boundaryX;
         if (this.x < -boundaryX) this.x = boundaryX;
         this.mesh.position.x = this.x;
