@@ -10,6 +10,7 @@ class Train extends Mesh {
         // Global object properties
         this.modelPath = 'assets/train.glb';
         this.type = 'train';
+        this.boundary = this.totalWidth
 
         // Train-specific properties
         this.carriagePath = 'assets/traincarriage.glb';
@@ -26,6 +27,8 @@ class Train extends Mesh {
         // Position the group in the scene
         this.trainGroup.position.set(this.x, this.y, this.z);
         
+
+        this.boundary = this.totalWidth + 10; // Add some buffer to boundary
         this.loadTrain();
     }
 
@@ -43,12 +46,15 @@ class Train extends Mesh {
             if (loadedParts === totalParts) {
                 this.isLoaded = true;
 
+                this.mesh = this.trainGroup; // Inform parent class
+                this.mesh.position.set(this.x, this.y, this.z);
+
                 // Rotate the entire group based on direction
                 if (this.direction === 'right') {
                     this.trainGroup.rotation.y = Math.PI;  
                 }
                 // Add the whole group to scene
-                this.scene.add(this.trainGroup);  
+                this.scene.add(this.mesh);  
                 this.updateBoundingBox();
                 console.log(`Train fully loaded with ${this.trainGroup.children.length} parts`);
             }
@@ -108,38 +114,6 @@ class Train extends Mesh {
         });
         
         return part;
-    }
-
-    update() {
-        if (!this.isLoaded) return;
-        
-        // Move the entire group
-        if (this.direction === 'right') {
-            this.x += this.speed;
-        } else {
-            this.x -= this.speed;
-        }
-        
-        // Update group position
-        this.trainGroup.position.x = this.x;
-        
-        // Update bounding box
-        this.updateBoundingBox();
-        
-        // Loop back when off-screen
-        const boundaryX = 15;
-        if (this.x > boundaryX) {
-            this.x = -boundaryX;
-            this.trainGroup.position.x = this.x;
-        } else if (this.x < -boundaryX) {
-            this.x = boundaryX;
-            this.trainGroup.position.x = this.x;
-        }
-    }
-
-    updateBoundingBox() {
-        if (!this.trainGroup) return;
-        this.boundingBox = new THREE.Box3().setFromObject(this.trainGroup);
     }
 
     destroy() {
