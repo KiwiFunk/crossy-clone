@@ -110,11 +110,16 @@ export default class Player extends Mesh {
     update() {
 
         // If we are on a platform, ride it. 
-        if (this.currentPlatform) {
+        if (this.currentPlatform && !this.isJumping) {
             const delta = this.currentPlatform.getMovementDelta();
             this.mesh.position.add(delta);
             this.gridPosition.x = Math.round(this.mesh.position.x / CONFIG.TILE_SIZE);
-            // attach y delta to mesh - use min/max to set hard stops for hi/lo pos
+
+            // Recalculate y to account for player dimensions
+            const platformHeight = CONFIG.MODEL_DIMENSIONS.LOG.HEIGHT;
+            const platformTopY = this.currentPlatform.y + (platformHeight / 2);
+            const playerTargetY = platformTopY + (this.size / 2);
+            this.mesh.position.y = playerTargetY;
         }
 
         /*
