@@ -174,7 +174,7 @@ export default class Player extends Mesh {
      */
     determineSurface() {
         // Find the current terrain row using zpos
-        const currentRow = terrainGenerator.rows.find(
+        const currentRow = this.terrainGenerator.rows.find(
             row => Math.abs(row.z - this.mesh.position.z) < CONFIG.TILE_SIZE / 2
         );
         if (!currentRow) {
