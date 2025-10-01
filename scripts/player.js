@@ -3,9 +3,10 @@ import * as THREE from 'three';
 import { CONFIG } from './config.js';
 
 export default class Player extends Mesh {
-    constructor(scene) {
+    constructor(scene, terrainGenerator) {
         const startY = CONFIG.PLAYER_SIZE / 2;
         super(scene, 0, startY, 0);
+        this.terrainGenerator = terrianGenerator;
 
         this.size = CONFIG.PLAYER_SIZE;
         this.gridPosition = { x: 0, y: 0, z: 0 };
@@ -173,7 +174,7 @@ export default class Player extends Mesh {
      */
     determineSurface() {
         // Find the current terrain row using zpos
-        const currentRow = window.game.terrainGenerator.rows.find(
+        const currentRow = terrainGenerator.rows.find(
             row => Math.abs(row.z - this.mesh.position.z) < CONFIG.TILE_SIZE / 2
         );
         if (!currentRow) {
