@@ -172,6 +172,9 @@ export default class Player extends Mesh {
         const currentRow = this.terrainGenerator.rows.find(
             row => Math.abs(row.z - this.mesh.position.z) < CONFIG.TILE_SIZE / 2
         );
+
+        return;
+        
         if (!currentRow) {
             console.error("Player Row couldn't be located!")
             return;

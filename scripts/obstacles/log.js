@@ -25,7 +25,7 @@ class Log extends Mesh {
         this.mesh = this.logGroup; // Informs parent class what to track
 
         // Movement tracking
-        this.lastX = this.x; // Store previous X position
+        this.lastPosition = new THREE.Vector3(this.x, this.y, this.z);
         this.movementDelta = new THREE.Vector3(0, 0, 0); // Store movement per frame
         this.isMovingPlatform = true; // Flag so player knows this is rideable
 
@@ -143,9 +143,12 @@ class Log extends Mesh {
         this.logGroup.position.y = this.y;
 
         // Update movement delta
-        const deltaX = this.x - this.lastX;
-        this.movementDelta.set(deltaX, 0, 0);
-        this.lastX = this.x;
+        this.movementDelta.set(
+            this.x - this.lastPosition.x,
+            this.y - this.lastPosition.y,
+            0
+        );
+        this.lastPosition.set(this.x, this.y, this.z);
 
         // Looping (override boundary logic for logs)
         const boundaryX = 15 + this.totalWidth / 2;
