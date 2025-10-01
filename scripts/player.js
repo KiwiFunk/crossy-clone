@@ -4,7 +4,7 @@ import { CONFIG } from './config.js';
 
 export default class Player extends Mesh {
     constructor(scene, terrainGenerator) {
-        const startY = CONFIG.PLAYER_SIZE / 2;
+        const startY = CONFIG.TERRAIN_HEIGHTS.GRASS + (CONFIG.PLAYER_SIZE / 2);
         super(scene, 0, startY, 0);
         this.terrainGenerator = terrainGenerator;
 
