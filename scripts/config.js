@@ -19,6 +19,9 @@ export const CONFIG = {
         RIVER: 0.01,                   // River: 1cm high
     },
 
+    // Mesh settings
+    BBOX_PADDING: 0.025,                  // Padding for bounding boxes (in meters)
+
     // Player settings
     PLAYER_SIZE: 0.8,
     PLAYER_JUMP_HEIGHT: 1.5,

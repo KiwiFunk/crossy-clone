@@ -23,9 +23,10 @@ class Mesh {
         // Physics
         this.boundingBox = new THREE.Box3();
         this.boundingBoxSet = false;
+        this.boundingBoxPadding = CONFIG.BBOX_PADDING;
 
         // Debug
-        this.debugBoundingBox = false;
+        this.debugBoundingBox = true;
         this.boundingBoxHelper = null;
 
         // Misc
@@ -114,6 +115,8 @@ class Mesh {
         if (!this.mesh) return;
 
         this.boundingBox.setFromObject(this.mesh);
+        // Add padding
+        this.boundingBox.expandByScalar(this.boundingBoxPadding);
         this.boundingBoxSet = true;
 
         if (this.debugBoundingBox) {
