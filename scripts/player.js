@@ -53,7 +53,9 @@ export default class Player extends Mesh {
             this.gridPosition.z * CONFIG.TILE_SIZE
         );
 
+        // Callbacks for jumpAnimation
         this.jumpAnimation(() => {
+            this.determineSurface();
             this.isMoving = false;
         });
 
@@ -162,6 +164,40 @@ export default class Player extends Mesh {
 
         // No collision, return false
         return false;
+    }
+
+    /**
+     * Determine surface the player is currently standing on.
+     * Used to update y pos and vertical state.
+     * Since Bounding Boxes will intersect before jump animation has finished, currentPlatform *should* always be available
+     */
+    determineSurface() {
+        // Find the current terrain row using zpos
+        const currentRow = window.game.terrainGenerator.rows.find(
+            row => Math.abs(row.z - this.mesh.position.z) < CONFIG.TILE_SIZE / 2
+        );
+        if (!currentRow) {
+            console.error("Player Row couldn't be located!")
+            return;
+        }
+
+        // Default to being on the ground at current row
+        this.verticalState = 'ON_GROUND';
+        this.currentSurface = currentRow;
+
+        // If we're on a platform, find the top of the surface and set ypos of player
+        if (currentPlatform) {
+            const obstacleTop = currentPlatform.mesh.position.y + (currentPlatform.size.y / 2);
+            this.targetPosition.y = obstacleTop + (this.size / 2);
+            this.verticalState = 'ON_PLATFORM';
+            this.currentSurface = currentPlatform;
+        }
+        else {
+            // On ground, find type of currentRow then look up height in CONFIG
+            const y = this.currentRow.getTerrainHeight();
+            this.targetPosition.y = y;
+        }
+
     }
 
     resetPlayerPosition() {
