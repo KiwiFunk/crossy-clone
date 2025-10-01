@@ -187,16 +187,18 @@ export default class Player extends Mesh {
         this.currentSurface = currentRow;
 
         // If we're on a platform, find the top of the surface and set ypos of player
-        if (currentPlatform) {
-            const obstacleTop = currentPlatform.mesh.position.y + (currentPlatform.size.y / 2);
+        if (this.currentPlatform) {
+            const platformHeight = CONFIG.MODEL_DIMENSIONS[this.currentPlatform.type.toUpperCase()].HEIGHT;
+            const obstacleTop = this.currentPlatform.y + (platformHeight / 2);
+            
             this.targetPosition.y = obstacleTop + (this.size / 2);
             this.verticalState = 'ON_PLATFORM';
-            this.currentSurface = currentPlatform;
+            this.currentSurface = this.currentPlatform;
         }
         else {
             // On ground, find type of currentRow then look up height in CONFIG
-            const y = this.currentRow.getTerrainHeight();
-            this.targetPosition.y = y;
+            const terrainTopY = currentRow.getTerrainHeight();
+            this.targetPosition.y = terrainTopY + (this.size / 2);
         }
 
     }
