@@ -4,7 +4,7 @@ import { CONFIG } from './config.js';
 
 export default class Player extends Mesh {
     constructor(scene, terrainGenerator) {
-        const startY = CONFIG.TERRAIN_HEIGHTS.GRASS + (CONFIG.PLAYER_SIZE / 2);
+        const startY = CONFIG.PLAYER_SIZE / 2;
         super(scene, 0, startY, 0);
         this.terrainGenerator = terrainGenerator;
 
@@ -102,6 +102,14 @@ export default class Player extends Mesh {
     }
 
     update() {
+
+        // If we are on a platform, ride it. 
+        if (this.currentPlatform) {
+            const delta = this.currentPlatform.getMovementDelta();
+            this.mesh.position.add(delta);
+            this.gridPosition.x = Math.round(this.mesh.position.x / CONFIG.TILE_SIZE);
+        }
+
         if (!this.isJumping) {
             this.mesh.position.y = this.targetPosition.y +
                 Math.sin(Date.now() / 500) * 0.05;
@@ -112,7 +120,7 @@ export default class Player extends Mesh {
 
     /**
      * Check for collisions with obstacles using AABB.
-     * If the obstacle is flagged as a platform, ride it, else return a boolean.
+     * If the obstacle is flagged as a platform, set currentPlatform. Else Game over.
      * Called from the main game.js update loop
      * @param {*} obstacles 
      * @returns {boolean} True if collision detected, else false
@@ -126,19 +134,11 @@ export default class Player extends Mesh {
 
             if (this.boundingBox.intersectsBox(obstacle.boundingBox)) {
 
-                // If the intersecting obstacle has the isMovingPlatform flag, ride it
+                // If the intersecting obstacle has the isMovingPlatform flag, set platformThisFrame
                 if (obstacle.isMovingPlatform && typeof obstacle.getMovementDelta === 'function') {
-
-                    // Set this platform as the current platform
                     platformThisFrame = obstacle;
-
-                    // Ride the platform
-                    const delta = obstacle.getMovementDelta();
-                    this.mesh.position.add(delta);
-                    this.updateBoundingBox();
-                    this.gridPosition.x = Math.round(this.mesh.position.x / CONFIG.TILE_SIZE);
                 } else {
-                    // Trigger game over
+                    // Else trigger a game over
                     console.log("Game Over: collided with obstacle");
                     return true;
                 }
