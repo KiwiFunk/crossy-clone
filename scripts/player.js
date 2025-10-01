@@ -11,11 +11,13 @@ export default class Player extends Mesh {
         this.gridPosition = { x: 0, y: 0, z: 0 };
         this.targetPosition = new THREE.Vector3(0, startY, 0);
 
-        // State
+        // State Tracking
         this.isMoving = false;
         this.isJumping = false;
+        this.verticalState = 'ON_GROUND';   // 'ON_GROUND'. 'ON_PLATFORM', 'JUMPING'
+        this.currentSurface = null;
         this.lastPosition = { ...this.gridPosition };
-        this.currentPlatform = null;    // Track current platform 
+        this.currentPlatform = null;        // Track current platform 
 
         // Create player mesh
         this.createMesh();
