@@ -50,23 +50,32 @@ export default class Player extends Mesh {
 
         this.targetPosition.set(
             this.gridPosition.x * CONFIG.TILE_SIZE,
-            this.targetPosition.y,
+            this._yPosCalc(this.gridPosition.z * CONFIG.TILE_SIZE),
             this.gridPosition.z * CONFIG.TILE_SIZE
         );
 
         // Callbacks for jumpAnimation
-        this.jumpAnimation(() => {
-            this.determineSurface();
+        this.jump(() => {
             this.isMoving = false;
         });
-
-        return {
-            previousPosition: { ...this.lastPosition },
-            newPosition: { ...this.gridPosition }
-        };
     }
 
-    jumpAnimation(callback) {
+    _yPosCalc(zPos) {
+        const targetRow = this.terrainGenerator.rows.find(
+            row => Math.abs(row.z - zPos) < CONFIG.TILE_SIZE / 2
+        );
+
+        if (!targetRow) {
+            console.error("Player Row couldn't be located!");
+            return this.targetPosition.y; // No change
+        }
+
+        const terrainY = targetRow.getTerrainHeight();
+        return terrainY + CONFIG.PLAYER_SIZE / 2;
+    }
+
+    // Uses gridPostion and targetPosition to animate a jump arc and actually update the mesh xyz
+    jump(callback) {
         const jumpHeight = this.size * CONFIG.PLAYER_JUMP_HEIGHT;
         const jumpDuration = CONFIG.PLAYER_MOVE_SPEED;
         const startTime = Date.now();
@@ -81,9 +90,11 @@ export default class Player extends Mesh {
             this.mesh.position.x = startPos.x + (target.x - startPos.x) * progress;
             this.mesh.position.z = startPos.z + (target.z - startPos.z) * progress;
 
-            this.mesh.position.y = progress <= 0.5
-                ? startY + jumpHeight * (progress * 2)
-                : startY + jumpHeight * (2 - progress * 2);
+            // Calculate the Y position as an interpolation between start and end,
+            // plus a visual arc on top. This correctly handles jumps between different elevations.
+            const groundY = startPos.y + (target.y - startPos.y) * progress;
+            const jumpArc = Math.sin(progress * Math.PI) * jumpHeight;
+            this.mesh.position.y = groundY + jumpArc;
 
             if (progress < 1) {
                 requestAnimationFrame(animate);
@@ -103,12 +114,15 @@ export default class Player extends Mesh {
             const delta = this.currentPlatform.getMovementDelta();
             this.mesh.position.add(delta);
             this.gridPosition.x = Math.round(this.mesh.position.x / CONFIG.TILE_SIZE);
+            // attach y delta to mesh - use min/max to set hard stops for hi/lo pos
         }
 
+        /*
         if (!this.isJumping) {
             this.mesh.position.y = this.targetPosition.y +
                 Math.sin(Date.now() / 500) * 0.05;
         }
+        */
 
         this.updateBoundingBox();
     }
@@ -160,45 +174,6 @@ export default class Player extends Mesh {
 
         // No collision, return false
         return false;
-    }
-
-    /**
-     * Determine surface the player is currently standing on.
-     * Used to update y pos and vertical state.
-     * Since Bounding Boxes will intersect before jump animation has finished, currentPlatform *should* always be available
-     */
-    determineSurface() {
-        // Find the current terrain row using zpos
-        const currentRow = this.terrainGenerator.rows.find(
-            row => Math.abs(row.z - this.mesh.position.z) < CONFIG.TILE_SIZE / 2
-        );
-
-        return;
-        
-        if (!currentRow) {
-            console.error("Player Row couldn't be located!")
-            return;
-        }
-
-        // Default to being on the ground at current row
-        this.verticalState = 'ON_GROUND';
-        this.currentSurface = currentRow;
-
-        // If we're on a platform, find the top of the surface and set ypos of player
-        if (this.currentPlatform) {
-            const platformHeight = CONFIG.MODEL_DIMENSIONS[this.currentPlatform.type.toUpperCase()].HEIGHT;
-            const obstacleTop = this.currentPlatform.y + (platformHeight / 2);
-            
-            this.targetPosition.y = obstacleTop + (this.size / 2);
-            this.verticalState = 'ON_PLATFORM';
-            this.currentSurface = this.currentPlatform;
-        }
-        else {
-            // On ground, find type of currentRow then look up height in CONFIG
-            const terrainTopY = currentRow.getTerrainHeight();
-            this.targetPosition.y = terrainTopY + (this.size / 2);
-        }
-
     }
 
     resetPlayerPosition() {
