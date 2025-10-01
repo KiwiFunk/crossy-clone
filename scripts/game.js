@@ -14,8 +14,6 @@ class Game {
         this.setupGameElements();
         this.setupEventListeners();
         this.animate();
-
-        window.game = this; // Global access
     }
 
     setupThreeJS() {
