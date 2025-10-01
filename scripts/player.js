@@ -122,12 +122,10 @@ export default class Player extends Mesh {
             this.mesh.position.y = playerTargetY;
         }
 
-        /*
         if (!this.isJumping) {
             this.mesh.position.y = this.targetPosition.y +
                 Math.sin(Date.now() / 500) * 0.05;
         }
-        */
 
         this.updateBoundingBox();
     }
