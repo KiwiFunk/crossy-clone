@@ -68,11 +68,11 @@ class Game {
     setupGameElements() {
         this.threeCamera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 200);
 
-        this.player = new Player(this.scene);
-        this.inputHandler = new InputHandler(this.player);
-
         this.terrainGenerator = new TerrainGenerator(this.scene);
         this.terrainGenerator.generateInitialTerrain();
+
+        this.player = new Player(this.scene, this.terrainGenerator);
+        this.inputHandler = new InputHandler(this.player);
 
         const firstRow = this.terrainGenerator.rows[0];
         if (firstRow) {
