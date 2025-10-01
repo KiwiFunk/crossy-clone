@@ -74,7 +74,7 @@ class Game {
 
         const firstRow = this.terrainGenerator.rows[0];
         if (firstRow) {
-            this.player.mesh.position.set(0, this.player.targetPosition.y, firstRow.z);
+            this.player.mesh.position.set(this.player.targetPosition.x, this.player.targetPosition.y, firstRow.z);
             this.player.gridPosition.z = Math.round(firstRow.z / CONFIG.TILE_SIZE);
         }
 

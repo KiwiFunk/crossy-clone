@@ -117,7 +117,7 @@ export class TerrainRow {
         
         // Calculate the total width and starting X position
         const totalWidth = CONFIG.ROW_WIDTH_IN_TILES * tileWidth; // 20m
-        const startX = -totalWidth / 2; // Center the row at x=0
+        const startX = -totalWidth / 2; // Center the rows at x=0
         
         // Create individual tiles
         for (let i = 0; i < CONFIG.ROW_WIDTH_IN_TILES; i++) {

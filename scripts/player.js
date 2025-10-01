@@ -5,12 +5,14 @@ import { CONFIG } from './config.js';
 export default class Player extends Mesh {
     constructor(scene, terrainGenerator) {
         const startY = CONFIG.TERRAIN_HEIGHTS.GRASS + CONFIG.PLAYER_SIZE / 2;
-        super(scene, 0, startY, 0);
+        const startX = CONFIG.TILE_SIZE / 2;
+        super(scene, startX, startY, 0);
         this.terrainGenerator = terrainGenerator;
 
         this.size = CONFIG.PLAYER_SIZE;
         this.gridPosition = { x: 0, y: 0, z: 0 };
-        this.targetPosition = new THREE.Vector3(0, startY, 0);
+        // Game.js overrides initial pos values with targetPosition
+        this.targetPosition = new THREE.Vector3(startX, startY, 0);
 
         // State Tracking
         this.isMoving = false;
@@ -49,7 +51,7 @@ export default class Player extends Mesh {
         }
 
         this.targetPosition.set(
-            this.gridPosition.x * CONFIG.TILE_SIZE,
+            this.gridPosition.x * CONFIG.TILE_SIZE + CONFIG.TILE_SIZE / 2,
             this._yPosCalc(this.gridPosition.z * CONFIG.TILE_SIZE),
             this.gridPosition.z * CONFIG.TILE_SIZE
         );
@@ -71,6 +73,7 @@ export default class Player extends Mesh {
         }
 
         const terrainY = targetRow.getTerrainHeight();
+
         return terrainY + CONFIG.PLAYER_SIZE / 2;
     }
 
