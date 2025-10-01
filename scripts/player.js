@@ -6,7 +6,7 @@ export default class Player extends Mesh {
     constructor(scene, terrainGenerator) {
         const startY = CONFIG.PLAYER_SIZE / 2;
         super(scene, 0, startY, 0);
-        this.terrainGenerator = terrianGenerator;
+        this.terrainGenerator = terrainGenerator;
 
         this.size = CONFIG.PLAYER_SIZE;
         this.gridPosition = { x: 0, y: 0, z: 0 };
