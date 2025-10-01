@@ -85,11 +85,6 @@ export default class Player extends Mesh {
                 ? startY + jumpHeight * (progress * 2)
                 : startY + jumpHeight * (2 - progress * 2);
 
-            this.mesh.rotation.y = Math.atan2(
-                target.x - startPos.x,
-                target.z - startPos.z
-            );
-
             if (progress < 1) {
                 requestAnimationFrame(animate);
             } else {
