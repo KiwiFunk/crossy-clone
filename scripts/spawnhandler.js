@@ -44,7 +44,7 @@ export class SpawnManager {
         // Calculate the speed for this row using ranges defined in CONFIG, with a difficulty modifier based of Z value
         let finalSpeed = null;
         if (this.options.isMoving) {
-            const speeds = CONFIG.MODEL_SPEEDS[this.EntityClass.name.toUpperCase()];
+            const speeds = CONFIG.MODEL_SPEEDS[this.EntityClass.entityType];
             const baseSpeed = Math.random() * (speeds.MAX - speeds.MIN) + speeds.MIN;
             const difficultyModifier = Math.abs(this.row) / 10000;
             finalSpeed = baseSpeed + difficultyModifier;

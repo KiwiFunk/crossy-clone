@@ -3,6 +3,9 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { CONFIG } from './config.js';
 
 class Mesh {
+
+    static entityType = 'MESH'; // Prevent errors with minification by defining type as static property
+
     constructor(scene, x, y, z, direction = 'left') {
         this.scene = scene;
         this.x = x;
@@ -32,7 +35,6 @@ class Mesh {
 
         // Misc
         this.static = false;
-        this.type = 'obstacle';
         this.sound = null;
 
         this._isDestroyed = false;

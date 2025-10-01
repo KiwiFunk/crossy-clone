@@ -4,12 +4,14 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { CONFIG } from '../config.js';
 
 class Train extends Mesh {
+
+    static entityType = 'TRAIN';
+
     constructor(scene, x, y, z) {
         super(scene, x, y, z);
 
         // Global object properties
         this.modelPath = 'assets/train.glb';
-        this.type = 'train';
         this.boundary = this.totalWidth
 
         // Train-specific properties

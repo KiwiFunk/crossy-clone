@@ -2,10 +2,12 @@ import Mesh from '../mesh.js';
 import { CONFIG } from '../config.js';
 
 class Truck extends Mesh {
+
+    static entityType = 'TRUCK';
+
     constructor(scene, x, y, z) {
         super(scene, x, y, z);
         this.modelPath = 'assets/truck.glb';
-        this.type = 'truck';
         this.totalWidth = CONFIG.MODEL_DIMENSIONS.TRUCK.WIDTH;
 
         this.loadModel();

@@ -4,13 +4,15 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { CONFIG } from '../config.js';
 
 class Log extends Mesh {
+
+    static entityType = 'LOG';
+
     constructor(scene, x, y, z) {
         super(scene, x, y, z);
 
         // Core properties
         this.modelPath = 'assets/log.glb';
         this.endCapPath = 'assets/logend.glb';
-        this.type = 'log';
 
         // Log dimensions
         const dims = CONFIG.MODEL_DIMENSIONS.LOG;
