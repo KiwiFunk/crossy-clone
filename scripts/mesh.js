@@ -26,7 +26,7 @@ class Mesh {
         this.boundingBoxPadding = CONFIG.BBOX_PADDING;
 
         // Debug
-        this.debugBoundingBox = true;
+        this.debugBoundingBox = false;
         this.boundingBoxHelper = null;
 
         // Misc

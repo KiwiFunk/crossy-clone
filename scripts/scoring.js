@@ -14,7 +14,6 @@ export default class ScoreManager {
     
     updateScore(playerZ) {
         // Update score when player moves to a new furthest Z position
-        console.log(playerZ);
         if (playerZ < this.bestZ) {
             this.bestZ = playerZ;
             this.score = Math.abs(this.bestZ) * 10;
