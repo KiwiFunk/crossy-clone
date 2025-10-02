@@ -77,30 +77,30 @@ export default class InputHandler {
     }
 
     // Functions for handling input actions
-
     handleInput() {
-        const now = Date.now();
-        if (now - this.lastMoveTime < this.moveDelay) return;
-        
         if (this.keys['ArrowUp'] || this.keys['w'] || this.keys['W']) {
-            console.log("Moving forward");
             this.handleDirection('forward');
         } else if (this.keys['ArrowDown'] || this.keys['s'] || this.keys['S']) {
-            console.log("Moving backward");
             this.handleDirection('backward');
         } else if (this.keys['ArrowLeft'] || this.keys['a'] || this.keys['A']) {
-            console.log("Moving left");
             this.handleDirection('left');
         } else if (this.keys['ArrowRight'] || this.keys['d'] || this.keys['D']) {
-            console.log("Moving right");
             this.handleDirection('right');
         }
     }
 
     handleDirection(direction) {
+        const now = Date.now();
+        if (now - this.lastMoveTime < this.moveDelay) {
+            return; // Cooldown is active, do nothing.
+        }
+
+        // Check the player's animation state as a fallback.
         if (this.player && !this.player.isMoving) {
             this.player.move(direction);
-            this.lastMoveTime = Date.now();
+            
+            // Reset the cooldown timer.
+            this.lastMoveTime = now;
         }
     }
 
