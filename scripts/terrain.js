@@ -31,6 +31,18 @@ export class TerrainGenerator {
     // Create the initial terrain on game start
     generateInitialTerrain() {
 
+        // Create backstop behind player start
+        // Directly call TerrainRow to avoid affecting procedural system
+        const backstopDepth = 10;
+        for (let z = 1; z <= backstopDepth; z++) {
+
+            let row = null;
+            if (z >= (backstopDepth / 2)) row = new TerrainRow(this.scene, z, 'river');
+            else row = new TerrainRow(this.scene, z, 'grass');
+
+            this.rows.push(row);
+        }
+
         // Use safe zone value to create initial grass rows
         for (let i = 0; i < this.safeZone; i++) {
             this.generateTerrainRow('grass');
