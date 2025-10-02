@@ -14,6 +14,7 @@ export const CONFIG = {
     // Terrain heights (in meters) - models will define their own heights
     TERRAIN_HEIGHTS: {
         GRASS: 0.30,                   // Grass: 30cm high
+        TREES: 0.30,                   // Trees: 30cm high  
         ROAD: 0.18,                    // Road: 18cm high
         RAIL: 0.12,                    // Rail: 12cm high
         RIVER: 0.01,                   // River: 1cm high

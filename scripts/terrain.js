@@ -167,7 +167,7 @@ export class TerrainRow {
             case 'river': return CONFIG.COLORS.RIVER;
             case 'grass': 
                 return this.z % 2 === 0 ? CONFIG.COLORS.GRASS_A : CONFIG.COLORS.GRASS_B;
-            default: return CONFIG.COLORS.GRASS_A;
+            default: return CONFIG.COLORS.GRASS_B;
         }
     }
 
@@ -297,6 +297,27 @@ export class TerrainRow {
                 
                 const trees = treeManager.spawn();
                 this.obstacles.push(...trees);
+                break;
+
+            case 'trees':
+                const treeFillManager = new SpawnManager(
+                    this.scene,
+                    Tree,
+                    CONFIG.ROW_WIDTH_IN_TILES,
+                    1.0,            // Fill with Trees to block player
+                    this.z,
+                    this.type,
+                    { 
+                        isMoving: false,
+                        avoidCenter: false,
+                        centerClearance: 3,
+                        heightOffset: 0,
+                        minSpacing: 0,          // No Spacing
+                    }
+                );
+
+                const treeFill = treeFillManager.spawn();
+                this.obstacles.push(...treeFill);
                 break;
         }
     }
