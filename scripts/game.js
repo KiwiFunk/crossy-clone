@@ -43,13 +43,13 @@ class Game {
         this.directionalLight.shadow.mapSize.set(2048, 2048);
 
         // Set up shadow Cam properties
-        const shadowCamSize = 10;
+        const shadowCamSize = 15;
         this.directionalLight.shadow.camera.left = -shadowCamSize;
         this.directionalLight.shadow.camera.right = shadowCamSize;
         this.directionalLight.shadow.camera.top = shadowCamSize;
         this.directionalLight.shadow.camera.bottom = -shadowCamSize;
         this.directionalLight.shadow.camera.near = 0.5;
-        this.directionalLight.shadow.camera.far = 25; // Adjust as needed
+        this.directionalLight.shadow.camera.far = 30; // Adjust as needed
 
         this.scene.add(this.directionalLight);
 
