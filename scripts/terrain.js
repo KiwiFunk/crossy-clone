@@ -32,12 +32,12 @@ export class TerrainGenerator {
     generateInitialTerrain() {
 
         // Create backstop behind player start
-        // Directly call TerrainRow to avoid affecting procedural system
+        // Directly call TerrainRow to avoid affecting procedural
         const backstopDepth = 10;
         for (let z = 1; z <= backstopDepth; z++) {
 
             let row = null;
-            if (z >= (backstopDepth / 2)) row = new TerrainRow(this.scene, z, 'river');
+            if (z >= (backstopDepth / 2)) row = new TerrainRow(this.scene, z, 'trees');
             else row = new TerrainRow(this.scene, z, 'grass');
 
             this.rows.push(row);
