@@ -15,6 +15,7 @@ export class SpawnManager {
             heightOffset: 0.01,
             isMoving: true,
             variance: true,
+            varianceAmount: 0.15, // Percentage of TILE_SIZE for max variance
             fallbackStrategy: 'warn', // 'destroy', 'force', 'warn'
             biasStrength: 1.0,
             ...options
@@ -176,7 +177,7 @@ export class SpawnManager {
             if (rand <= cumulative) {
                 let finalX = pos.x;
                 if (this.options.variance) {
-                    const maxVariance = Math.min(0.1, tileSize * 0.05);
+                    const maxVariance = tileSize * this.options.varianceAmount;
                     finalX += (Math.random() - 0.5) * maxVariance * 2;
                 }
                 return { x: finalX, tileIndex: pos.tileIndex };
