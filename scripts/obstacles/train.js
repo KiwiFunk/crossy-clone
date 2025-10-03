@@ -19,7 +19,7 @@ class Train extends Mesh {
         this.trainGroup = new THREE.Group(); 
         this.partOffsets = [];              // Track each part's offset
         this.carriageSpacing = 2.8;
-        this.numCarriages = Math.floor(Math.random() * 3) + 2; // 2 to 4 carriages
+        this.numCarriages = Math.floor(Math.random() * 4) + 2; // 2 to 5 carriages
 
         // Handle model dimensions
         this.trainWidth = CONFIG.MODEL_DIMENSIONS.TRAIN.TRAIN_WIDTH;
