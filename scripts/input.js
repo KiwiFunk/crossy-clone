@@ -108,4 +108,12 @@ export default class InputHandler {
         // Check for continuous input (keyboard)
         this.handleInput();
     }
+
+    // Remove all event listeners this class created
+    destroy() {
+        document.removeEventListener('keydown', this.onKeyDown);
+        document.removeEventListener('keyup', this.onKeyUp);
+        window.removeEventListener('touchstart', this.onTouchStart);
+        window.removeEventListener('touchend', this.onTouchEnd);
+    }
 }
