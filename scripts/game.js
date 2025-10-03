@@ -92,6 +92,10 @@ class Game {
         this.renderer.setSize(window.innerWidth, window.innerHeight);
     }
 
+    gameOver() {
+        console.log("Game Over!");
+    }
+
     update() {
         this.inputHandler.update();
         this.player.update();
@@ -131,7 +135,7 @@ class Game {
         // Check for collisions with obstacles using AABB
         const collided = this.player.checkCollisions(nearbyObstacles);
         if (collided) {
-            // Handle game over/game state change here
+            this.gameOver();
         }
     }
 
