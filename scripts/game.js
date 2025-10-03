@@ -14,6 +14,7 @@ class Game {
         this.setupGameElements();
         this.setupEventListeners();
         this.animate();
+        this.isDestroyed = false;
     }
 
     setupThreeJS() {
@@ -94,6 +95,10 @@ class Game {
 
     gameOver() {
         console.log("Game Over!");
+        this.destroy();
+
+        // Call global method to start a new game instance.
+        startGame();
     }
 
     update() {
@@ -140,6 +145,9 @@ class Game {
     }
 
     animate() {
+        // Stop the loop if this instance has been terminated
+        if (this.isDestroyed) return
+
         requestAnimationFrame(() => this.animate());
         this.update();
         this.renderer.render(this.scene, this.threeCamera);
@@ -162,9 +170,24 @@ class Game {
     }
 }
 
-window.addEventListener('load', () => {
-    const game = new Game();
-});
+// Hold Current Game instance
+let currentGame;
+
+// Start a game instance
+function startGame() {
+
+    if (currentGame) {
+        currentGame.destroy();
+    }
+
+    currentGame = new Game();
+}
+
+// Run startGame on page load
+window.addEventListener('load', startGame);
+
+
+// --- UTILITY FUNCTIONS ---
 
 const calculateMeshSizes = false;
 
