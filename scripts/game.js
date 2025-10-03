@@ -144,6 +144,22 @@ class Game {
         this.update();
         this.renderer.render(this.scene, this.threeCamera);
     }
+
+    destroy() {
+        this.isDestroyed = true;
+
+        // Clean up event listeners (Memory Leaks Bad)
+        window.removeEventListener('resize', this.onWindowResize);
+        this.inputHandler.destroy();
+
+        // Clean up Three.js objects
+        this.terrainGenerator.rows.forEach(row => row.destroy());
+        this.scene.clear();
+
+        // Clean up the renderer
+        this.renderer.dispose();
+        this.renderer.domElement.remove();
+    }
 }
 
 window.addEventListener('load', () => {
